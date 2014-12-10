@@ -57,7 +57,7 @@ Now, run it with the executable file which is compiled just now:
     ../src/Main/Ivory hellooo.ivy
 
 hello, world!<br/>
-**NOTE:** More details will be  in *IVORY_BOOK**=
+**NOTE:** More details will be  in *IVORY_BOOK*
 
 <br/><br/>
 ##Special Thanks
