@@ -1,6 +1,5 @@
 //----->test<-----
 using Ivory.IO;
-using test.System_tests.func_test;
 const glue = "\t";
 const cd = 3.14l;
 const obj = (object)"123";
@@ -21,7 +20,6 @@ void RUNNING_BLOCK1()
 	Arrow a = new Arrow(110, "hello, world!");
 	object[] os = { (object)a, (object)a };
 	os.add((object)a);
-println("hi");
 	println("BLOCK1" + glue + ((Arrow)os[0]).i + glue + ((Arrow)os[0]).str);
 	//println(j.size());
 }
@@ -153,7 +151,7 @@ void RUNNING_BLOCK6()
 void RUNNING_BLOCK7(int i)
 {
 	i += 10;
-	println(i);
+	println("BLOCK7" + glue + i);
 }
 
 println("-->test start<--\n");
@@ -165,12 +163,11 @@ RUNNING_BLOCK3();
 RUNNING_BLOCK4();
 RUNNING_BLOCK5();
 RUNNING_BLOCK6();
-int k = 1;
+int k = 10;
 RUNNING_BLOCK7(k);
-println(k);
 
 //println(plus1(2213213));
 
 println("\n-->test end<--");
 print("press enter to exit...\n");
-//gets();
+gets();
