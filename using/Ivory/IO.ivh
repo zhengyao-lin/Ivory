@@ -1,0 +1,5 @@
+/* Ivory.IO package 
+ * provide some function for I/O stream controlling
+ */
+string gets();
+int puts(string str);

@@ -1,0 +1,13 @@
+using Ivory.lang;
+
+class Hoge {
+    void m() {
+	int x = 10;
+	int y = 20;
+	println("x.." + x + ", y.." + y);
+    }
+}
+
+Hoge hoge = new Hoge();
+
+hoge.m();

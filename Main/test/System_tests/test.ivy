@@ -1,0 +1,176 @@
+//----->test<-----
+using Ivory.IO;
+using test.System_tests.func_test;
+const glue = "\t";
+const cd = 3.14l;
+const obj = (object)"123";
+
+public class Arrow
+{
+	public int i;
+	public string str;
+	public constructor initialize (int ii, string stri)
+	{
+		this.i = ii;
+		this.str = stri;
+	}
+}
+
+void RUNNING_BLOCK1()
+{
+	Arrow a = new Arrow(110, "hello, world!");
+	object[] os = { (object)a, (object)a };
+	os.add((object)a);
+println("hi");
+	println("BLOCK1" + glue + ((Arrow)os[0]).i + glue + ((Arrow)os[0]).str);
+	//println(j.size());
+}
+
+delegate int func(int i, int j);
+int func1(int i, int j) {
+	return i + j * i - j + i * i + j * j + ((j - i) - j * j) * (i - j);
+}
+
+void RUNNING_BLOCK2()
+{
+	func f1 = func1;
+	object o1 = f1;
+
+	func f2 = (func)o1;
+	int i = f2(1, 100);
+    println("BLOCK2" + glue + i);
+}
+
+void RUNNING_BLOCK3()
+{
+    var orig = { 3.1415l, 2.7182, 0.61803 };
+	int[] i = { (int)orig[0], (int)orig[1], (int)orig[2] };
+    double[] d = { (double)i[0], (double)i[1], (double)i[2] };
+    string[] str = { (string)(int)d[0], (string)(int)d[1], (string)(int)d[2] };
+    object[] o = { (object)(double)i[0], (object)(double)i[1], (object)(double)i[2] };
+    println("BLOCK3" + glue + orig[0] + glue + i[1] + glue + d[2] + glue + str[1] + glue + (string)(double)o[0]);
+}
+
+void RUNNING_BLOCK4()
+{
+    long double[] ld = { 0x13l, 0.00, 40.1 - 0.1, (1l / 20) * 20, 400 };
+	ld[0] = ld[0] % 20 + 1;
+	ld[1] = ld[1] + 20;
+	ld[2] = ld[2] - 20;
+	ld[3] = ld[3] * 20;
+	ld[4] = ld[4] / 20;
+    //object pi = ld;
+    //long double[] rec = (long double[])pi;
+    //long double = 3.14l;
+
+    print("BLOCK4");// + ld[0] + "->" + ld[1] + "->" + cd
+
+	int i;
+
+	for (i = 0; i < ld.size(); i++) {
+		print(glue + (long double)ld[i]);
+	}
+	println("");
+	/*if (true)
+	{
+		if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {goto me;
+        }}}}}}}}
+	}*/
+	//var v = new Arrow(33, "hi");
+	//println(v.str);
+	//object o = "40";
+	//println((string)obj);
+}
+
+void RUNNING_BLOCK5()
+{
+	print("BLOCK5" + glue);
+	if (1 == 1):
+	if (2 == 2):
+	if (3 == 3):
+		print("Yes!" + glue);
+
+	var i = 0;
+[me]
+	i += 1;
+	switch(i) {
+		case 1: {
+			[he]
+			print(i + glue);
+			goto me;
+		}
+		case 2:
+			[she]
+			print(i + glue);
+			goto he;
+		case 3:
+			[it]
+			print(i + glue);
+			goto she;
+		case 4:
+			print(i + glue);
+			goto it;
+		default:0;
+	}
+	goto in_false;
+	if (false)
+	{
+		[in_false]
+		print("it's false!");
+	}
+	println("");
+}
+
+object multi_params(object[] argv)
+{
+	print(argv.size());
+	print(glue + (string)argv[0]);
+	print(glue + (long double)argv[1]);
+	print(glue + (int)argv[2]);
+
+	argv.add((object)"me!");
+	print(glue + (string)argv[3]);
+
+	return 129;
+}
+
+void RUNNING_BLOCK6()
+{
+	var i = 3;
+
+	var iarray = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+
+	//content
+	var hello = "hello, world!";
+	var pi = 3.141592654;
+	var sp = 2;
+
+	print("BLOCK6" + glue);
+
+	println(glue + (double)(int)(multi_params({(object)hello, pi, sp})));
+}
+
+void RUNNING_BLOCK7(int i)
+{
+	i += 10;
+	println(i);
+}
+
+println("-->test start<--\n");
+
+/* RUNNING... */
+RUNNING_BLOCK1();
+RUNNING_BLOCK2();
+RUNNING_BLOCK3();
+RUNNING_BLOCK4();
+RUNNING_BLOCK5();
+RUNNING_BLOCK6();
+int k = 1;
+RUNNING_BLOCK7(k);
+println(k);
+
+//println(plus1(2213213));
+
+println("\n-->test end<--");
+print("press enter to exit...\n");
+//gets();

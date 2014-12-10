@@ -1,0 +1,7 @@
+/* Ivory.System package 
+ * ported from stdlib.h
+ */
+void abort();
+void exit(int status);
+int system(string s);
+string getenv(string name);

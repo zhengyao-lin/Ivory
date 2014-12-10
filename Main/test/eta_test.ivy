@@ -1,0 +1,12 @@
+/*
+ *result:
+ *real	0m5.582s
+ *user	0m1.603s
+ *sys	0m1.964s
+ */
+using Ivory.IO;
+int i = 0;
+while (i <= 1000000) {
+    puts(i);
+    i += 1;
+}

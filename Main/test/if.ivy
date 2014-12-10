@@ -1,0 +1,13 @@
+using Ivory.lang;
+
+int a = 10;
+int b;
+if (a > 5) {
+    b = 20;
+    println("<1>b.." + b);
+} else {
+    b = 30;
+    println("<2>b.." + b);
+}
+
+println("<3>b.." + b);

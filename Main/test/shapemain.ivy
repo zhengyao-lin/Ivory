@@ -1,0 +1,7 @@
+using shape;
+
+Shape s = new Line(10, 10, 20, 20);
+Line l = new Line(10, 10, 20, 20);
+
+s.draw();
+s.print();
