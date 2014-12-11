@@ -1,0 +1,10 @@
+#object file & backup file
+*.o
+*~
+
+src/ICompiler/builtin/builtin_conv
+src/ICompiler/lex.yy.c
+src/ICompiler/y.tab.c
+src/ICompiler/y.tab.h
+src/ICompiler/y.output
+src/bin

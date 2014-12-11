@@ -1,4 +1,4 @@
-TARGET = Ivory
+TARGET = ../bin/Ivory
 OBJS = \
   ../ICompiler/compiler.o\
   ../ICompiler/builtin/builtin.o\
@@ -29,6 +29,7 @@ clean:
 	rm -f *.o *~
 all-clean:
 	rm -f $(TARGET)
+	rm -f ../ICompiler/builtin/builtin_conv
 	find ../ -name "*.o"  | xargs rm -f
 	cd ../ICompiler; $(MAKE) clean;
 .c.o:
