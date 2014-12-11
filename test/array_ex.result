@@ -1,10 +1,11 @@
-Exception occured. nullを参照しています。
-Exception occured. nullを参照しています。
-Exception occured. nullを参照しています。
-Exception occured. 配列の範囲エラー。サイズ3の配列の5をアクセスしています。
-Exception occured. 配列の範囲エラー。サイズ3の配列の5をアクセスしています。
-Exception occured. 配列の範囲エラー。サイズ3の配列の5をアクセスしています。
-Exception occured. 配列の範囲エラー。サイズ3の配列の5にinsertしようとしています。
-Exception occured. 配列の範囲エラー。サイズ3の配列の5をremoveしようとしています。
-Exception occured. 文字列中の位置指定が範囲外です。長さ3の文字列に対し5を指定しています。
-Exception occured. 文字列のsubstr()の第2引数(切り出す文字列長)が範囲外(5)です。
+Exception occured. error: value null can't be instantiated
+Exception occured. error: value null can't be instantiated
+Exception occured. error: value null can't be instantiated
+Exception occured. error: array range error!(5)the size of array is 3
+Exception occured. error: array range error!(5)the size of array is 3
+Exception occured. error: array range error!(5)the size of array is 3
+Exception occured. native_error: array range error.the size of array is 3, but position 5 is going to insert.
+Exception occured. native_error: array range error.the size of array is 3, but position 5 is going to remove.
+Exception occured. native_error: string range error.the length of string is 3, but position 5 is given.
+Exception occured. native_error: in function substr():
+	string range error.the second parameter is longer than the length of string.(5)

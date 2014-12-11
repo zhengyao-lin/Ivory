@@ -1,7 +1,7 @@
-const HOGE_H = 100;
-const HOGE = 10;
-const PIYO = HOGE + 10;
+const a = 100;
+const b = 10;
+const c = b + 10;
 
-println("HOGE.." + HOGE);
-println("PIYO.." + PIYO);
-println("HOGE_H.." + HOGE_H);
+println("a.." + a);
+println("b.." + b);
+println("c.." + c);

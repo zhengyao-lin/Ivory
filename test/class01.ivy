@@ -22,4 +22,4 @@ public class Point {
 
 Point p = new Point(10, 20);
 
-//p.print();
+p.print();

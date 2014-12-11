@@ -1,9 +1,9 @@
 using Ivory.lang;
 
-class Hoge {
+class Alpha {
 }
 
-class Piyo {
+class Beta {
 }
 
-Piyo p = new Hoge();
+Alpha p = new Beta();

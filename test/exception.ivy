@@ -7,7 +7,7 @@ void sub(int count) throws ExceptionSub {
     println("sub" + count);
     if (count > 5) {
 	ExceptionSub e = new ExceptionSub();
-	e.message = "hogehoge";
+	e.message = "alphaalpha";
 	throw e;
     } else {
 	sub(count + 1);
@@ -19,7 +19,7 @@ void sub2(int count) throws Exception {
     try {
 	if (count > 5) {
 	    Exception e = new ExceptionSub();
-	    e.message = "piyopiyo";
+	    e.message = "betabeta";
 	    throw e;
 	} else {
 	    sub2(count + 1);
@@ -39,7 +39,7 @@ void sub3(int count) throws Exception {
     try {
 	if (count > 5) {
 	    Exception e = new ExceptionSub();
-	    e.message = "fugafuga";
+	    e.message = "gammagamma";
 	    throw e;
 	} else {
 	    sub3(count + 1);

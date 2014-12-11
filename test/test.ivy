@@ -1,10 +1,11 @@
 using Ivory.lang;
 using Ivory.System;
+using Ivory.IO;
 
 ////////////////////////////////////////////////////////////
 // Check lexical analyzer
 ////////////////////////////////////////////////////////////
-print("hoge\tpiyo\n\\n");
+print("alpha\tbeta\n\\n");
 print("abc\n"); // comment
 /* chain string */
 print("abc" + "cde\n");
@@ -267,7 +268,7 @@ double_val %= 2;
 print("double_val.." + double_val + "\n");
 
 str_val = "str";
-str_val += "hoge";
+str_val += "alpha";
 str_val += 3;
 print("str_val.." + str_val + "\n");
 
@@ -334,7 +335,7 @@ double double_func(int i2) {
     return i2;
 }
 
-println("string_func.." + string_func("hoge"));
+println("string_func.." + string_func("alpha"));
 
 string string_func(string s) {
     return s;
@@ -720,15 +721,15 @@ if (null == null) {
     print("NG\n");
 }
 
-println("日本語");
+println("Tony has a beautiful cat.");
 
-string str = "日本語";
+string str = "Tony has a beautiful cat.";
 for (i = 0; i < str.length(); i++) {
     println("str[" + i + "].." + str[i]);
-    if (str[i] == '本') {
-	println("本");
+    if (str[i] == 'c' && str[i+1] == 'a' && str[i+2] == 't') {
+	println("cat!");
     }
 }
 
-exit(1);
-println("これは出ない");
+exit(0);
+println("BUG! BUG! BUG!");

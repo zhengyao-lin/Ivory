@@ -1,8 +1,8 @@
 File in_fp;
 File out_fp;
 
-in_fp = fopen("test/test.ivy", "r");
-out_fp = fopen("test/test.copy", "w");
+in_fp = fopen("test.ivy", "r");
+out_fp = fopen("test.copy", "w");
 
 string str;
 

@@ -1,9 +1,10 @@
-Exception occured. nullを参照しています。
-	at sub(nullpointer.dkm:13)
-	at sub(nullpointer.dkm:15)
-	at sub(nullpointer.dkm:15)
-	at sub(nullpointer.dkm:15)
-	at sub(nullpointer.dkm:15)
-	at sub(nullpointer.dkm:15)
-Exception occured. nullを参照しています。
-	at top level(nullpointer.dkm:24)
+Exception occured. error: value null can't be instantiated
+	at sub(nullpointer.ivy:13)
+	at sub(nullpointer.ivy:15)
+	at sub(nullpointer.ivy:15)
+	at sub(nullpointer.ivy:15)
+	at sub(nullpointer.ivy:15)
+	at sub(nullpointer.ivy:15)
+Exception occured. error: value null can't be instantiated
+	at top level(nullpointer.ivy:24)
+

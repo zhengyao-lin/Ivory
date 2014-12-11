@@ -1,6 +1,6 @@
-enum Hoge {
-    HOGE,
-    PIYO
+enum Alpha {
+    ALPHA,
+    BETA
 }
 
 enum Color {
@@ -49,10 +49,6 @@ if (black > blue) {
     println("NG!");
 }
 
-if (black >= blue) {
-    println("NG!");
-}
-
 println("color.." + Color.WHITE);
 
 Fruits apple = Fruits.APPLE;
@@ -79,4 +75,4 @@ for (i = 0; i < fruits_array.size(); i++) {
     println("Fruits.." + fruits_array[i]);
 }
 
-println("Hoge.HOGE.." + Hoge.HOGE);
+println("Alpha.ALPHA.." + Alpha.ALPHA);

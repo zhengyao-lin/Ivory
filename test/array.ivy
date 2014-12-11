@@ -1,11 +1,11 @@
 using Ivory.lang;
 
-class Hoge {
+class Alpha {
 }
 
 int[] int_array = {1, 2, 3};
 double[] double_array = {1.0, 2, 3};
-Hoge[] obj_array = {new Hoge(), new Hoge(), null};
+Alpha[] obj_array = {new Alpha(), new Alpha(), null};
 
 println("size.." + int_array.size());
 
@@ -43,8 +43,8 @@ dump_int_array(int_array);
 int_array.insert(3, -5);
 dump_int_array(int_array);
 
-println("len.." + "hogeほげ".length());
-println("substr.." + "hogeほげほげ".substr(3, 4));
+println("len.." + "alpha".length());
+println("substr.." + "alpha".substr(2, 3));
 
 int_array.add(42);
 dump_int_array(int_array);

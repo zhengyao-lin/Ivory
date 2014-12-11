@@ -1,2 +1,2 @@
-Exception occured. 整数値をゼロで除算しています。
-Exception occured. このオブジェクトのクラスはLineです。Circleにダウンキャストはできません。
+Exception occured. error: integer division by zero
+Exception occured. error: Line is this class.Circle can't be casted.

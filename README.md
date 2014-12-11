@@ -18,7 +18,7 @@ Then, compile it:<br/>
 Then do the test:
     
     #cd into the test dir
-    cd ../../test
+    cd ../test
     
     #run
     ../src/bin/Ivory test_all/test.ivy
@@ -46,15 +46,15 @@ Then, press enter to exit...
 
 ##Hello, world!
 <br/>
-Create an file named hellooo.ivy(any name you want)
+Create an file named hello.ivy(any name you want)
 Add these code:
 
-    using Ivory.lang;
+    /*using Ivory.lang;*/
     println("hello, world!");
 
 Now, run it with the executable file which is compiled just now:
 
-    ../src/bin/Ivory hellooo.ivy
+    ../src/bin/Ivory hello.ivy
 
 hello, world!<br/>
 **NOTE:** More details will be  in *IVORY_BOOK*

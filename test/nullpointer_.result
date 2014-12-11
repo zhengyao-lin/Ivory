@@ -1,9 +1,0 @@
-Exception occured. nullを参照しています。
-	at sub(nullpointer.ivy:13)
-	at sub(nullpointer.ivy:15)
-	at sub(nullpointer.ivy:15)
-	at sub(nullpointer.ivy:15)
-	at sub(nullpointer.ivy:15)
-	at sub(nullpointer.ivy:15)
-Exception occured. nullを参照しています。
-	at top level(nullpointer.ivy:24)

@@ -25,9 +25,9 @@ ISandBox_ErrorDefinition ISandBox_native_error_message_format[] = {
     {"native_error: array range error.the size of array is $(size), but position $(pos) is going to remove."},
     {"native_error: string range error.the length of string is $(len), but position $(pos) is given."},
     {"native_error: in function substr():\n\tstring range error.the second parameter is longer than the length of string.($(len))"},
-    {"fopenの第1引数にnullが渡されています。"},
-    {"fopenの第2引数にnullが渡されています。"},
-    {"fgetsに渡されているファイルポインタがnullです。"},
+    {"native_error: the first argument of fopen is null"},
+    {"native_error: the second argument of fopen is null"},
+    {"native_error: fgets: the target file has a null pointer"},
     {"fgetsの引数の型が不正です。"},
     {"fgetsに渡されているファイルポインタが無効です。"
      "たぶんclose()されています。"},

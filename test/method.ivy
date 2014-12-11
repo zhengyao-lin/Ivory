@@ -1,6 +1,6 @@
 using Ivory.lang;
 
-class Hoge {
+class Alpha {
     void m() {
 	int x = 10;
 	int y = 20;
@@ -8,6 +8,6 @@ class Hoge {
     }
 }
 
-Hoge hoge = new Hoge();
+Alpha alpha = new Alpha();
 
-hoge.m();
+alpha.m();

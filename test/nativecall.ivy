@@ -1,7 +1,0 @@
-int hoge(int value1) {
-    print("hello,world!\nvalue1..." + value1 + "\n");// + "\nvalue2..." + value2
-    return 5;
-}
-
-test_native(hoge);
-

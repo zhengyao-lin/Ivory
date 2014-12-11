@@ -5,15 +5,15 @@ sub3
 sub4
 sub5
 sub6
-exception was caught.hogehoge
-Exception occured. hogehoge
-	at sub(exception.dkm:11)
-	at sub(exception.dkm:13)
-	at sub(exception.dkm:13)
-	at sub(exception.dkm:13)
-	at sub(exception.dkm:13)
-	at sub(exception.dkm:13)
-	at sub(exception.dkm:13)
+exception was caught.alphaalpha
+Exception occured. alphaalpha
+	at sub(exception.ivy:11)
+	at sub(exception.ivy:13)
+	at sub(exception.ivy:13)
+	at sub(exception.ivy:13)
+	at sub(exception.ivy:13)
+	at sub(exception.ivy:13)
+	at sub(exception.ivy:13)
 func2:try
 func2:finally
 func3:try
@@ -31,41 +31,41 @@ sub2/3
 sub2/4
 sub2/5
 sub2/6
-catched. count..6 messae..piyopiyo
-Exception occured. piyopiyo
-catched. count..5 messae..piyopiyo
-Exception occured. piyopiyo
-	at sub2(exception.dkm:31)
-catched. count..4 messae..piyopiyo
-Exception occured. piyopiyo
-	at sub2(exception.dkm:31)
-	at sub2(exception.dkm:31)
-catched. count..3 messae..piyopiyo
-Exception occured. piyopiyo
-	at sub2(exception.dkm:31)
-	at sub2(exception.dkm:31)
-	at sub2(exception.dkm:31)
-catched. count..2 messae..piyopiyo
-Exception occured. piyopiyo
-	at sub2(exception.dkm:31)
-	at sub2(exception.dkm:31)
-	at sub2(exception.dkm:31)
-	at sub2(exception.dkm:31)
-catched. count..1 messae..piyopiyo
-Exception occured. piyopiyo
-	at sub2(exception.dkm:31)
-	at sub2(exception.dkm:31)
-	at sub2(exception.dkm:31)
-	at sub2(exception.dkm:31)
-	at sub2(exception.dkm:31)
-catched. count..0 messae..piyopiyo
-Exception occured. piyopiyo
-	at sub2(exception.dkm:31)
-	at sub2(exception.dkm:31)
-	at sub2(exception.dkm:31)
-	at sub2(exception.dkm:31)
-	at sub2(exception.dkm:31)
-	at sub2(exception.dkm:31)
+catched. count..6 messae..betabeta
+Exception occured. betabeta
+catched. count..5 messae..betabeta
+Exception occured. betabeta
+	at sub2(exception.ivy:31)
+catched. count..4 messae..betabeta
+Exception occured. betabeta
+	at sub2(exception.ivy:31)
+	at sub2(exception.ivy:31)
+catched. count..3 messae..betabeta
+Exception occured. betabeta
+	at sub2(exception.ivy:31)
+	at sub2(exception.ivy:31)
+	at sub2(exception.ivy:31)
+catched. count..2 messae..betabeta
+Exception occured. betabeta
+	at sub2(exception.ivy:31)
+	at sub2(exception.ivy:31)
+	at sub2(exception.ivy:31)
+	at sub2(exception.ivy:31)
+catched. count..1 messae..betabeta
+Exception occured. betabeta
+	at sub2(exception.ivy:31)
+	at sub2(exception.ivy:31)
+	at sub2(exception.ivy:31)
+	at sub2(exception.ivy:31)
+	at sub2(exception.ivy:31)
+catched. count..0 messae..betabeta
+Exception occured. betabeta
+	at sub2(exception.ivy:31)
+	at sub2(exception.ivy:31)
+	at sub2(exception.ivy:31)
+	at sub2(exception.ivy:31)
+	at sub2(exception.ivy:31)
+	at sub2(exception.ivy:31)
 sub3/0
 sub3/1
 sub3/2
@@ -73,26 +73,26 @@ sub3/3
 sub3/4
 sub3/5
 sub3/6
-catched. count..6 messae..fugafuga
-Exception occured. fugafuga
-catched. count..5 messae..fugafuga
-Exception occured. fugafuga
-	at sub3(exception.dkm:51)
-catched. count..4 messae..fugafuga
-Exception occured. fugafuga
-	at sub3(exception.dkm:51)
-catched. count..3 messae..fugafuga
-Exception occured. fugafuga
-	at sub3(exception.dkm:51)
-catched. count..2 messae..fugafuga
-Exception occured. fugafuga
-	at sub3(exception.dkm:51)
-catched. count..1 messae..fugafuga
-Exception occured. fugafuga
-	at sub3(exception.dkm:51)
-catched. count..0 messae..fugafuga
-Exception occured. fugafuga
-	at sub3(exception.dkm:51)
+catched. count..6 messae..gammagamma
+Exception occured. gammagamma
+catched. count..5 messae..gammagamma
+Exception occured. gammagamma
+	at sub3(exception.ivy:51)
+catched. count..4 messae..gammagamma
+Exception occured. gammagamma
+	at sub3(exception.ivy:51)
+catched. count..3 messae..gammagamma
+Exception occured. gammagamma
+	at sub3(exception.ivy:51)
+catched. count..2 messae..gammagamma
+Exception occured. gammagamma
+	at sub3(exception.ivy:51)
+catched. count..1 messae..gammagamma
+Exception occured. gammagamma
+	at sub3(exception.ivy:51)
+catched. count..0 messae..gammagamma
+Exception occured. gammagamma
+	at sub3(exception.ivy:51)
 sub0
 sub1
 sub2
@@ -100,12 +100,12 @@ sub3
 sub4
 sub5
 sub6
-Exception occured. hogehoge
-	at sub(exception.dkm:11)
-	at sub(exception.dkm:13)
-	at sub(exception.dkm:13)
-	at sub(exception.dkm:13)
-	at sub(exception.dkm:13)
-	at sub(exception.dkm:13)
-	at sub(exception.dkm:13)
-	at top level(exception.dkm:106)
+Exception occured. alphaalpha
+	at sub(exception.ivy:11)
+	at sub(exception.ivy:13)
+	at sub(exception.ivy:13)
+	at sub(exception.ivy:13)
+	at sub(exception.ivy:13)
+	at sub(exception.ivy:13)
+	at sub(exception.ivy:13)
+	at top level(exception.ivy:106)
