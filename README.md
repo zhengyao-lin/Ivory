@@ -61,5 +61,5 @@ hello, world!<br/>
 
 <br/><br/>
 ##Special Thanks
->Based on another self-made programming language [Diksam](https://github.com/zeyuanxy/Diksam "Diksam")<br/>
->written by Zeyuanxy( https://github.com/zeyuanxy )
+>Based on another self-made programming language [Diksam](http://kmaebashi.com/programmer/devlang/diksam.html "Diksam")<br/>
+>written by Maebasi Kazuya (前橋 和弥) ( http://kmaebashi.com )
