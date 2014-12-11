@@ -9,26 +9,26 @@ First, download the source code;<br/>
 Then, compile it:<br/>
 
     #cd into the source dir
-    cd src/Main
+    cd src
     
     #make it!
     make
 
-<br/>
+**NOTE:**make clean to clean up the source code<br/><br/>
 Then do the test:
     
     #cd into the test dir
     cd ../../test
     
     #run
-    ../src/Main/Ivory test_all/test.ivy
+    ../src/bin/Ivory test_all/test.ivy
 
 <br/>
 If everything is OK, it will output like this:
 
     -->test start<--
 
-    BLOCK1    110	hello, world!
+    BLOCK1    110    hello, world!
     BLOCK2	990201
     BLOCK3	3.141500000000	2	0.000000	2	3.000000
     BLOCK4	20.000000000000	20.000000000000	20.000000000000	20.000000000000	20.000000000000
@@ -41,7 +41,7 @@ If everything is OK, it will output like this:
 
 Then, press enter to exit...
 
-**NOTE:**Ivory in Windows is comming soon
+**NOTE:**Ivory for Windows is comming soon
 <br/><br/>
 
 ##Hello, world!
@@ -54,7 +54,7 @@ Add these code:
 
 Now, run it with the executable file which is compiled just now:
 
-    ../src/Main/Ivory hellooo.ivy
+    ../src/bin/Ivory hellooo.ivy
 
 hello, world!<br/>
 **NOTE:** More details will be  in *IVORY_BOOK*
