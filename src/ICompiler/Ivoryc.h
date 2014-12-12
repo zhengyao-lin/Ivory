@@ -22,6 +22,8 @@
 #define UNDEFINED_ENUMERATOR (-1)
 #define ABSTRACT_METHOD_INDEX (-1)
 
+#define UNDEFINED_VARIABLE_ARGS "__VAGS"
+
 typedef enum {
     INT_MESSAGE_ARGUMENT = 1,
     DOUBLE_MESSAGE_ARGUMENT,
@@ -928,6 +930,7 @@ typedef struct {
 void Ivyc_set_source_string(char **source);
 
 /* create.c */
+Expression * Ivyc_create_var_args_list_expression(ExpressionList *list);
 DeclarationList *Ivyc_chain_declaration(DeclarationList *list,
                                        Declaration *decl);
 Declaration *Ivyc_alloc_declaration(ISandBox_Boolean is_final, TypeSpecifier *type,

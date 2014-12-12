@@ -3,7 +3,7 @@
 
 ErrorDefinition Ivyc_error_message_format[] = {
     {"dummy"},
-    {"文法エラー($(token)付近)"},
+    {"syntax error (near \"$(token)\")"},
     {"不正な文字($(bad_char))"},
     {"関数名が重複しています($(name))"},
     {"不正なマルチバイト文字です。"},
@@ -11,8 +11,8 @@ ErrorDefinition Ivyc_error_message_format[] = {
     {"配列の要素をfinalにはできません。"},
     {"複合代入演算子をfinalに対しては適用できません。"},
     {"関数の引数名$(name)が重複しています。"},
-    {"変数名$(name)が重複しています。"},
-    {"変数または関数$(name)が見付かりません。"},
+    {"duplicated variable name ($(name))"},
+    {"can't find variable or function by name \"$(name)\""},
     {"$(name)は関数名ですが、関数呼び出しの()がありません。"},
     {"派生型へのキャスト、および派生型へのキャストはできません。"},
     {"$(src) can not be cast to $(dest)"},

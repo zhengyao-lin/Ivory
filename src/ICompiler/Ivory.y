@@ -46,7 +46,7 @@
         TRUE_T FALSE_T EXCLAMATION DOT
         ADD_ASSIGN_T SUB_ASSIGN_T MUL_ASSIGN_T DIV_ASSIGN_T MOD_ASSIGN_T
         INCREMENT DECREMENT TRY CATCH FINALLY THROW THROWS
-        VOID_T VARIABLE_T BOOLEAN_T INT_T DOUBLE_T LONG_DOUBLE_T OBJECT_T STRING_T VCLASS_T NATIVE_POINTER_T
+        VOID_T VARIABLE_ARGS VARIABLE_T BOOLEAN_T INT_T DOUBLE_T LONG_DOUBLE_T OBJECT_T STRING_T VCLASS_T NATIVE_POINTER_T
         NEW USING RENAME
         CLASS_T INTERFACE_T PUBLIC_T PRIVATE_T VIRTUAL_T OVERRIDE_T
         ABSTRACT_T THIS_T SUPER_T CONSTRUCTOR INSTANCEOF
@@ -63,7 +63,7 @@
         additive_expression multiplicative_expression
         unary_expression postfix_expression primary_expression
         primary_no_new_array array_literal array_creation
-        initializer_opt
+        initializer_opt /*var_args_list*/
 
 /* !!!unstable!!! */
 %type   <force_cast_type> force_cast
@@ -265,10 +265,30 @@ parameter_list
         {
             $$ = Ivyc_create_parameter($1, $2);
         }
-        | parameter_list COMMA type_specifier IDENTIFIER
+		| VARIABLE_ARGS IDENTIFIER
         {
-            $$ = Ivyc_chain_parameter($1, $3, $4);
+			TypeSpecifier *basic_type = Ivyc_create_type_specifier(ISandBox_OBJECT_TYPE);
+            $$ = Ivyc_create_parameter(Ivyc_create_array_type_specifier(basic_type), $2);
         }
+		| VARIABLE_ARGS
+        {
+			TypeSpecifier *basic_type = Ivyc_create_type_specifier(ISandBox_OBJECT_TYPE);
+            $$ = Ivyc_create_parameter(Ivyc_create_array_type_specifier(basic_type), UNDEFINED_VARIABLE_ARGS);
+        }
+		| type_specifier IDENTIFIER COMMA parameter_list
+        {
+            $$ = Ivyc_chain_parameter($4, $1, $2);
+        }
+        /*| VARIABLE_ARGS IDENTIFIER COMMA parameter_list
+        {
+			TypeSpecifier *basic_type = Ivyc_create_type_specifier(ISandBox_OBJECT_TYPE);
+            $$ = Ivyc_chain_parameter($4, Ivyc_create_array_type_specifier(basic_type), $2);
+        }
+        | VARIABLE_ARGS COMMA parameter_list
+        {
+			TypeSpecifier *basic_type = Ivyc_create_type_specifier(ISandBox_OBJECT_TYPE);
+            $$ = Ivyc_chain_parameter($3, Ivyc_create_array_type_specifier(basic_type), UNDEFINED_VARIABLE_ARGS);
+        }*/
         ;
 argument_list
         : assignment_expression
@@ -551,6 +571,12 @@ array_literal
             $$ = Ivyc_create_array_literal_expression($2);
         }
         ;
+/*var_args_list
+        : expression_list
+        {
+            $$ = Ivyc_create_var_args_list_expression($1);
+        }
+        ;*/
 array_creation
         : NEW basic_type_specifier dimension_expression_list
         {

@@ -119,17 +119,27 @@ void RUNNING_BLOCK5()
 	println("");
 }
 
-object multi_params(object[] argv)
+object multi_params(string wow, int fi, ...VAGS)
 {
-	print(argv.size());
-	print(glue + (string)argv[0]);
-	print(glue + (long double)argv[1]);
-	print(glue + (int)argv[2]);
+	print(VAGS.size());
+	print(glue + (string)VAGS[0]);
+	print(glue + (long double)VAGS[1]);
+	print(glue + (int)VAGS[2]);
 
-	argv.add((object)"me!");
-	print(glue + (string)argv[3]);
+	//VAGS.add("me");
+	//print(glue + VAGS.size());
+	//print(glue + (string)VAGS[3]);
 
-	return 129;
+	print(glue + wow);
+	print(glue + fi);
+
+	return 1;
+}
+
+int pr(...a)
+{
+	println("WOW!" + glue + (string)a[0]);
+	return 0;
 }
 
 void RUNNING_BLOCK6()
@@ -145,7 +155,11 @@ void RUNNING_BLOCK6()
 
 	print("BLOCK6" + glue);
 
-	println(glue + (double)(int)(multi_params({(object)hello, pi, sp})));
+	multi_params("meeeee", 123, hello, pi, sp);
+	println("");
+	//println(glue + (double)(int)(multi_params(hello, pi, sp)));
+
+	//pr(hello, pi);
 }
 
 void RUNNING_BLOCK7(int i)

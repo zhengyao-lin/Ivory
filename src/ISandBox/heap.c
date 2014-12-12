@@ -287,9 +287,9 @@ ISandBox_ObjectRef
 ISandBox_cast_object_to_string(ISandBox_VirtualMachine *ISandBox,
                        ISandBox_ObjectRef object)
 {
-    ISandBox_ObjectRef ret;
+    /*ISandBox_ObjectRef ret;
 
-    /*switch (toType) {
+    switch (toType) {
         case ISandBox_STRING_TYPE:
             ret = alloc_object(ISandBox, OBJECT);
             ret = object;
@@ -300,9 +300,9 @@ ISandBox_cast_object_to_string(ISandBox_VirtualMachine *ISandBox,
             ret = object;
             ret.data->type = STRING_OBJECT;
             break;
-    }*/
+    }
     ret = alloc_object(ISandBox, STRING_OBJECT);
-    ret = object;
+    ret = object;*/
 
     return object.data->u.object.object;
 }
@@ -311,7 +311,7 @@ ISandBox_ObjectRef
 ISandBox_cast_object_to_class(ISandBox_VirtualMachine *ISandBox,
                        ISandBox_ObjectRef object)
 {
-    ISandBox_ObjectRef ret;
+    /*ISandBox_ObjectRef ret;*/
 
     /*switch (toType) {
         case ISandBox_STRING_TYPE:
@@ -326,9 +326,9 @@ ISandBox_cast_object_to_class(ISandBox_VirtualMachine *ISandBox,
             break;
     }*/
     /*ret = alloc_object(ISandBox, CLASS_OBJECT);*/
-    ret = object.data->u.object.object;
+    /*ret = object.data->u.object.object;*/
 
-    return ret;
+    return object.data->u.object.object;
 }
 
 ISandBox_ObjectRef

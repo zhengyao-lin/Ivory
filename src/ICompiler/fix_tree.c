@@ -1500,6 +1500,7 @@ check_argument(Block *current_block, int line_number,
 {
     ParameterList *param;
     TypeSpecifier *temp_type;
+	ExpressionList *vargs;
 
     for (param = param_list;
          param && arg;
@@ -1514,6 +1515,27 @@ check_argument(Block *current_block, int line_number,
         } else {
             temp_type = param->type;
         }
+
+		if (param->next == NULL && temp_type->basic_type == ISandBox_OBJECT_TYPE)
+		{
+			ArgumentList *origin;
+			origin = arg;
+			vargs = Ivyc_create_expression_list(arg->expression);
+
+			if (arg->next) {
+				for (arg = arg->next; arg; arg = arg->next) {
+					vargs = Ivyc_chain_expression_list(vargs, arg->expression);
+				}
+			}
+
+			origin->expression = Ivyc_create_var_args_list_expression(vargs);
+			origin->expression = fix_expression(current_block, origin->expression, NULL, el_p);
+			origin->next = NULL;
+			arg = origin->next;
+			param = param->next;
+			break;
+		}
+
         arg->expression
             = create_assign_cast(arg->expression, temp_type, 1);
     }

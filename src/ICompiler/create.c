@@ -14,6 +14,19 @@ Ivyc_create_force_cast_expression(TypeSpecifier *type, Expression *operand)
     return exp;
 }
 
+Expression *
+Ivyc_create_var_args_list_expression(ExpressionList *list)
+{
+	Expression  *exp;
+
+    exp = Ivyc_alloc_expression(ARRAY_LITERAL_EXPRESSION);
+
+	list->expression = Ivyc_create_force_cast_expression(Ivyc_create_type_specifier(ISandBox_OBJECT_TYPE), list->expression);
+    exp->u.array_literal = list;
+
+    return exp;
+}
+
 Statement *
 Ivyc_retype_declaration_list(ISandBox_Boolean is_final, TypeSpecifier *type,
                                                DeclarationList *list)
@@ -348,11 +361,12 @@ Ivyc_chain_parameter(ParameterList *list, TypeSpecifier *type,
 {
     ParameterList *pos;
 
-    for (pos = list; pos->next; pos = pos->next)
-        ;
-    pos->next = Ivyc_create_parameter(type, identifier);
+    /*for (pos = list; pos->next; pos = pos->next)
+        ;*/
+    pos = Ivyc_create_parameter(type, identifier);
+	pos->next = list;
 
-    return list;
+    return pos;
 }
 
 ArgumentList *
@@ -372,8 +386,9 @@ Ivyc_chain_argument_list(ArgumentList *list, Expression *expr)
 {
     ArgumentList *pos;
 
-    for (pos = list; pos->next; pos = pos->next)
+	for (pos = list; pos->next; pos = pos->next)
         ;
+
     pos->next = Ivyc_create_argument_list(expr);
 
     return list;
