@@ -13,6 +13,19 @@ public class Arrow
 		this.i = ii;
 		this.str = stri;
 	}
+	public void add(...a)
+	{
+		object[] b = a;
+		int i, ret = (int)b[0];
+		//b.add((object)1233);
+		print(ret);
+		for (i = 0, ret = 0; i < b.size(); i++)
+		{
+			ret += (int)b[i];
+			print(" + " + (int)b[i]);
+		}
+		print(" = " + ret);
+	}
 }
 
 void RUNNING_BLOCK1()
@@ -126,20 +139,13 @@ object multi_params(string wow, int fi, ...VAGS)
 	print(glue + (long double)VAGS[1]);
 	print(glue + (int)VAGS[2]);
 
-	//VAGS.add("me");
-	//print(glue + VAGS.size());
-	//print(glue + (string)VAGS[3]);
-
 	print(glue + wow);
 	print(glue + fi);
 
-	return 1;
-}
+	VAGS.add("me");
+	print(glue + (string)VAGS[3]);
 
-int pr(...a)
-{
-	println("WOW!" + glue + (string)a[0]);
-	return 0;
+	return 1;
 }
 
 void RUNNING_BLOCK6()
@@ -155,6 +161,9 @@ void RUNNING_BLOCK6()
 
 	print("BLOCK6" + glue);
 
+	(new Arrow(1,"me")).add((int)1.1, 2, 3, 4, 3, 123);
+	print(glue);
+
 	multi_params("meeeee", 123, hello, pi, sp);
 	println("");
 	//println(glue + (double)(int)(multi_params(hello, pi, sp)));
@@ -165,7 +174,10 @@ void RUNNING_BLOCK6()
 void RUNNING_BLOCK7(int i)
 {
 	i += 10;
-	println("BLOCK7" + glue + i);
+	print("BLOCK7" + glue + i);
+
+	object o = "123";
+	print(glue + (string)o);
 }
 
 println("-->test start<--\n");

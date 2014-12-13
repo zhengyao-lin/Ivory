@@ -1493,6 +1493,8 @@ fix_logical_not_expression(Block *current_block, Expression *expr,
     return expr;
 }
 
+static Expression * fix_array_literal_expression(Block *current_block, Expression *expr, ExceptionList **el_p);
+
 static void
 check_argument(Block *current_block, int line_number,
                ParameterList *param_list, ArgumentList *arg,
@@ -1516,20 +1518,23 @@ check_argument(Block *current_block, int line_number,
             temp_type = param->type;
         }
 
-		if (param->next == NULL && temp_type->basic_type == ISandBox_OBJECT_TYPE)
+		if (param->next == NULL && temp_type->basic_type == ISandBox_OBJECT_TYPE && Ivyc_is_array(temp_type))
 		{
 			ArgumentList *origin;
 			origin = arg;
+			/*arg->expression = fix_expression(current_block, arg->expression, NULL, el_p);*/
 			vargs = Ivyc_create_expression_list(arg->expression);
+			/*arg->expression = Ivyc_create_force_cast_expression(Ivyc_create_type_specifier(ISandBox_OBJECT_TYPE), arg->expression);*/
 
 			if (arg->next) {
 				for (arg = arg->next; arg; arg = arg->next) {
+					/*arg->expression = fix_expression(current_block, arg->expression, NULL, el_p);*/
 					vargs = Ivyc_chain_expression_list(vargs, arg->expression);
 				}
 			}
 
 			origin->expression = Ivyc_create_var_args_list_expression(vargs);
-			origin->expression = fix_expression(current_block, origin->expression, NULL, el_p);
+			origin->expression = fix_array_literal_expression(current_block, origin->expression, el_p);
 			origin->next = NULL;
 			arg = origin->next;
 			param = param->next;

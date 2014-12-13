@@ -361,6 +361,7 @@ ISandBox_create_object_i(ISandBox_VirtualMachine *ISandBox,
 	ISandBox_ObjectRef ret;
 	ret = alloc_object(ISandBox, OBJECT);
 	ret.data->u.object = object;
+
     /*ISandBox_ObjectRef ret;
 
     ret = alloc_object(ISandBox, OBJECT);
