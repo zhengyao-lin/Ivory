@@ -642,6 +642,10 @@ fix_force_cast_expression(Block *current_block, Expression *expr,
     expr->u.fcast.operand
         = fix_expression(current_block, expr->u.fcast.operand, expr,
                          el_p);
+	if (Ivyc_compare_type(expr->u.fcast.operand->type, expr->u.fcast.type))
+	{
+		return expr->u.fcast.operand;
+	}
     expr->u.fcast.from = expr->u.fcast.operand->type;
     expr->type = expr->u.fcast.type;
 
@@ -738,6 +742,9 @@ create_assign_cast(Expression *src, TypeSpecifier *dest, int i)
             return cast_expr;
         }
     } else if (Ivyc_is_type_object(dest)) {
+		if (Ivyc_is_type_object(src->type)) { /* dest and source both are object -> do not cast */
+			return src;
+		}
         cast_expr = alloc_cast_expression(ALL_TO_OBJECT_CAST, src);
         return cast_expr;
     }/*********************************************************************************************/
@@ -1518,7 +1525,8 @@ check_argument(Block *current_block, int line_number,
             temp_type = param->type;
         }
 
-		if (param->next == NULL && temp_type->basic_type == ISandBox_OBJECT_TYPE && Ivyc_is_array(temp_type))
+		if (param->next == NULL && temp_type->basic_type == ISandBox_OBJECT_TYPE && Ivyc_is_array(temp_type)
+			&& !( Ivyc_compare_type(arg->expression->type, temp_type) && arg->next == NULL ))
 		{
 			ArgumentList *origin;
 			origin = arg;

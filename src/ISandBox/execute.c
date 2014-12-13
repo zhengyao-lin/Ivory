@@ -403,6 +403,9 @@ create_array_sub(ISandBox_VirtualMachine *ISandBox, int dim, int dim_index,
         case ISandBox_LONG_DOUBLE_TYPE:
             ret = ISandBox_create_array_long_double_i(ISandBox, size);
             break;
+		case ISandBox_OBJECT_TYPE:
+			ret = ISandBox_create_array_object_i(ISandBox, size);
+			break;
         case ISandBox_STRING_TYPE: /* FALLTHRU */
         case ISandBox_NATIVE_POINTER_TYPE:
         case ISandBox_CLASS_TYPE:
@@ -938,32 +941,9 @@ ISandBox_execute_i(ISandBox_VirtualMachine *ISandBox, Function *func,
     int         pc, i;
     ISandBox_Value   ret;
 
-	/*Label_Chain = malloc(sizeof(LabelChain));
-	Label_Chain->label = alloc_label_i(0, 0);
-	Label_Chain->next = NULL;*/
-
     pc = ISandBox->pc;
     ee = ISandBox->current_executable;
     exe = ISandBox->current_executable->executable;
-
-	/*while (pc < code_size) {
-		ISandBox_dump_instruction(stderr, code, pc);
-        fprintf(stderr, "\tsp(%d)\n", ISandBox->stack.stack_pointer);
-		switch ((ISandBox_Opcode)code[pc]) {
-			case ISandBox_LABEL:
-			{
-            	Label_i *l;
-				l = alloc_label_i(pc, GET_2BYTE_INT(&code[pc+1]));
-				add_label_chain(l);
-				pc += 3;
-				break;
-			}
-			default:
-				pc++;
-		}
-	}*/
-
-	/*pc = ISandBox->pc;*/
 
     while (pc < code_size) {
 
@@ -971,6 +951,7 @@ ISandBox_execute_i(ISandBox_VirtualMachine *ISandBox, Function *func,
         ISandBox_dump_instruction(stderr, code, pc);
         fprintf(stderr, "\tsp(%d)\n", ISandBox->stack.stack_pointer);
 		*/
+		/*ISandBox_check_gc(ISandBox);*/
         switch ((ISandBox_Opcode)code[pc]) {
         case ISandBox_PUSH_INT_1BYTE:
             /*printf("%d: ISandBox_PUSH_INT_1BYTE\n", code[pc-1]);*/
@@ -2312,8 +2293,8 @@ ISandBox_execute_i(ISandBox_VirtualMachine *ISandBox, Function *func,
         case ISandBox_CAST_OBJECT_TO_STRING:
         {
             ISandBox_Object *object;
-            STO_WRITE(ISandBox, -1,
-                      ISandBox_cast_object_to_string(ISandBox, STO(ISandBox, -1)));
+            STO_WRITE(ISandBox, -1, STO(ISandBox, -1).data->u.object.object);
+                      /*ISandBox_cast_object_to_string(ISandBox, STO(ISandBox, -1))*/
             pc++;
             break;
         }
@@ -2343,22 +2324,25 @@ ISandBox_execute_i(ISandBox_VirtualMachine *ISandBox, Function *func,
         }
         case ISandBox_CAST_OBJECT_TO_CLASS:
         {
-            STO_WRITE(ISandBox, -1,
-                      ISandBox_cast_object_to_class(ISandBox, STO(ISandBox, -1)));
+			STO_WRITE(ISandBox, -1, STO(ISandBox, -1).data->u.object.object);
+            /*STO_WRITE(ISandBox, -1,
+                      ISandBox_cast_object_to_class(ISandBox, STO(ISandBox, -1)));*/
             pc++;
             break;
         }
         case ISandBox_CAST_OBJECT_TO_DELEGATE:
         {
-            STO_WRITE(ISandBox, -1,
-                      ISandBox_cast_object_to_delegate(ISandBox, STO(ISandBox, -1)));
+            STO_WRITE(ISandBox, -1, STO(ISandBox, -1).data->u.object.object);
+            /*STO_WRITE(ISandBox, -1,
+                      ISandBox_cast_object_to_delegate(ISandBox, STO(ISandBox, -1)));*/
             pc++;
             break;
         }
         case ISandBox_CAST_OBJECT_TO_NATIVE_POINTER:
         {
-            STO_WRITE(ISandBox, -1,
-                      ISandBox_cast_object_to_native_pointer(ISandBox, STO(ISandBox, -1)));
+            STO_WRITE(ISandBox, -1, STO(ISandBox, -1).data->u.object.object);
+            /*STO_WRITE(ISandBox, -1,
+                      ISandBox_cast_object_to_native_pointer(ISandBox, STO(ISandBox, -1)));*/
             pc++;
             break;
         }

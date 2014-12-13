@@ -5,9 +5,12 @@
 #include "share.h"
 #include <stdarg.h>
 
+/************************************THRESHOLD*****************************************/
 #define STACK_ALLOC_SIZE (4096)
-#define HEAP_THRESHOLD_SIZE     (1024 * 256)
+#define HEAP_THRESHOLD_SIZE	1024 * 1024
 #define ARRAY_ALLOC_SIZE (256)
+/************************************THRESHOLD*****************************************/
+
 #define NULL_STRING (L"null")
 #define TRUE_STRING (L"true")
 #define FALSE_STRING (L"false")
@@ -113,6 +116,9 @@ typedef struct {
 
 typedef enum {
     OBJECT = 1,
+	INT_OBJECT,
+	DOUBLE_OBJECT,
+	LONG_DOUBLE_OBJECT,
     STRING_OBJECT,
     ARRAY_OBJECT,
     CLASS_OBJECT,

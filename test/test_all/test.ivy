@@ -1,8 +1,8 @@
 //----->test<-----
 using Ivory.IO;
-const glue = "\t";
 const cd = 3.14l;
 const obj = (object)"123";
+const glue = "\t";
 
 public class Arrow
 {
@@ -19,7 +19,7 @@ public class Arrow
 		int i, ret = (int)b[0];
 		//b.add((object)1233);
 		print(ret);
-		for (i = 0, ret = 0; i < b.size(); i++)
+		for (i = 1; i < b.size(); i++)
 		{
 			ret += (int)b[i];
 			print(" + " + (int)b[i]);
@@ -150,7 +150,7 @@ object multi_params(string wow, int fi, ...VAGS)
 
 void RUNNING_BLOCK6()
 {
-	var i = 3;
+	int i = 3;
 
 	var iarray = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 
@@ -161,11 +161,23 @@ void RUNNING_BLOCK6()
 
 	print("BLOCK6" + glue);
 
-	(new Arrow(1,"me")).add((int)1.1, 2, 3, 4, 3, 123);
-	print(glue);
+	int res;
+	object[] is = new object[0];
+	for (i = 1; i <= 10000; i++) {
+		//is[i-1] = i;
+		is.add(i);
+		print(i);		
+	} print("done!");
+	for (i = 0; i < is.size(); i++) {
+		res += (int)is[i];
+	}
+	print(" = " + res);
 
-	multi_params("meeeee", 123, hello, pi, sp);
-	println("");
+	//(new Arrow(1,"me")).add(os);
+	println(glue + "3i4j56j4nmj3n4h5i4mj3");
+
+	/*multi_params("meeeee", 123, hello, pi, sp);*/
+	//println("");
 	//println(glue + (double)(int)(multi_params(hello, pi, sp)));
 
 	//pr(hello, pi);
@@ -176,8 +188,8 @@ void RUNNING_BLOCK7(int i)
 	i += 10;
 	print("BLOCK7" + glue + i);
 
-	object o = "123";
-	print(glue + (string)o);
+	object o = (object)("1223");
+	println(glue + (string)o);
 }
 
 println("-->test start<--\n");
@@ -196,4 +208,4 @@ RUNNING_BLOCK7(k);
 
 println("\n-->test end<--");
 print("press enter to exit...\n");
-gets();
+//gets();

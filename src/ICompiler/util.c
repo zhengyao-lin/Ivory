@@ -111,7 +111,6 @@ Ivyc_compare_type(TypeSpecifier *type1, TypeSpecifier *type2)
         return ISandBox_FALSE;
     }
 
-    /* BUGBUG? */
     if (type1->basic_type == ISandBox_CLASS_TYPE) {
         if (type1->u.class_ref.class_definition
             != type2->u.class_ref.class_definition) {

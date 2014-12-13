@@ -15,8 +15,10 @@ ISandBox_check_gc(ISandBox_VirtualMachine *ISandBox)
         ISandBox_garbage_collect(ISandBox);
         /* fprintf(stderr, "done.\n"); */
 
-        ISandBox->heap.current_threshold
-            = ISandBox->heap.current_heap_size + HEAP_THRESHOLD_SIZE;
+        ISandBox->heap.current_threshold = ISandBox->heap.current_heap_size + HEAP_THRESHOLD_SIZE;
+		/*ISandBox->heap.current_threshold = ISandBox->heap.current_heap_size +
+											(((ISandBox->heap.current_heap_size - ISandBox->heap.current_threshold) /
+											ISandBox->heap.current_threshold ) + 1) * HEAP_THRESHOLD_SIZE;*/
     }
 }
 
@@ -335,22 +337,22 @@ ISandBox_ObjectRef
 ISandBox_cast_object_to_delegate(ISandBox_VirtualMachine *ISandBox,
                        ISandBox_ObjectRef object)
 {
-    ISandBox_ObjectRef ret;
+    /*ISandBox_ObjectRef ret;
 
-    ret = object.data->u.object.object;
+    ret = object.data->u.object.object;*/
 
-    return ret;
+    return object.data->u.object.object;
 }
 
 ISandBox_ObjectRef
 ISandBox_cast_object_to_native_pointer(ISandBox_VirtualMachine *ISandBox,
                        ISandBox_ObjectRef object)
 {
-    ISandBox_ObjectRef ret;
+    /*ISandBox_ObjectRef ret;
 
-    ret = object.data->u.object.object;
+    ret = object.data->u.object.object;*/
 
-    return ret;
+    return object.data->u.object.object;
 }
 
 /* newly added */
@@ -428,7 +430,7 @@ static ISandBox_Boolean
 is_reference_type(ISandBox_TypeSpecifier *type)
 {
     if (((type->basic_type == ISandBox_STRING_TYPE
-          || type->basic_type == ISandBox_CLASS_TYPE
+          ||type->basic_type == ISandBox_CLASS_TYPE
           || type->basic_type == ISandBox_DELEGATE_TYPE
           || type->basic_type == ISandBox_NATIVE_POINTER_TYPE)
          && type->derive_count == 0)
@@ -452,7 +454,9 @@ gc_mark(ISandBox_ObjectRef *ref)
 
     ref->data->marked = ISandBox_TRUE;
 
-    if (ref->data->type == ARRAY_OBJECT
+    if (ref->data->type == OBJECT) {
+        gc_mark(&ref->data->u.object.object);
+    } else if (ref->data->type == ARRAY_OBJECT
         && ref->data->u.array.type == OBJECT_ARRAY) {
         for (i = 0; i < ref->data->u.array.size; i++) {
             gc_mark(&ref->data->u.array.u.object[i]);
@@ -508,8 +512,7 @@ gc_mark_objects(ISandBox_VirtualMachine *ISandBox)
 
     for (ee_pos = ISandBox->executable_entry; ee_pos; ee_pos = ee_pos->next) {
         for (i = 0; i < ee_pos->static_v.variable_count; i++) {
-            if (is_reference_type(ee_pos->executable
-                                  ->global_variable[i].type)) {
+            if (is_reference_type(ee_pos->executable->global_variable[i].type)) {
                 gc_mark(&ee_pos->static_v.variable[i].object);
             }
         }
@@ -539,8 +542,10 @@ gc_dispose_object(ISandBox_VirtualMachine *ISandBox, ISandBox_Object *obj)
     switch (obj->type) {
     case OBJECT:/* !!!unstable!!! */
         /*ISandBox->heap.current_heap_size
-                -= sizeof(obj->u.object);
-        MEM_free(obj->u.object);*/
+            -= sizeof(obj->u.object.object.data);*/
+		/*ISandBox->heap.current_heap_size
+            -= sizeof(ISandBox_Value);
+        MEM_free(&obj->u.object);*/
         break;
     case STRING_OBJECT:
         if (!obj->u.string.is_literal) {
@@ -596,8 +601,10 @@ gc_dispose_object(ISandBox_VirtualMachine *ISandBox, ISandBox_Object *obj)
     default:
         DBG_assert(0, ("bad type..%d\n", obj->type));
     }
-    ISandBox->heap.current_heap_size -= sizeof(ISandBox_Object);
-    MEM_free(obj);
+
+	if (obj->type != STRING_OBJECT) {
+	ISandBox->heap.current_heap_size -= sizeof(ISandBox_Object);
+    MEM_free(obj);}
 
     return call_finalizer;
 }

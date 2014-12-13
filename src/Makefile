@@ -1,9 +1,9 @@
 TARGET = bin/Ivory
 
 $(TARGET):
-	mkdir bin;
+	-mkdir bin;
 	cd Main; $(MAKE);
 
 clean:
-	rm -rf bin;
+	-rm -rf bin;
 	cd Main; $(MAKE) all-clean;
