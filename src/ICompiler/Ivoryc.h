@@ -887,8 +887,8 @@ struct Ivyc_Compiler_tag {
     ISandBox_Function        *ISandBox_function;
     int                 ISandBox_enum_count;
     ISandBox_Enum            *ISandBox_enum;
-    int                 ISandBox_constant_count;
-    ISandBox_Constant        *ISandBox_constant;
+    /*int                 ISandBox_constant_count;
+    ISandBox_Constant        *ISandBox_constant;*/
     int                 ISandBox_class_count;
     ISandBox_Class           *ISandBox_class;
     DeclarationList     *declaration_list;

@@ -7,7 +7,7 @@
 
 /************************************THRESHOLD*****************************************/
 #define STACK_ALLOC_SIZE (4096)
-#define HEAP_THRESHOLD_SIZE	1024 * 1024
+#define HEAP_THRESHOLD_SIZE	(1024 * 256)
 #define ARRAY_ALLOC_SIZE (256)
 /************************************THRESHOLD*****************************************/
 
@@ -240,12 +240,12 @@ typedef struct {
     ISandBox_Enum    *ISandBox_enum;
 } Enum;
 
-typedef struct {
+/*typedef struct {
     char        *package_name;
     char        *name;
     ISandBox_Boolean is_defined;
     ISandBox_Value   value;
-} Constant;
+} Constant;*/
 
 struct ISandBox_VirtualMachine_tag {
     Stack       stack;
@@ -260,8 +260,8 @@ struct ISandBox_VirtualMachine_tag {
     int         class_count;
     Enum        **enums;
     int         enum_count;
-    Constant    **constant;
-    int         constant_count;
+    /*Constant    **constant;
+    int         constant_count;*/
     ISandBox_ExecutableList  *executable_list;
     ExecutableEntry     *executable_entry;
     ExecutableEntry     *top_level;

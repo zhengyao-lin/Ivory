@@ -107,7 +107,7 @@ reserve_enum_index(Ivyc_Compiler *compiler, EnumDefinition *src,
     return dest_idx;
 }
 
-static int
+/*static int
 reserve_constant_index(Ivyc_Compiler *compiler, ConstantDefinition *src,
                        ISandBox_Boolean is_defined)
 {
@@ -133,22 +133,22 @@ reserve_constant_index(Ivyc_Compiler *compiler, ConstantDefinition *src,
     }
     if (i == compiler->ISandBox_constant_count) {
         compiler->ISandBox_constant
-            = MEM_realloc(compiler->ISandBox_constant,
-                          sizeof(ISandBox_Constant)
-                          * (compiler->ISandBox_constant_count+1));
+            = realloc(compiler->ISandBox_constant,
+                      sizeof(ISandBox_Constant)
+                      * (compiler->ISandBox_constant_count+1));
         dest = &compiler->ISandBox_constant[compiler->ISandBox_constant_count];
         dest_idx = compiler->ISandBox_constant_count;
         compiler->ISandBox_constant_count++;
 
         dest->package_name = src_package_name;
-        dest->name = MEM_strdup(src->name);
+        dest->name = strdup(src->name);
         dest->is_defined = is_defined;
     } else {
         dest_idx = i;
     }
 
     return dest_idx;
-}
+}*/
 
 static ClassDefinition *
 search_class_and_add(int line_number, char *name, int *class_index_p);
@@ -353,6 +353,9 @@ create_function_derive_type(FunctionDefinition *fd)
     return ret;
 }
 
+static Expression *fix_expression(Block *current_block, Expression *expr,
+                                  Expression *parent, ExceptionList **el_p);
+
 static Expression *
 fix_identifier_expression(Block *current_block, Expression *expr)
 {
@@ -370,11 +373,21 @@ fix_identifier_expression(Block *current_block, Expression *expr)
     }
     cd = Ivyc_search_constant(expr->u.identifier.name);
     if (cd) {
-        expr->type = cd->type;
+        /*expr->type = cd->type;
         expr->u.identifier.kind = CONSTANT_IDENTIFIER;
         expr->u.identifier.u.constant.constant_definition = cd;
         expr->u.identifier.u.constant.constant_index
-            = reserve_constant_index(compiler, cd, ISandBox_FALSE);
+            = reserve_constant_index(compiler, cd, ISandBox_FALSE);*/
+		/*printf("%s\n", expr->u.identifier.name);*/
+		expr = Ivyc_alloc_expression(cd->initializer->kind);
+		expr->type = Ivyc_alloc_type_specifier(cd->initializer->type->basic_type);
+		if (cd->initializer->type->basic_type == ISandBox_STRING_TYPE) {
+			int len = ISandBox_wcslen(cd->initializer->u.string_value);
+			expr->u.string_value = MEM_malloc(sizeof(ISandBox_Char) * (len + 1));
+			wcscpy(expr->u.string_value, cd->initializer->u.string_value);
+		}
+		/*expr = fix_expression(current_block, cd->initializer, NULL, NULL);*/
+		
         return expr;
     }
     fd = Ivyc_search_function(expr->u.identifier.name);
@@ -397,9 +410,6 @@ fix_identifier_expression(Block *current_block, Expression *expr)
 
     return expr;
 }
-
-static Expression *fix_expression(Block *current_block, Expression *expr,
-                                  Expression *parent, ExceptionList **el_p);
 
 static Expression *
 fix_comma_expression(Block *current_block, Expression *expr,
@@ -2859,6 +2869,7 @@ fix_statement(Block *current_block, Statement *statement,
               FunctionDefinition *fd, ExceptionList **el_p)
 {
     DeclarationList *pos;
+
     switch (statement->type) {
     case EXPRESSION_STATEMENT:
         statement->u.expression_s
@@ -3025,6 +3036,7 @@ fix_function(FunctionDefinition *fd)
     add_parameter_as_declaration(fd);
     fix_type_specifier(fd->type);
     fix_throws(fd->throws);
+
     if (fd->block) {
         fix_statement_list(fd->block,
                            fd->block->statement_list, fd, &el);
@@ -3399,7 +3411,7 @@ fix_constant_list(Ivyc_Compiler *compiler)
     ExceptionList *el = NULL;
     for (cd_pos = compiler->constant_definition_list; cd_pos;
          cd_pos = cd_pos->next) {
-        reserve_constant_index(compiler, cd_pos, ISandBox_TRUE);
+        /*reserve_constant_index(compiler, cd_pos, ISandBox_TRUE);*/
         if (cd_pos->type == NULL) {
             cd_pos->initializer = fix_expression(NULL, cd_pos->initializer,
                                                  NULL, &el);
@@ -3431,7 +3443,7 @@ Ivyc_fix_tree(Ivyc_Compiler *compiler)
         reserve_function_index(compiler, func_pos);
     }
     fix_statement_list(NULL, compiler->statement_list, 0, &el);
-    
+
     for (func_pos = compiler->function_list; func_pos;
          func_pos = func_pos->next) {
         if (func_pos->class_definition == NULL) {

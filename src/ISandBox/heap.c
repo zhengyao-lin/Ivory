@@ -32,7 +32,7 @@ alloc_object(ISandBox_VirtualMachine *ISandBox, ObjectType type)
     ret.data = MEM_malloc(sizeof(ISandBox_Object));
     ISandBox->heap.current_heap_size += sizeof(ISandBox_Object);
     ret.data->type = type;
-    ret.data->marked = ISandBox_FALSE;
+    ret.data->marked = ISandBox_TRUE;
     ret.data->prev = NULL;
     ret.data->next = ISandBox->heap.header;
     ISandBox->heap.header = ret.data;
@@ -515,6 +515,7 @@ gc_mark_objects(ISandBox_VirtualMachine *ISandBox)
             if (is_reference_type(ee_pos->executable->global_variable[i].type)) {
                 gc_mark(&ee_pos->static_v.variable[i].object);
             }
+            /*gc_mark(&ee_pos->static_v.variable[i].object);*/
         }
     }
 
@@ -523,6 +524,9 @@ gc_mark_objects(ISandBox_VirtualMachine *ISandBox)
             gc_mark(&ISandBox->stack.stack[i].object);
         }
     }
+	/*for (i = 0; i < ISandBox->constant_count; i++) {
+        gc_mark(&ISandBox->constant[i]->value.object);
+    }*/
     gc_mark(&ISandBox->current_exception);
     for (context_pos = ISandBox->current_context; context_pos;
          context_pos = context_pos->next) {
@@ -602,9 +606,8 @@ gc_dispose_object(ISandBox_VirtualMachine *ISandBox, ISandBox_Object *obj)
         DBG_assert(0, ("bad type..%d\n", obj->type));
     }
 
-	if (obj->type != STRING_OBJECT) {
 	ISandBox->heap.current_heap_size -= sizeof(ISandBox_Object);
-    MEM_free(obj);}
+    MEM_free(obj);
 
     return call_finalizer;
 }

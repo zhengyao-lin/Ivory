@@ -128,8 +128,8 @@ alloc_executable(PackageName *package_name)
     exe->global_variable = NULL;
     exe->function_count = 0;
     exe->function = NULL;
-    exe->constant_count = 0;
-    exe->constant_definition = NULL;
+    /*exe->constant_count = 0;
+    exe->constant_definition = NULL;*/
     exe->type_specifier_count = 0;
     exe->type_specifier = NULL;
     exe->top_level.code_size = 0;
@@ -775,6 +775,7 @@ static void
 generate_identifier_expression(ISandBox_Executable *exe, Block *block,
                                Expression *expr, OpcodeBuf *ob)
 {
+	int index;
     switch (expr->u.identifier.kind) {
     case VARIABLE_IDENTIFIER:
         generate_identifier(expr->u.identifier.u.declaration, ob,
@@ -785,13 +786,13 @@ generate_identifier_expression(ISandBox_Executable *exe, Block *block,
                       ISandBox_PUSH_FUNCTION,
                       expr->u.identifier.u.function.function_index);
         break;
-    case CONSTANT_IDENTIFIER:
+    /*case CONSTANT_IDENTIFIER:
         generate_code(ob, expr->line_number,
                       ISandBox_PUSH_CONSTANT_INT
                       + get_opcode_type_offset(expr->u.identifier.u.constant
                                                .constant_definition->type),
                       expr->u.identifier.u.constant.constant_index);
-        break;
+        break;*/
     default:
         DBG_panic(("bad default. kind..%d", expr->u.identifier.kind));
     }
@@ -2439,7 +2440,7 @@ add_top_level(Ivyc_Compiler *compiler, ISandBox_Executable *exe)
         = calc_need_stack_size(exe->top_level.code, exe->top_level.code_size);
 }
 
-static void
+/*static void
 generate_constant_initializer(Ivyc_Compiler *compiler, ISandBox_Executable *exe)
 {
     ConstantDefinition *cd_pos;
@@ -2456,7 +2457,7 @@ generate_constant_initializer(Ivyc_Compiler *compiler, ISandBox_Executable *exe)
                           cd_pos->index);
         }
     }
-    /* BUGBUG use copy_opcode_buf() */
+
     exe->constant_initializer.code_size = ob.size;
     exe->constant_initializer.code = fix_opcode_buf(&ob);
     exe->constant_initializer.line_number_size = ob.line_number_size;
@@ -2467,7 +2468,7 @@ generate_constant_initializer(Ivyc_Compiler *compiler, ISandBox_Executable *exe)
         = calc_need_stack_size(exe->constant_initializer.code,
                                exe->constant_initializer.code_size);
 
-}
+}*/
 
 static void
 init_goto_label()
@@ -2500,15 +2501,15 @@ Ivyc_generate(Ivyc_Compiler *compiler)
     exe->class_definition = compiler->ISandBox_class;
     exe->enum_count = compiler->ISandBox_enum_count;
     exe->enum_definition = compiler->ISandBox_enum;
-    exe->constant_count = compiler->ISandBox_constant_count;
-    exe->constant_definition = compiler->ISandBox_constant;
+    /*exe->constant_count = compiler->ISandBox_constant_count;
+    exe->constant_definition = compiler->ISandBox_constant;*/
 
     add_global_variable(compiler, exe);
     add_classes(compiler, exe);
     add_functions(compiler, exe);
     add_top_level(compiler, exe);
 
-    generate_constant_initializer(compiler, exe);
+    /*generate_constant_initializer(compiler, exe);*/
 	
     return exe;
 }

@@ -97,12 +97,12 @@ dispose_class(ISandBox_Class *cd)
     }
 }
 
-static void
+/*static void
 dispose_constant(ISandBox_Constant *constant)
 {
     MEM_free(constant->package_name);
     MEM_free(constant->name);
-}
+}*/
 
 static void
 dispose_enum(ISandBox_Enum *enum_type)
@@ -124,7 +124,6 @@ void
 ISandBox_dispose_executable(ISandBox_Executable *exe)
 {
     int i;
-
     MEM_free(exe->package_name);
     MEM_free(exe->path);
 
@@ -134,13 +133,11 @@ ISandBox_dispose_executable(ISandBox_Executable *exe)
         }
     }
     MEM_free(exe->constant_pool);
-    
     for (i = 0; i < exe->global_variable_count; i++) {
         MEM_free(exe->global_variable[i].name);
         dispose_type_specifier(exe->global_variable[i].type);
     }
     MEM_free(exe->global_variable);
-
     for (i = 0; i < exe->function_count; i++) {
         MEM_free(exe->function[i].name);
         MEM_free(exe->function[i].package_name);
@@ -165,10 +162,10 @@ ISandBox_dispose_executable(ISandBox_Executable *exe)
     }
     MEM_free(exe->class_definition);
 
-    for (i = 0; i < exe->constant_count; i++) {
+    /*for (i = 0; i < exe->constant_count; i++) {
         dispose_constant(&exe->constant_definition[i]);
     }
-    MEM_free(exe->constant_definition);
+    MEM_free(exe->constant_definition);*/
 
     for (i = 0; i < exe->enum_count; i++) {
         dispose_enum(&exe->enum_definition[i]);
@@ -176,6 +173,6 @@ ISandBox_dispose_executable(ISandBox_Executable *exe)
     MEM_free(exe->enum_definition);
 
     dispose_code_block(&exe->top_level);
-    dispose_code_block(&exe->constant_initializer);
+    /*dispose_code_block(&exe->constant_initializer);*/
     MEM_free(exe);
 }

@@ -33,7 +33,6 @@ main(int argc, char **argv)
     compiler = Ivyc_create_compiler();
     list = Ivyc_compile(compiler, fp, argv[1]);
     ISandBox = ISandBox_create_virtual_machine();
-
     ISandBox_set_executable(ISandBox, list);
     Ivyc_dispose_compiler(compiler);
 

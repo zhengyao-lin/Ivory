@@ -14,7 +14,7 @@ OpcodeInfo ISandBox_opcode_info[] = {
     {"push_double_1", "", 1},
     {"push_double", "p", 1},
     /**********/
-    {"push_string", "p", 1},
+    {"push_string", "p", 2},
     {"push_null", "", 1},
 
     {"push_long_double_0", "", 1},

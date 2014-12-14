@@ -167,7 +167,7 @@ add_enums(ISandBox_VirtualMachine *ISandBox, ExecutableEntry *ee)
     MEM_free(new_enum_flags);
 }
 
-static void
+/*static void
 add_constants(ISandBox_VirtualMachine *ISandBox, ExecutableEntry *ee)
 {
     int src_idx;
@@ -238,7 +238,7 @@ add_constants(ISandBox_VirtualMachine *ISandBox, ExecutableEntry *ee)
     }
     ISandBox->constant_count += add_const_count;
     MEM_free(new_const_flags);
-}
+}*/
 
 static void
 convert_code(ISandBox_VirtualMachine *ISandBox, ISandBox_Executable *exe,
@@ -342,7 +342,7 @@ ISandBox_search_enum(ISandBox_VirtualMachine *ISandBox, char *package_name, char
     return ENUM_NOT_FOUND;
 }
 
-int
+/*int
 ISandBox_search_constant(ISandBox_VirtualMachine *ISandBox, char *package_name, char *name)
 {
     int i;
@@ -355,7 +355,7 @@ ISandBox_search_constant(ISandBox_VirtualMachine *ISandBox, char *package_name, 
         }
     }
     return CONSTANT_NOT_FOUND;
-}
+}*/
 
 static void
 add_reference_table(ISandBox_VirtualMachine *ISandBox,
@@ -379,13 +379,13 @@ add_reference_table(ISandBox_VirtualMachine *ISandBox,
     }
 
 
-    entry->constant_table = MEM_malloc(sizeof(int) * exe->constant_count);
+    /*entry->constant_table = MEM_malloc(sizeof(int) * exe->constant_count);
     for (i = 0; i < exe->constant_count; i++) {
         entry->constant_table[i]
             = ISandBox_search_constant(ISandBox, exe->constant_definition[i]
                                   .package_name,
                                   exe->constant_definition[i].name);
-    }
+    }*/
 
     entry->class_table = MEM_malloc(sizeof(int) * exe->class_count);
     for (i = 0; i < exe->class_count; i++) {
@@ -731,7 +731,7 @@ add_executable_to_ISandBox(ISandBox_VirtualMachine *ISandBox, ISandBox_Executabl
     
     add_functions(ISandBox, new_entry);
     add_enums(ISandBox, new_entry);
-    add_constants(ISandBox, new_entry);
+    /*add_constants(ISandBox, new_entry);*/
     add_classes(ISandBox, new_entry);
 
     convert_code(ISandBox, executable,
@@ -756,7 +756,7 @@ add_executable_to_ISandBox(ISandBox_VirtualMachine *ISandBox, ISandBox_Executabl
     return new_entry;
 }
 
-static void
+/*static void
 initialize_constant(ISandBox_VirtualMachine *ISandBox, ExecutableEntry *ee)
 {
     ISandBox_Executable *exe = ee->executable;
@@ -767,7 +767,7 @@ initialize_constant(ISandBox_VirtualMachine *ISandBox, ExecutableEntry *ee)
     ISandBox_expand_stack(ISandBox, exe->constant_initializer.need_stack_size);
     ISandBox_execute_i(ISandBox, NULL, exe->constant_initializer.code,
                   exe->constant_initializer.code_size, 0);
-}
+}*/
 
 void
 ISandBox_set_executable(ISandBox_VirtualMachine *ISandBox, ISandBox_ExecutableList *list)
@@ -783,7 +783,7 @@ ISandBox_set_executable(ISandBox_VirtualMachine *ISandBox, ISandBox_ExecutableLi
 
         ee = add_executable_to_ISandBox(ISandBox, pos->executable,
                                    (pos->executable == list->top_level));
-        initialize_constant(ISandBox, ee);
+        /*initialize_constant(ISandBox, ee);*/
     }
 }
 
@@ -855,8 +855,8 @@ ISandBox_create_virtual_machine(void)
     ISandBox->class_count = 0;
     ISandBox->enums = NULL;
     ISandBox->enum_count = 0;
-    ISandBox->constant = NULL;
-    ISandBox->constant_count = 0;
+    /*ISandBox->constant = NULL;
+    ISandBox->constant_count = 0;*/
     ISandBox->executable_list = NULL;
     ISandBox->executable_entry = NULL;
     ISandBox->top_level = NULL;
@@ -937,7 +937,7 @@ ISandBox_dynamic_load(ISandBox_VirtualMachine *ISandBox,
         ExecutableEntry *ee;
 
         ee = add_executable_to_ISandBox(ISandBox, pos->executable, ISandBox_FALSE);
-        initialize_constant(ISandBox, ee);
+        /*initialize_constant(ISandBox, ee);*/
     }
     Ivyc_dispose_compiler(compiler);
 }

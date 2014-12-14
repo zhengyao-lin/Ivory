@@ -110,8 +110,8 @@ Ivyc_create_compiler(void)
     compiler->ISandBox_function = NULL;
     compiler->ISandBox_enum_count = 0;
     compiler->ISandBox_enum = NULL;
-    compiler->ISandBox_constant_count = 0;
-    compiler->ISandBox_constant = NULL;
+    /*compiler->ISandBox_constant_count = 0;
+    compiler->ISandBox_constant = NULL;*/
     compiler->ISandBox_class_count = 0;
     compiler->ISandBox_class = NULL;
     compiler->declaration_list = NULL;
@@ -433,10 +433,9 @@ Ivyc_compile(Ivyc_Compiler *compiler, FILE *fp, char *path)
     compiler->input_mode = FILE_INPUT_MODE;
 
     yyin = fp;
-
     list = MEM_malloc(sizeof(ISandBox_ExecutableList));
     list->list = NULL;
-    
+   
     exe = do_compile(compiler, list, NULL, ISandBox_FALSE);
     exe->path = MEM_strdup(path);
     list->top_level = exe;
@@ -596,6 +595,7 @@ Ivyc_dispose_compiler(Ivyc_Compiler *compiler)
     CompilerList *list = NULL;
     CompilerList *pos;
     FunctionDefinition *fd_pos;
+	ConstantDefinition *cd_pos;
     CompilerList *temp;
 
     list = traversal_compiler(list, compiler);
@@ -605,6 +605,12 @@ Ivyc_dispose_compiler(Ivyc_Compiler *compiler)
              fd_pos = fd_pos->next) {
             MEM_free(fd_pos->local_variable);
         }
+        for (cd_pos = pos->compiler->constant_definition_list; cd_pos;
+             cd_pos = cd_pos->next) {
+			if (cd_pos->initializer->type->basic_type = ISandBox_STRING_TYPE) {
+            	MEM_free(cd_pos->initializer->u.string_value);
+			}
+        }
         while (pos->compiler->usingd_list) {
             temp = pos->compiler->usingd_list;
             pos->compiler->usingd_list = temp->next;
@@ -612,6 +618,7 @@ Ivyc_dispose_compiler(Ivyc_Compiler *compiler)
         }
         MEM_dispose_storage(pos->compiler->compile_storage);
         temp = pos->next;
+
         MEM_free(pos);
         pos = temp;
     }

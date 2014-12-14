@@ -1,17 +1,13 @@
-const glue1 = "yufwuiqfefewwef";
-
-string glue2 = "yufwuiqfefewwef";
-int res, i;
-int[] is = new int[0];
-for (i = 1; i <= 10000; i++) {
-	is.add(i);
-	//print(" + " + i);
+const glue = "你好";
+int[] array = new int[0];
+int i;
+int res;
+for (i = 0; i < 100000; i++)
+{
+	array.add(i);
 }
-
-for (i = 0; i < is.size(); i++) {
-	res += is[i];
-	print(" + " + is[i]);
+for (i = 0; i < array.size(); i++) {
+	res += array[i];
 }
-
-println(" = " + res);
-println(glue1);
+println(glue);
+println(glue);

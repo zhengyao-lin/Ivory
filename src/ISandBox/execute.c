@@ -988,6 +988,20 @@ ISandBox_execute_i(ISandBox_VirtualMachine *ISandBox, Function *func,
             ISandBox->stack.stack_pointer++;
             pc += 3;
             break;
+        case ISandBox_PUSH_STRING:
+            STO_WRITE(ISandBox, 0,
+                      ISandBox_literal_to_ISandBox_string_i(ISandBox,
+                                                  exe->constant_pool
+                                                  [GET_2BYTE_INT(&code[pc+1])]
+                                                  .u.c_string));
+            ISandBox->stack.stack_pointer++;
+            pc += 3;
+            break;
+        case ISandBox_PUSH_NULL:
+            STO_WRITE(ISandBox, 0, ISandBox_null_object_ref);
+            ISandBox->stack.stack_pointer++;
+            pc++;
+            break;
         /******************************************************/
         case ISandBox_PUSH_LONG_DOUBLE_0:
             STLD_WRITE(ISandBox, 0, 0.0);
@@ -1007,21 +1021,6 @@ ISandBox_execute_i(ISandBox_VirtualMachine *ISandBox, Function *func,
             pc += 3;
             break;
         /******************************************************/
-        case ISandBox_PUSH_STRING:
-            STO_WRITE(ISandBox, 0,
-                      ISandBox_literal_to_ISandBox_string_i(ISandBox,
-                                                  exe->constant_pool
-                                                  [GET_2BYTE_INT(&code
-                                                                 [pc+1])]
-                                                  .u.c_string));
-            ISandBox->stack.stack_pointer++;
-            pc += 3;
-            break;
-        case ISandBox_PUSH_NULL:
-            STO_WRITE(ISandBox, 0, ISandBox_null_object_ref);
-            ISandBox->stack.stack_pointer++;
-            pc++;
-            break;
         case ISandBox_PUSH_STACK_INT:
             STI_WRITE(ISandBox, 0,
                       STI_I(ISandBox, base + GET_2BYTE_INT(&code[pc+1])));
@@ -1124,7 +1123,7 @@ ISandBox_execute_i(ISandBox_VirtualMachine *ISandBox, Function *func,
             ISandBox->stack.stack_pointer--;
             pc += 3;
             break;
-        case ISandBox_PUSH_CONSTANT_INT:
+        /*case ISandBox_PUSH_CONSTANT_INT:
         {
             int idx_in_exe = GET_2BYTE_INT(&code[pc+1]);
             STI_WRITE(ISandBox, 0,
@@ -1199,7 +1198,7 @@ ISandBox_execute_i(ISandBox_VirtualMachine *ISandBox, Function *func,
             ISandBox->stack.stack_pointer--;
             pc += 3;
             break;
-        }
+        }*/
         case ISandBox_PUSH_ARRAY_INT:
         {
             ISandBox_ObjectRef array = STO(ISandBox, -2);
@@ -2475,7 +2474,7 @@ ISandBox_dispose_virtual_machine(ISandBox_VirtualMachine *ISandBox)
         MEM_free(ee_temp->function_table);
         MEM_free(ee_temp->class_table);
         MEM_free(ee_temp->enum_table);
-        MEM_free(ee_temp->constant_table);
+        /*MEM_free(ee_temp->constant_table);*/
         MEM_free(ee_temp->static_v.variable);
         MEM_free(ee_temp);
     }
@@ -2511,12 +2510,12 @@ ISandBox_dispose_virtual_machine(ISandBox_VirtualMachine *ISandBox)
     }
     MEM_free(ISandBox->enums);
 
-    for (i = 0; i < ISandBox->constant_count; i++) {
+    /*for (i = 0; i < ISandBox->constant_count; i++) {
         MEM_free(ISandBox->constant[i]->name);
         MEM_free(ISandBox->constant[i]->package_name);
         MEM_free(ISandBox->constant[i]);
     }
-    MEM_free(ISandBox->constant);
+    MEM_free(ISandBox->constant);*/
 
     MEM_free(ISandBox->array_v_table->table);
     MEM_free(ISandBox->array_v_table);

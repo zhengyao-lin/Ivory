@@ -367,12 +367,12 @@ typedef struct {
     char        **enumerator;
 } ISandBox_Enum;
 
-typedef struct {
+/*typedef struct {
     ISandBox_TypeSpecifier *type;
     char        *package_name;
     char        *name;
     ISandBox_Boolean is_defined;
-} ISandBox_Constant;
+} ISandBox_Constant;*/
 
 struct ISandBox_Executable_tag {
     char                *package_name;
@@ -390,8 +390,6 @@ struct ISandBox_Executable_tag {
     ISandBox_Class           *class_definition;
     int                 enum_count;
     ISandBox_Enum            *enum_definition;
-    int                 constant_count;
-    ISandBox_Constant        *constant_definition;
     ISandBox_CodeBlock       top_level;
     ISandBox_CodeBlock       constant_initializer;
 };
