@@ -6,6 +6,7 @@ public class Arrow
 {
 	public int i;
 	public string str;
+	public final string a = "abc";
 	public constructor initialize (int ii, string stri)
 	{
 		this.i = ii;
@@ -161,7 +162,7 @@ void RUNNING_BLOCK6()
 
 	int res;
 	object[] is = new object[0];
-	for (i = 1; i <= 1000000; i++) {
+	for (i = 1; i <= 100000; i++) {
 		//is[i-1] = i;
 		is.add((string)i);
 	} print("done!");
@@ -171,7 +172,7 @@ void RUNNING_BLOCK6()
 	print(" = " + res);*/
 
 	//(new Arrow(1,"me")).add(os);
-	println(glue + "3i4j56j4nmj3n4h5i4mj3");
+	println(glue + "7A6B8D013A88B8FACCB81BA98147706D");
 
 	/*multi_params("meeeee", 123, hello, pi, sp);*/
 	//println("");

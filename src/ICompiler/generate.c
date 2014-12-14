@@ -1558,7 +1558,7 @@ generate_expression(ISandBox_Executable *exe, Block *current_block,
 					case ISandBox_STRING_TYPE:
 						break;
                     case ISandBox_ENUM_TYPE:
-                        generate_code(ob, expr->line_number, ISandBox_CAST_ENUM_TO_STRING);
+                        generate_code(ob, expr->line_number, ISandBox_CAST_ENUM_TO_STRING, expr->u.fcast.operand->type->u.enum_ref.enum_index);
                         break;
                     case ISandBox_BOOLEAN_TYPE:
                         generate_code(ob, expr->line_number, ISandBox_CAST_BOOLEAN_TO_STRING);

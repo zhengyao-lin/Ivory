@@ -1,13 +1,25 @@
-const glue = "你好";
 int[] array = new int[0];
+
 int i;
 int res;
-for (i = 0; i < 100000; i++)
+for (i = 0; i < 10000; i++)
 {
 	array.add(i);
 }
 for (i = 0; i < array.size(); i++) {
 	res += array[i];
 }
+println(a + glue);
 println(glue);
-println(glue);
+println(glue + b);
+println(b + (string)Animals.Monkey);
+
+enum Animals {
+	Monkey,
+	Donkey,
+	Tiger
+}
+
+const string a = "abc";
+const string glue = (string)(double)((int)123.9);
+const int b = 1223;

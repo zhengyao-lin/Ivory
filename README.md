@@ -28,16 +28,16 @@ If everything is OK, it will output like this:
 
     -->test start<--
 
-    BLOCK1    110    hello, world!
-    BLOCK2	990201
-    BLOCK3	3.141500000000	2	0.000000	2	3.000000
-    BLOCK4	20.000000000000	20.000000000000	20.000000000000	20.000000000000	20.000000000000
-    BLOCK5	Yes!	1	2	2	3	3	3	4	4	4	4	it's false!
-    BLOCK6	3	hello, world!	3.141592654000	2	me!	129.000000
-    BLOCK7	20
-    
-    -->test end<--
-    press enter to exit...
+	BLOCK1	110	hello, world!
+	BLOCK2	990201
+	BLOCK3	3.141500000000	2	0.000000	2	3.000000
+	BLOCK4	20.000000000000	20.000000000000	20.000000000000	20.000000000000	20.000000000000
+	BLOCK5	Yes!	1	2	2	3	3	3	4	4	4	4	it's false!
+	BLOCK6	done!	7A6B8D013A88B8FACCB81BA98147706D
+	BLOCK7	20	1223
+
+	-->test end<--
+	press enter to exit...
 
 Then, press enter to exit...
 

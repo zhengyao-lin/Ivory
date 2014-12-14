@@ -607,7 +607,9 @@ Ivyc_dispose_compiler(Ivyc_Compiler *compiler)
         }
         for (cd_pos = pos->compiler->constant_definition_list; cd_pos;
              cd_pos = cd_pos->next) {
-			if (cd_pos->initializer->type->basic_type = ISandBox_STRING_TYPE) {
+			if (cd_pos->initializer->type->basic_type == ISandBox_STRING_TYPE
+				&& cd_pos->initializer->kind != CAST_EXPRESSION
+				&& cd_pos->initializer->kind != FORCE_CAST_EXPRESSION) {
             	MEM_free(cd_pos->initializer->u.string_value);
 			}
         }

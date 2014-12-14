@@ -173,7 +173,7 @@ definition_or_statement
         }
         | delegate_definition
         | enum_definition
-        | const_definition
+		| const_definition
         ;
 basic_type_specifier
         : VOID_T
@@ -1182,9 +1182,9 @@ const_definition
         {
             Ivyc_create_const_definition(NULL, $2, $4);
         }
-        | CONST type_specifier IDENTIFIER SEMICOLON
+        | CONST type_specifier IDENTIFIER ASSIGN_T expression SEMICOLON
         {
-            Ivyc_create_const_definition($2, $3, NULL);
+            Ivyc_create_const_definition($2, $3, $5);
         }
         ;
 %%

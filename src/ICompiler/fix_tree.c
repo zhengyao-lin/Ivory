@@ -381,10 +381,16 @@ fix_identifier_expression(Block *current_block, Expression *expr)
 		/*printf("%s\n", expr->u.identifier.name);*/
 		expr = Ivyc_alloc_expression(cd->initializer->kind);
 		expr->type = Ivyc_alloc_type_specifier(cd->initializer->type->basic_type);
-		if (cd->initializer->type->basic_type == ISandBox_STRING_TYPE) {
+		if (cd->initializer->type->basic_type == ISandBox_STRING_TYPE
+			&& cd->initializer->kind != CAST_EXPRESSION
+			&& cd->initializer->kind != FORCE_CAST_EXPRESSION) {
+
 			int len = ISandBox_wcslen(cd->initializer->u.string_value);
 			expr->u.string_value = MEM_malloc(sizeof(ISandBox_Char) * (len + 1));
 			wcscpy(expr->u.string_value, cd->initializer->u.string_value);
+
+		} else {
+			expr = cd->initializer;
 		}
 		/*expr = fix_expression(current_block, cd->initializer, NULL, NULL);*/
 		
@@ -3412,14 +3418,12 @@ fix_constant_list(Ivyc_Compiler *compiler)
     for (cd_pos = compiler->constant_definition_list; cd_pos;
          cd_pos = cd_pos->next) {
         /*reserve_constant_index(compiler, cd_pos, ISandBox_TRUE);*/
+		cd_pos->initializer = fix_expression(NULL, cd_pos->initializer, NULL, &el);
         if (cd_pos->type == NULL) {
-            cd_pos->initializer = fix_expression(NULL, cd_pos->initializer,
-                                                 NULL, &el);
             cd_pos->type = cd_pos->initializer->type;
-
-            cd_pos->initializer = create_assign_cast(cd_pos->initializer,
-                                                     cd_pos->type, 1);
         }
+		cd_pos->initializer = create_assign_cast(cd_pos->initializer, cd_pos->type, 1);
+
         cd_pos->index = constant_count;
         constant_count++;
     }
