@@ -4,6 +4,7 @@
 
 char *st_Ivory_lang_ivh_text[] = {
     "//Ivory.lang\n",
+    "//void typeof(object obj);\n",
     "void print(string str);\n",
     "void println(string str) {\n",
     "    print(str + \"\\n\");\n",

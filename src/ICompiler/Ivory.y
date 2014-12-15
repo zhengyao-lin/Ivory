@@ -162,7 +162,7 @@ rename_declaration
         }
         ;
 definition_or_statement
-        : function_definition
+		: function_definition
         | class_definition
         | statement
         {

@@ -116,9 +116,6 @@ typedef struct {
 
 typedef enum {
     OBJECT = 1,
-	INT_OBJECT,
-	DOUBLE_OBJECT,
-	LONG_DOUBLE_OBJECT,
     STRING_OBJECT,
     ARRAY_OBJECT,
     CLASS_OBJECT,

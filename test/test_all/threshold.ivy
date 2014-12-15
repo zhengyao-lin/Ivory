@@ -23,3 +23,12 @@ enum Animals {
 const string a = "abc";
 const string glue = (string)(double)((int)123.9);
 const int b = 1223;
+
+delegate int MoreArgs(...);
+int carg(...a)
+{
+	println((string)a[0]);
+}
+
+MoreArgs f = carg;
+f("hi, it's me");
