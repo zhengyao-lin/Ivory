@@ -5,7 +5,7 @@
 #include "ISandBox.h"
 
 typedef enum {
-    ISandBox_VOID_TYPE,
+    ISandBox_VOID_TYPE = 1,
     ISandBox_BOOLEAN_TYPE,
     ISandBox_INT_TYPE,
     ISandBox_DOUBLE_TYPE,
@@ -62,6 +62,9 @@ struct ISandBox_TypeSpecifier_tag {
         struct {
             int index;
         } enum_t;
+        struct {
+            int type;/*equals to enum ISandBox_BasicType*/
+        } object_t;
     } u;
     int                 derive_count;
     ISandBox_TypeDerive      *derive;

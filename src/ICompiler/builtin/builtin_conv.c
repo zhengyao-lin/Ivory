@@ -16,7 +16,8 @@ static TargetPackage st_target_package[] = {
     {"Ivory.lang", "ivy"},
     {"Ivory.Math", "ivh"},
     {"Ivory.IO", "ivh"},
-    {"Ivory.System", "ivh"}
+    {"Ivory.System", "ivh"},
+    {"Ivory.Type", "ivh"},
 };
 
 static void

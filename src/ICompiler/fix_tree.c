@@ -480,6 +480,7 @@ alloc_cast_expression(CastType cast_type, Expression *operand)
         cast_expr->type = Ivyc_alloc_type_specifier(ISandBox_STRING_TYPE);
     } else if (cast_type == ALL_TO_OBJECT_CAST) {
         cast_expr->type = Ivyc_alloc_type_specifier(ISandBox_OBJECT_TYPE);
+		cast_expr->type->u.object_ref.origin = operand->type;
     } else {
         DBG_assert(cast_type == FUNCTION_TO_DELEGATE_CAST,
                    ("cast_type..%d\n", cast_type));
@@ -664,6 +665,9 @@ fix_force_cast_expression(Block *current_block, Expression *expr,
 	}
     expr->u.fcast.from = expr->u.fcast.operand->type;
     expr->type = expr->u.fcast.type;
+	if (Ivyc_is_type_object(expr->type)) {
+		expr->type->u.object_ref.origin = expr->u.fcast.from;
+	}
 
     /*if (cast_expr = create_assign_cast(expr->u.fcast.operand, expr->u.fcast.type, 0) == NULL)
     {
@@ -761,6 +765,7 @@ create_assign_cast(Expression *src, TypeSpecifier *dest, int i)
 		if (Ivyc_is_type_object(src->type)) { /* dest and source both are object -> do not cast */
 			return src;
 		}
+		
         cast_expr = alloc_cast_expression(ALL_TO_OBJECT_CAST, src);
         return cast_expr;
     }/*********************************************************************************************/

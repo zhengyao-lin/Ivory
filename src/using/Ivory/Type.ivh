@@ -1,0 +1,57 @@
+/* Ivory.Type package
+ */
+enum TypeID {
+	VOID_TYPE,
+    BOOLEAN_TYPE,
+    INT_TYPE,
+    DOUBLE_TYPE,
+    LONG_DOUBLE_TYPE,
+    OBJECT_TYPE,
+    STRING_TYPE,
+    CLASS_TYPE,
+    DELEGATE_TYPE,
+    ENUM_TYPE,
+    NULL_TYPE,
+    NATIVE_POINTER_TYPE,
+    BASE_TYPE,
+	UNCLEAR_TYPE,
+    UNSPECIFIED_IDENTIFIER_TYPE
+}
+
+public class Type {
+	private int code;
+	public TypeID type_id;
+
+	constructor initialize(int code) {
+	    this.code = code;
+		switch (code) {
+			case 1:		this.type_id = TypeID.VOID_TYPE;
+			case 2:		this.type_id = TypeID.BOOLEAN_TYPE;
+			case 3:		this.type_id = TypeID.INT_TYPE;
+			case 4:		this.type_id = TypeID.DOUBLE_TYPE;
+			case 5:		this.type_id = TypeID.LONG_DOUBLE_TYPE;
+			case 6:		this.type_id = TypeID.OBJECT_TYPE;
+			case 7:		this.type_id = TypeID.STRING_TYPE;
+			case 8:		this.type_id = TypeID.CLASS_TYPE;
+			case 9:		this.type_id = TypeID.DELEGATE_TYPE;
+			case 10: 	this.type_id = TypeID.ENUM_TYPE;
+			case 11:	this.type_id = TypeID.NULL_TYPE;
+			case 12:	this.type_id = TypeID.NATIVE_POINTER_TYPE;
+			case 13:	this.type_id = TypeID.BASE_TYPE;
+			case 14:	this.type_id = TypeID.UNCLEAR_TYPE;
+			case 15:	this.type_id = TypeID.UNSPECIFIED_IDENTIFIER_TYPE;
+			default:	0;
+		}
+    }
+
+	public string tostring() {
+		return (string)this.type_id;
+	}
+}
+
+int __typeof(object o);
+Type typeof(object o) {
+	int code = __typeof(o);
+	Type ret = new Type(code);
+	return ret;
+}

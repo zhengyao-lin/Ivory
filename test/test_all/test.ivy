@@ -1,5 +1,6 @@
 //----->test<-----
 using Ivory.IO;
+using Ivory.Type;
 const glue = "\t";
 
 public class Arrow
@@ -162,7 +163,7 @@ void RUNNING_BLOCK6()
 
 	int res;
 	object[] is = new object[0];
-	for (i = 1; i <= 100000; i++) {
+	for (i = 1; i <= 1000; i++) {
 		//is[i-1] = i;
 		is.add((string)i);
 	} print("done!");
@@ -190,6 +191,54 @@ void RUNNING_BLOCK7(int i)
 	println(glue + (string)o);
 }
 
+delegate int ADDER(boolean if_print, ...);
+int adder_f(boolean print, ...p)
+{
+	int i, res;
+	for (i = 0, res = 0; i < p.size(); i++):
+		res += (int)p[i];
+	if (print):;//print(res)
+	return res;
+}
+
+void RUNNING_BLOCK8()//delegate-object test
+{
+	ADDER a = adder_f;
+	object o1 = a;
+	print("BLOCK8");
+	print(glue + a(true, 1, 2, 3, 4, 5, 6, 7));
+	print(glue + ((ADDER)o1)(true, 1, 2, 3, 4, 5, 6, 7));
+	object o2 = o1;
+	print(glue + ((ADDER)o2)(true, 1, 2, 3, 4, 5, 6, 7));
+	println("");
+}
+
+void RUNNING_BLOCK9()
+{
+	print("BLOCK9");
+
+	Arrow a;
+	ADDER b;
+	native_pointer p;
+	int[] i = {1, 2};
+	object[] o = {(object)a, p};
+
+	print(glue + typeof(10).tostring());
+	print(glue + typeof(10.0).tostring());
+	print(glue + typeof(10.0l).tostring());
+	print(glue + typeof(o).tostring());
+	println("");
+	print(glue + typeof("str").tostring());
+	print(glue + typeof(a).tostring());
+	print(glue + typeof(b).tostring());
+	print(glue + glue + typeof(TypeID.ENUM_TYPE).tostring());
+	println("");
+	print(glue + typeof(null).tostring());
+	print(glue + typeof(p).tostring());
+
+	println("");
+}
+
 println("-->test start<--\n");
 
 /* RUNNING... */
@@ -201,6 +250,8 @@ RUNNING_BLOCK5();
 RUNNING_BLOCK6();
 int k = 10;
 RUNNING_BLOCK7(k);
+RUNNING_BLOCK8();
+RUNNING_BLOCK9();
 
 //println(plus1(2213213));
 

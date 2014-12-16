@@ -350,6 +350,9 @@ struct TypeSpecifier_tag {
             EnumDefinition *enum_definition;
             int enum_index;
         } enum_ref;
+		struct {
+            TypeSpecifier *origin;
+        } object_ref;
     } u;
     int                 line_number;
     TypeDerive  *derive;

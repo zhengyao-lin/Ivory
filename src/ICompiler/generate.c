@@ -1085,7 +1085,8 @@ generate_cast_expression(ISandBox_Executable *exe, Block *block,
         break;
     case ALL_TO_OBJECT_CAST:
         generate_expression(exe, block, expr->u.cast.operand, ob);
-        generate_code(ob, expr->line_number, ISandBox_CAST_ALL_TO_OBJECT);
+        generate_code(ob, expr->line_number, ISandBox_CAST_ALL_TO_OBJECT,
+						(int)expr->type->u.object_ref.origin->basic_type);
         break;/************************************************************************/
     default:
         DBG_assert(0, ("expr->u.cast.type..%d", expr->u.cast.type));
@@ -1611,7 +1612,8 @@ generate_expression(ISandBox_Executable *exe, Block *current_block,
                 generate_code(ob, expr->line_number, ISandBox_CAST_OBJECT_TO_NATIVE_POINTER);
                 break;
             case ISandBox_OBJECT_TYPE:
-				generate_code(ob, expr->line_number, ISandBox_CAST_ALL_TO_OBJECT);
+				generate_code(ob, expr->line_number, ISandBox_CAST_ALL_TO_OBJECT,
+								(int)expr->type->u.object_ref.origin->basic_type);
                 break;
             default:
                 DBG_assert(0, ("unsupport cast type: expr->u.fcast.type->basic_type..%d", expr->u.fcast.type->basic_type));

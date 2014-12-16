@@ -358,11 +358,12 @@ ISandBox_cast_object_to_native_pointer(ISandBox_VirtualMachine *ISandBox,
 /* newly added */
 ISandBox_ObjectRef
 ISandBox_create_object_i(ISandBox_VirtualMachine *ISandBox,
-                        ISandBox_Value object)
+                        ISandBox_Value object, int from_type)
 {
 	ISandBox_ObjectRef ret;
 	ret = alloc_object(ISandBox, OBJECT);
 	ret.data->u.object = object;
+	ret.data->object_type = from_type;
 
     /*ISandBox_ObjectRef ret;
 
@@ -375,11 +376,11 @@ ISandBox_create_object_i(ISandBox_VirtualMachine *ISandBox,
 
 ISandBox_ObjectRef
 ISandBox_create_object(ISandBox_VirtualMachine *ISandBox, ISandBox_Context *context,
-                          ISandBox_Value object)
+                          ISandBox_Value object, int from_type)
 {
     ISandBox_ObjectRef ret;
 
-    ret = ISandBox_create_object_i(ISandBox, object);
+    ret = ISandBox_create_object_i(ISandBox, object, from_type);
     add_ref_in_native_method(context, &ret);
 
     return ret;

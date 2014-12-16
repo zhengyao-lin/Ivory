@@ -1,3 +1,4 @@
+using Ivory.Type;
 int[] array = new int[0];
 
 int i;
@@ -25,10 +26,18 @@ const string glue = (string)(double)((int)123.9);
 const int b = 1223;
 
 delegate int MoreArgs(...);
+delegate int path(...);
 int carg(...a)
 {
 	println((string)a[0]);
 }
 
 MoreArgs f = carg;
+object o1 = f;
+object o2 = carg;
 f("hi, it's me");
+((path)o1)("hi, it's me");
+
+object o3 = 123;
+Type t = typeof("123");
+println(t.tostring());

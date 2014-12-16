@@ -931,6 +931,10 @@ block
 		{
             $$ = Ivyc_close_block(Ivyc_open_block(), Ivyc_create_statement_list($2));
 		}
+		| COLON SEMICOLON
+		{
+            $$ = Ivyc_close_block(Ivyc_open_block(), NULL);
+		}
         ;
 class_definition
         : class_or_interface IDENTIFIER

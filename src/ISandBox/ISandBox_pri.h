@@ -169,6 +169,7 @@ typedef struct {
 
 struct ISandBox_Object_tag {
     ObjectType  type;
+	int object_type;
     unsigned int        marked:1;
     union {
         ISandBox_Value                  object;
@@ -309,7 +310,7 @@ ISandBox_ObjectRef ISandBox_cast_object_to_delegate(ISandBox_VirtualMachine *ISa
                                                  ISandBox_ObjectRef object);
 ISandBox_ObjectRef ISandBox_cast_object_to_native_pointer(ISandBox_VirtualMachine *ISandBox,
                                                  ISandBox_ObjectRef object);
-ISandBox_ObjectRef ISandBox_create_object_i(ISandBox_VirtualMachine *ISandBox, ISandBox_Value object);
+ISandBox_ObjectRef ISandBox_create_object_i(ISandBox_VirtualMachine *ISandBox, ISandBox_Value object, int from_type);
 ISandBox_ObjectRef ISandBox_create_delegate(ISandBox_VirtualMachine *ISandBox,
                                   ISandBox_ObjectRef object, int index);
 void ISandBox_garbage_collect(ISandBox_VirtualMachine *ISandBox);

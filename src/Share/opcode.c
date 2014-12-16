@@ -109,7 +109,7 @@ OpcodeInfo ISandBox_opcode_info[] = {
     {"cast_double_to_string", "", 0},
     {"cast_long_double_to_string", "", 0},
     {"cast_enum_to_string", "s", 0},
-    {"cast_all_to_object", "", 0},
+    {"cast_all_to_object", "s", 0},
 /**************************************************************************************************************/
     {"cast_object_to_string", "", 0},
     {"cast_object_to_int", "", 0},

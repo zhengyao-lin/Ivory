@@ -144,7 +144,7 @@ ISandBox_ObjectRef
 ISandBox_create_ISandBox_string(ISandBox_VirtualMachine *ISandBox, ISandBox_Context *context,
                       ISandBox_Char *str);
 ISandBox_ObjectRef
-ISandBox_create_object(ISandBox_VirtualMachine *ISandBox, ISandBox_Context *context, ISandBox_Value object);
+ISandBox_create_object(ISandBox_VirtualMachine *ISandBox, ISandBox_Context *context, ISandBox_Value object, int from_type);
 ISandBox_ObjectRef
 ISandBox_create_class_object(ISandBox_VirtualMachine *ISandBox, ISandBox_Context *context,
                         int class_index);

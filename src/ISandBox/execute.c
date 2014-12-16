@@ -2284,9 +2284,10 @@ ISandBox_execute_i(ISandBox_VirtualMachine *ISandBox, Function *func,
             break;
         case ISandBox_CAST_ALL_TO_OBJECT:
         {
+			int origin_type = GET_2BYTE_INT(&code[pc+1]);
             STO_WRITE(ISandBox, -1,
-                      ISandBox_create_object_i(ISandBox, ST(ISandBox, -1)));
-            pc++;
+                      ISandBox_create_object_i(ISandBox, ST(ISandBox, -1), origin_type));
+            pc += 3;
             break;
         }/* !!!unstable!!! */
         case ISandBox_CAST_OBJECT_TO_STRING:

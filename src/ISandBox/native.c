@@ -4,9 +4,12 @@
 #include "MEM.h"
 #include "DBG.h"
 #include "ISandBox_pri.h"
+
+/* Ivory Lib */
 #include "IvoryLib/IO.c"
 #include "IvoryLib/Math.c"
 #include "IvoryLib/System.c"
+#include "IvoryLib/Type.c"
 
 static void file_finalizer(ISandBox_VirtualMachine *ISandBox, ISandBox_Object* obj);
 
@@ -653,6 +656,9 @@ ISandBox_add_native_functions(ISandBox_VirtualMachine *ISandBox)
 
     /* Math.ivh */
     ISandBox_add_native_functions_math(ISandBox);
+
+    /* Type.ivh */
+    ISandBox_add_native_functions_type(ISandBox);
 
     /* lang.ivh */
     ISandBox_add_native_function(ISandBox, "Ivory.lang", "print", nv_print_proc, 1,
