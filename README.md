@@ -42,7 +42,6 @@ If everything is OK, it will output like this:
 		20 is int --> true
 		20.000000 is int --> false
 		20.000000000000 is long double --> true
-		20.000000000000 is long double --> true
 
 	-->test end<--
 	press enter to exit...

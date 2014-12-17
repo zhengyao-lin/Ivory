@@ -242,8 +242,6 @@ void RUNNING_BLOCK9()
 	print(glue + 20.0 + " is int --> " + 20.0 is int);
 	println("");
 	print(glue + 20l + " is long double --> " + 20l is long double);
-	println("");
-	print(glue + 20l + " is long double --> " + 20l is long double);
 
 	//str[0] = 123;
 	//println(str[0]);
