@@ -150,6 +150,7 @@ ISandBox_Boolean st_character_literal_state;
 <INITIAL>"super"        return SUPER_T;
 <INITIAL>"constructor"  return CONSTRUCTOR;
 <INITIAL>"instanceof"   return INSTANCEOF;
+<INITIAL>"is"   		return ISTYPE;
 <INITIAL>"delegate"     return DELEGATE;
 <INITIAL>"enum"         return ENUM;
 <INITIAL>"final"        return FINAL;
@@ -197,6 +198,26 @@ ISandBox_Boolean st_character_literal_state;
     yylval.identifier = Ivyc_create_identifier(yytext);
     return IDENTIFIER;
 }
+<INITIAL>[1-9][0-9]*[lL] {
+    Expression  *expression = Ivyc_alloc_expression(LONG_DOUBLE_EXPRESSION);
+    sscanf(yytext, "%Lf", &expression->u.long_double_value);
+    yylval.expression = expression;
+    return LONG_DOUBLE_LITERAL;
+}
+<INITIAL>[0-9]+\.[0-9]+[lL] {
+    Expression  *expression = Ivyc_alloc_expression(LONG_DOUBLE_EXPRESSION);
+    sscanf(yytext, "%Lf", &expression->u.long_double_value);
+    yylval.expression = expression;
+    return LONG_DOUBLE_LITERAL;
+}
+<INITIAL>"0"[xX][0-9a-fA-F]+[lL] {
+    Expression  *expression = Ivyc_alloc_expression(LONG_DOUBLE_EXPRESSION);
+    int input;
+    sscanf(yytext, "%x", &input);
+    expression->u.long_double_value = (long double)input;
+    yylval.expression = expression;
+    return LONG_DOUBLE_LITERAL;
+}
 <INITIAL>[1-9][0-9]* {
     Expression  *expression = Ivyc_alloc_expression(INT_EXPRESSION);
     sscanf(yytext, "%d", &expression->u.int_value);
@@ -214,26 +235,6 @@ ISandBox_Boolean st_character_literal_state;
     expression->u.int_value = 0;
     yylval.expression = expression;
     return INT_LITERAL;
-}
-<INITIAL>"0"[xX][0-9a-fA-F]+[lL] {
-    Expression  *expression = Ivyc_alloc_expression(LONG_DOUBLE_EXPRESSION);
-    int input;
-    sscanf(yytext, "%x", &input);
-    expression->u.long_double_value = (long double)input;
-    yylval.expression = expression;
-    return INT_LITERAL;
-}
-<INITIAL>[1-9][0-9]*[lL] {
-    Expression  *expression = Ivyc_alloc_expression(LONG_DOUBLE_EXPRESSION);
-    sscanf(yytext, "%Lf", &expression->u.long_double_value);
-    yylval.expression = expression;
-    return LONG_DOUBLE_LITERAL;
-}
-<INITIAL>[0-9]+\.[0-9]+[lL] {
-    Expression  *expression = Ivyc_alloc_expression(LONG_DOUBLE_EXPRESSION);
-    sscanf(yytext, "%Lf", &expression->u.long_double_value);
-    yylval.expression = expression;
-    return LONG_DOUBLE_LITERAL;
 }
 <INITIAL>[0-9]+\.[0-9]{6,}+ {
     Expression  *expression = Ivyc_alloc_expression(LONG_DOUBLE_EXPRESSION);

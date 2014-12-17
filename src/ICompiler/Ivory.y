@@ -49,7 +49,7 @@
         VOID_T VARIABLE_ARGS VARIABLE_T BOOLEAN_T INT_T DOUBLE_T LONG_DOUBLE_T OBJECT_T STRING_T VCLASS_T NATIVE_POINTER_T
         NEW USING RENAME
         CLASS_T INTERFACE_T PUBLIC_T PRIVATE_T VIRTUAL_T OVERRIDE_T
-        ABSTRACT_T THIS_T SUPER_T CONSTRUCTOR INSTANCEOF
+        ABSTRACT_T THIS_T SUPER_T CONSTRUCTOR INSTANCEOF ISTYPE
         DOWN_CAST_BEGIN DOWN_CAST_END WL DELEGATE FINAL ENUM CONST
 
 %type   <package_name> package_name
@@ -478,6 +478,10 @@ postfix_expression
         | primary_expression INSTANCEOF type_specifier
         {
             $$ = Ivyc_create_instanceof_expression($1, $3);
+        }
+        | primary_expression ISTYPE type_specifier
+        {
+            $$ = Ivyc_create_istype_expression($1, $3);
         }
         ;
 primary_expression

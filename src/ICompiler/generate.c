@@ -917,13 +917,17 @@ get_binary_expression_offset(Expression *left, Expression *right,
     if ((left->kind == NULL_EXPRESSION && right->kind != NULL_EXPRESSION)
         || (left->kind != NULL_EXPRESSION && right->kind == NULL_EXPRESSION)) {
         offset = 2; /* object type */
-
     } else if ((code == ISandBox_EQ_INT || code == ISandBox_NE_INT)
                && Ivyc_is_string(left->type)) {
         offset = 3; /* string type */
-
-    } else if (Ivyc_is_long_double(left->type)
-        && code == ISandBox_EQ_INT || code == ISandBox_NE_INT) {
+    } else if ((code == ISandBox_EQ_INT || code == ISandBox_NE_INT)
+               && Ivyc_is_string(right->type)) {
+        offset = 3; /* string type */
+    } else if ((code == ISandBox_EQ_INT || code == ISandBox_NE_INT)
+        && Ivyc_is_long_double(left->type)) {
+            offset = 4; /* long double type */
+    } else if ((code == ISandBox_EQ_INT || code == ISandBox_NE_INT)
+        && Ivyc_is_long_double(right->type)) {
             offset = 4; /* long double type */
     } else {
         offset = get_opcode_type_offset(left->type);
@@ -1175,6 +1179,15 @@ generate_instanceof_expression(ISandBox_Executable *exe, Block *block,
     generate_expression(exe, block, expr->u.instanceof.operand, ob);
     generate_code(ob, expr->line_number, ISandBox_INSTANCEOF,
                   expr->u.instanceof.type->u.class_ref.class_index);
+}
+
+static void
+generate_istype_expression(ISandBox_Executable *exe, Block *block,
+                               Expression *expr, OpcodeBuf *ob)
+{
+    generate_expression(exe, block, expr->u.istype.operand, ob);
+    generate_code(ob, expr->line_number, ISandBox_ISTYPE,
+                  (int)expr->u.istype.type->basic_type);
 }
 
 static void
@@ -1523,6 +1536,9 @@ generate_expression(ISandBox_Executable *exe, Block *current_block,
         break;
     case INSTANCEOF_EXPRESSION:
         generate_instanceof_expression(exe, current_block, expr, ob);
+        break;
+    case ISTYPE_EXPRESSION:
+        generate_istype_expression(exe, current_block, expr, ob);
         break;
     case DOWN_CAST_EXPRESSION:
         generate_down_cast_expression(exe, current_block, expr, ob);

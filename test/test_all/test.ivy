@@ -162,10 +162,10 @@ void RUNNING_BLOCK6()
 	print("BLOCK6" + glue);
 
 	int res;
-	object[] is = new object[0];
+	object[] ii = new object[0];
 	for (i = 1; i <= 1000; i++) {
 		//is[i-1] = i;
-		is.add((string)i);
+		ii.add((string)i);
 	} print("done!");
 	/*for (i = 0; i < is.size(); i++) {
 		res += (int)is[i];
@@ -237,7 +237,22 @@ void RUNNING_BLOCK9()
 	print(glue + typeof(p).tostring());
 
 	println("");
+	print(glue + 20 + " is int --> " + 20 is int);
+	println("");
+	print(glue + 20.0 + " is int --> " + 20.0 is int);
+	println("");
+	print(glue + 20l + " is long double --> " + 20l is long double);
+	println("");
+	print(glue + 20l + " is long double --> " + 20l is long double);
+
+	//str[0] = 123;
+	//println(str[0]);
+	//println(UPPER("asddd"));
+
+	println("");
 }
+
+
 
 println("-->test start<--\n");
 

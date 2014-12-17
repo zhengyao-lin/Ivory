@@ -2245,6 +2245,20 @@ ISandBox_execute_i(ISandBox_VirtualMachine *ISandBox, Function *func,
             pc += 3;
             break;
         }
+        case ISandBox_ISTYPE:
+        {
+            ISandBox_ObjectRef* obj = &STO(ISandBox, -1);
+            int target_type = GET_2BYTE_INT(&code[pc+1]);
+            int origin_type = obj->data->object_type;
+
+            if (origin_type == target_type) {
+                STI_WRITE(ISandBox, -1, ISandBox_TRUE);
+            } else {
+                STI_WRITE(ISandBox, -1, ISandBox_FALSE);
+            }
+            pc += 3;
+            break;
+        }
         case ISandBox_THROW:
         {
             ISandBox_ObjectRef* exception = &STO(ISandBox, -1);

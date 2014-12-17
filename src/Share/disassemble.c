@@ -21,7 +21,7 @@ dump_constant_pool(int constant_pool_count, ISandBox_ConstantPool *constant_pool
             printf("double %f\n", constant_pool[i].u.c_double);
             break;
         case ISandBox_CONSTANT_LONG_DOUBLE:
-            printf("long double %lf\n", constant_pool[i].u.c_long_double);
+            printf("long double %Lf\n", constant_pool[i].u.c_long_double);
             break;
         case ISandBox_CONSTANT_STRING:
             printf("string ");

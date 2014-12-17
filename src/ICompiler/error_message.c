@@ -125,6 +125,7 @@ ErrorDefinition Ivyc_error_message_format[] = {
     {"Cスタイルのコメントの途中でファイルが終了しました。"},
     {"文字列リテラルの途中でファイルが終了しました。"},
     {"文字リテラルが2文字以上あります。"},
-    {"assign expression's left item can't be force casted $(name)."},
+    {"assign expression's left item can't be force casted $(name)"},
+	{"the operand of \"is\" expression must be object type"},
     {"dummy"}
 };

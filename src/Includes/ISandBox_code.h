@@ -241,6 +241,7 @@ typedef enum {
     ISandBox_NEW_ARRAY_LITERAL_LONG_DOUBLE,
     ISandBox_SUPER,
     ISandBox_INSTANCEOF,
+    ISandBox_ISTYPE,
     ISandBox_THROW,
     ISandBox_RETHROW,
     ISandBox_GO_FINALLY,
@@ -252,8 +253,8 @@ typedef enum {
 typedef enum {
     ISandBox_CONSTANT_INT,
     ISandBox_CONSTANT_DOUBLE,
-    ISandBox_CONSTANT_LONG_DOUBLE,
-    ISandBox_CONSTANT_STRING
+    ISandBox_CONSTANT_STRING,
+    ISandBox_CONSTANT_LONG_DOUBLE
 } ISandBox_ConstantPoolTag;
 
 typedef struct {

@@ -633,16 +633,12 @@ create_to_string_cast(Expression *src)
 
     if (Ivyc_is_boolean(src->type)) {
         cast = alloc_cast_expression(BOOLEAN_TO_STRING_CAST, src);
-
     } else if (Ivyc_is_int(src->type)) {
         cast = alloc_cast_expression(INT_TO_STRING_CAST, src);
-
     } else if (Ivyc_is_double(src->type)) {
         cast = alloc_cast_expression(DOUBLE_TO_STRING_CAST, src);
-
     } else if (Ivyc_is_long_double(src->type)) {
         cast = alloc_cast_expression(LONG_DOUBLE_TO_STRING_CAST, src);
-
     } else if (Ivyc_is_enum(src->type)) {
         cast = alloc_cast_expression(ENUM_TO_STRING_CAST, src);
     }
@@ -1045,7 +1041,7 @@ cast_binary_expression(Expression *expr)
                                         expr->u.binary_expression.right);
             expr->u.binary_expression.right = cast_expression;
         } else if (Ivyc_is_string(expr->u.binary_expression.right->type)) { /* right is string -> left to string */
-            cast_expression
+			cast_expression
                 = alloc_cast_expression(LONG_DOUBLE_TO_STRING_CAST, 
                                         expr->u.binary_expression.left);
             expr->u.binary_expression.left = cast_expression;
@@ -1057,7 +1053,6 @@ cast_binary_expression(Expression *expr)
 
     if (Ivyc_is_string(expr->u.binary_expression.left->type)
         && expr->kind == ADD_EXPRESSION) {
-
         cast_expression
             = create_to_string_cast(expr->u.binary_expression.right);
         if (cast_expression) {
@@ -1079,12 +1074,12 @@ fix_math_binary_expression(Block *current_block, Expression *expr,
         = fix_expression(current_block, expr->u.binary_expression.right, expr,
                          el_p);
 
+	expr = cast_binary_expression(expr);
     expr = eval_math_expression(current_block, expr);
     if (expr->kind == INT_EXPRESSION || expr->kind == DOUBLE_EXPRESSION
        ||expr->kind == LONG_DOUBLE_EXPRESSION || expr->kind == STRING_EXPRESSION) {
         return expr;
     }
-    expr = cast_binary_expression(expr);
 
     if (Ivyc_is_int(expr->u.binary_expression.left->type)) {
         if (Ivyc_is_int(expr->u.binary_expression.right->type)) {
@@ -1551,13 +1546,10 @@ check_argument(Block *current_block, int line_number,
 		{
 			ArgumentList *origin;
 			origin = arg;
-			/*arg->expression = fix_expression(current_block, arg->expression, NULL, el_p);*/
 			vargs = Ivyc_create_expression_list(arg->expression);
-			/*arg->expression = Ivyc_create_force_cast_expression(Ivyc_create_type_specifier(ISandBox_OBJECT_TYPE), arg->expression);*/
 
 			if (arg->next) {
 				for (arg = arg->next; arg; arg = arg->next) {
-					/*arg->expression = fix_expression(current_block, arg->expression, NULL, el_p);*/
 					vargs = Ivyc_chain_expression_list(vargs, arg->expression);
 				}
 			}
@@ -2180,17 +2172,25 @@ fix_instanceof_expression(Block *current_block, Expression *expr,
     }
 
     if (Ivyc_compare_type(operand->type, target)) {
-        Ivyc_compile_error(expr->line_number,
+        /*Ivyc_compile_error(expr->line_number,
                           INSTANCEOF_MUST_RETURN_TRUE_ERR,
-                          MESSAGE_ARGUMENT_END);
+                          MESSAGE_ARGUMENT_END);*/
+        expr = Ivyc_alloc_expression(BOOLEAN_EXPRESSION);
+    	expr->u.boolean_value = ISandBox_TRUE;
+		expr->type = Ivyc_alloc_type_specifier(ISandBox_BOOLEAN_TYPE);
+		return expr;
     }
 
     if (is_super_class(operand->type->u.class_ref.class_definition,
                        target->u.class_ref.class_definition,
                        &is_interface_dummy, &interface_index_dummy)) {
-        Ivyc_compile_error(expr->line_number,
+        /*vyc_compile_error(expr->line_number,
                           INSTANCEOF_MUST_RETURN_TRUE_ERR,
-                          MESSAGE_ARGUMENT_END);
+                          MESSAGE_ARGUMENT_END);*/
+	    expr = Ivyc_alloc_expression(BOOLEAN_EXPRESSION);
+    	expr->u.boolean_value = ISandBox_TRUE;
+		expr->type = Ivyc_alloc_type_specifier(ISandBox_BOOLEAN_TYPE);
+		return expr;
     }
 
     if (target->u.class_ref.class_definition->class_or_interface
@@ -2198,10 +2198,42 @@ fix_instanceof_expression(Block *current_block, Expression *expr,
         && !is_super_class(target->u.class_ref.class_definition,
                            operand->type->u.class_ref.class_definition,
                            &is_interface_dummy, &interface_index_dummy)) {
-        Ivyc_compile_error(expr->line_number,
+        /*Ivyc_compile_error(expr->line_number,
                           INSTANCEOF_MUST_RETURN_FALSE_ERR,
-                          MESSAGE_ARGUMENT_END);
+                          MESSAGE_ARGUMENT_END);*/
+		expr = Ivyc_alloc_expression(BOOLEAN_EXPRESSION);
+    	expr->u.boolean_value = ISandBox_FALSE;
+		expr->type = Ivyc_alloc_type_specifier(ISandBox_BOOLEAN_TYPE);
+		return expr;
     }
+
+    expr->type = Ivyc_alloc_type_specifier(ISandBox_BOOLEAN_TYPE);
+
+    return expr;
+}
+
+static Expression *
+fix_istype_expression(Block *current_block, Expression *expr,
+                          ExceptionList **el_p)
+{
+    ISandBox_Boolean is_interface_dummy;
+    int type_index;
+    Expression *to_instance;
+
+    expr->u.istype.operand
+        = fix_expression(current_block, expr->u.istype.operand, expr,
+                         el_p);
+
+	if (expr->u.istype.operand->type->basic_type == ISandBox_CLASS_TYPE) {
+		to_instance = Ivyc_alloc_expression(INSTANCEOF_EXPRESSION);
+		to_instance->u.instanceof.operand = expr->u.istype.operand;
+    	to_instance->u.instanceof.type = expr->u.istype.type;
+		expr = fix_instanceof_expression(current_block, to_instance, el_p);
+		return expr;
+	}
+
+	expr->u.istype.operand = create_assign_cast(expr->u.istype.operand, Ivyc_alloc_type_specifier(ISandBox_OBJECT_TYPE), 1);
+	fix_type_specifier(expr->u.istype.type);
 
     expr->type = Ivyc_alloc_type_specifier(ISandBox_BOOLEAN_TYPE);
 
@@ -2447,6 +2479,9 @@ fix_expression(Block *current_block, Expression *expr, Expression *parent,
         break;
     case INSTANCEOF_EXPRESSION:
         expr = fix_instanceof_expression(current_block, expr, el_p);
+        break;
+    case ISTYPE_EXPRESSION:
+        expr = fix_istype_expression(current_block, expr, el_p);
         break;
     case FORCE_CAST_EXPRESSION: /* FALLTHRU *//***************************!!!unstable!!!*******************************/
         /*if ((expr = create_assign_cast(expr, expr->u.fcast.type)) == NULL)*/

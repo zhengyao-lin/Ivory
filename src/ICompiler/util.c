@@ -751,7 +751,7 @@ Ivyc_expression_to_string(Expression *expr)
         sprintf(buf, "%f", expr->u.double_value);
         ISandBox_mbstowcs(buf, wc_buf);
     } else if (expr->kind == LONG_DOUBLE_EXPRESSION) {
-        sprintf(buf, "%lf", expr->u.long_double_value);
+        sprintf(buf, "%Lf", expr->u.long_double_value);
         ISandBox_mbstowcs(buf, wc_buf);
     } else if (expr->kind == STRING_EXPRESSION) {
         return expr->u.string_value;

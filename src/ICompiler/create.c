@@ -643,6 +643,18 @@ Ivyc_create_instanceof_expression(Expression *operand, TypeSpecifier *type)
 }
 
 Expression *
+Ivyc_create_istype_expression(Expression *operand, TypeSpecifier *type)
+{
+    Expression *exp;
+
+    exp = Ivyc_alloc_expression(ISTYPE_EXPRESSION);
+    exp->u.istype.operand = operand;
+    exp->u.istype.type = type;
+
+    return exp;
+}
+
+Expression *
 Ivyc_create_identifier_expression(char *identifier)
 {
     Expression  *exp;

@@ -150,6 +150,7 @@ typedef enum {
     EOF_IN_STRING_LITERAL_ERR,
     TOO_LONG_CHARACTER_LITERAL_ERR,
     ASSIGN_EXPRESSION_LEFT_ITEM_FORCE_CAST_ERR,
+    ISTYPE_EXPRESSION_OPERAND_MUST_BE_OBJECT_ERR,
     COMPILE_ERROR_COUNT_PLUS_1
 } CompileError;
 
@@ -193,6 +194,7 @@ typedef enum {
     INCREMENT_EXPRESSION,
     DECREMENT_EXPRESSION,
     INSTANCEOF_EXPRESSION,
+    ISTYPE_EXPRESSION,
     DOWN_CAST_EXPRESSION,
     CAST_EXPRESSION,
     FORCE_CAST_EXPRESSION,
@@ -460,6 +462,11 @@ typedef struct {
 } InstanceofExpression;
 
 typedef struct {
+    Expression  *operand;
+    TypeSpecifier *type;
+} IsExpression;
+
+typedef struct {
     Expression          *operand;
     TypeSpecifier       *type;
 } DownCastExpression;
@@ -550,6 +557,7 @@ struct Expression_tag {
         IndexExpression         index_expression;
         IncrementOrDecrement    inc_dec;
         InstanceofExpression    instanceof;
+        IsExpression    		istype;
         DownCastExpression      down_cast;
         CastExpression          cast;
         ForceCastExpression     fcast;
@@ -985,6 +993,8 @@ Expression *Ivyc_create_index_expression(Expression *array, Expression *index);
 Expression *Ivyc_create_incdec_expression(Expression *operand,
                                          ExpressionKind inc_or_dec);
 Expression *Ivyc_create_instanceof_expression(Expression *operand,
+                                             TypeSpecifier *type);
+Expression *Ivyc_create_istype_expression(Expression *operand,
                                              TypeSpecifier *type);
 Expression *Ivyc_create_identifier_expression(char *identifier);
 Expression *Ivyc_create_function_call_expression(Expression *function,

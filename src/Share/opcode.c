@@ -174,6 +174,7 @@ OpcodeInfo ISandBox_opcode_info[] = {
     {"new_array_literal_long_double", "s", 1},
     {"super", "", 0},
     {"instanceof", "s", 0},
+    {"istype", "s", 0},
     /**********/
     {"throw", "", -1},
     {"rethrow", "", -1},
