@@ -2175,10 +2175,10 @@ fix_instanceof_expression(Block *current_block, Expression *expr,
         /*Ivyc_compile_error(expr->line_number,
                           INSTANCEOF_MUST_RETURN_TRUE_ERR,
                           MESSAGE_ARGUMENT_END);*/
-        expr = Ivyc_alloc_expression(BOOLEAN_EXPRESSION);
+        /*expr = Ivyc_alloc_expression(BOOLEAN_EXPRESSION);
     	expr->u.boolean_value = ISandBox_TRUE;
 		expr->type = Ivyc_alloc_type_specifier(ISandBox_BOOLEAN_TYPE);
-		return expr;
+		return expr;*/
     }
 
     if (is_super_class(operand->type->u.class_ref.class_definition,
@@ -2187,10 +2187,11 @@ fix_instanceof_expression(Block *current_block, Expression *expr,
         /*vyc_compile_error(expr->line_number,
                           INSTANCEOF_MUST_RETURN_TRUE_ERR,
                           MESSAGE_ARGUMENT_END);*/
+		/*MEM_free(expr);
 	    expr = Ivyc_alloc_expression(BOOLEAN_EXPRESSION);
     	expr->u.boolean_value = ISandBox_TRUE;
 		expr->type = Ivyc_alloc_type_specifier(ISandBox_BOOLEAN_TYPE);
-		return expr;
+		return expr;*/
     }
 
     if (target->u.class_ref.class_definition->class_or_interface
@@ -2201,10 +2202,11 @@ fix_instanceof_expression(Block *current_block, Expression *expr,
         /*Ivyc_compile_error(expr->line_number,
                           INSTANCEOF_MUST_RETURN_FALSE_ERR,
                           MESSAGE_ARGUMENT_END);*/
+		/*MEM_free(expr);
 		expr = Ivyc_alloc_expression(BOOLEAN_EXPRESSION);
     	expr->u.boolean_value = ISandBox_FALSE;
 		expr->type = Ivyc_alloc_type_specifier(ISandBox_BOOLEAN_TYPE);
-		return expr;
+		return expr;*/
     }
 
     expr->type = Ivyc_alloc_type_specifier(ISandBox_BOOLEAN_TYPE);
@@ -2589,9 +2591,11 @@ fix_switch_statement(Block *current_block, SwitchStatement *switch_s,
         fix_statement_list(case_pos->block, case_pos->block->statement_list,
                            fd, el_p);
     }
-    fix_statement_list(switch_s->default_block,
-                       switch_s->default_block->statement_list,
-                       fd, el_p);
+	if (switch_s->default_block) {
+    	fix_statement_list(switch_s->default_block,
+							switch_s->default_block->statement_list,
+							fd, el_p);
+	}
 }
 
 static void

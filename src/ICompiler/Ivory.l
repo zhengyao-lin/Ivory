@@ -128,7 +128,7 @@ ISandBox_Boolean st_character_literal_state;
 <INITIAL>"throws"       return THROWS;
 <INITIAL>"..."          return VARIABLE_ARGS;
 <INITIAL>"var"          return VARIABLE_T;
-<INITIAL>"boolean"      return BOOLEAN_T;
+<INITIAL>"bool"      	return BOOLEAN_T;
 <INITIAL>"void"         return VOID_T;
 <INITIAL>"int"          return INT_T;
 <INITIAL>"double"       return DOUBLE_T;

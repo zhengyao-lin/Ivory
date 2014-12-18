@@ -26,7 +26,7 @@ Then do the test:
 <br/>
 If everything is OK, it will output like this:
 
-    -->test start<--
+	-->test start<--
 
 	BLOCK1	110	hello, world!
 	BLOCK2	990201
@@ -42,6 +42,9 @@ If everything is OK, it will output like this:
 		20 is int --> true
 		20.000000 is int --> false
 		20.000000000000 is long double --> true
+		"I'm a string" is string --> true
+		typeof("I'm a string") is Type --> true
+		pucha!
 
 	-->test end<--
 	press enter to exit...

@@ -121,7 +121,6 @@ void RUNNING_BLOCK5()
 		case 4:
 			print(i + glue);
 			goto it;
-		default:0;
 	}
 	goto in_false;
 	if (false)
@@ -191,8 +190,8 @@ void RUNNING_BLOCK7(int i)
 	println(glue + (string)o);
 }
 
-delegate int ADDER(boolean if_print, ...);
-int adder_f(boolean print, ...p)
+delegate int ADDER(bool if_print, ...);
+int adder_f(bool print, ...p)
 {
 	int i, res;
 	for (i = 0, res = 0; i < p.size(); i++):
@@ -236,18 +235,28 @@ void RUNNING_BLOCK9()
 	print(glue + typeof(null).tostring());
 	print(glue + typeof(p).tostring());
 
+	Type str = typeof("123");
+
 	println("");
 	print(glue + 20 + " is int --> " + 20 is int);
 	println("");
 	print(glue + 20.0 + " is int --> " + 20.0 is int);
 	println("");
 	print(glue + 20l + " is long double --> " + 20l is long double);
+	println("");
+	print(glue + "\"I'm a string\"" + " is string --> " + "\"I'm a string\"" is string);
+	println("");
+	print(glue + "typeof(\"I'm a string\")" + " is Type --> " + typeof("123") is Type);
+
+	if (typeof("123").type_id == typeof("456").type_id) {
+		println("");
+		print(glue + "pucha!\n");
+	}
 
 	//str[0] = 123;
 	//println(str[0]);
 	//println(UPPER("asddd"));
 
-	println("");
 }
 
 
