@@ -1,4 +1,4 @@
-#Ivory
+#Ivory (Windows branch)
 
 #####Ivory is an programming language which can compile JIT to Ivory bytecode and run.#####
 <br/><br/>
@@ -50,8 +50,6 @@ If everything is OK, it will output like this:
 	press enter to exit...
 
 Then, press enter to exit...
-
-**NOTE:**Ivory for Windows is comming soon
 <br/><br/>
 
 ##Hello, world!
