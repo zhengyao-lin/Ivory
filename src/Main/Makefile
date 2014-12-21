@@ -1,4 +1,5 @@
 TARGET = ../bin/Ivory
+CC = gcc
 OBJS = \
   ../ICompiler/compiler.o\
   ../ICompiler/builtin/builtin.o\
@@ -8,7 +9,7 @@ OBJS = \
   ../Debug/dbg.o\
   ./main.o
 
-CFLAGS = -c -g -Wall -ansi -Wswitch-enum -DDEBUG
+CFLAGS = -c -g -Wall -ansi -Wswitch-enum -DDEBUG -DDKM_WINDOWS
 
 INCLUDES = \
   -I/usr/local/include\
