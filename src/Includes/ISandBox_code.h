@@ -18,6 +18,7 @@ typedef enum {
     ISandBox_NULL_TYPE,
     ISandBox_NATIVE_POINTER_TYPE,
     ISandBox_BASE_TYPE,
+	ISandBox_ITERATOR_TYPE,
 	ISandBox_UNCLEAR_TYPE,
     ISandBox_UNSPECIFIED_IDENTIFIER_TYPE
 } ISandBox_BasicType;

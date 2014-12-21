@@ -236,6 +236,9 @@ typedef enum {
 #define Ivyc_is_type_object(type) \
   ((type)->basic_type == ISandBox_OBJECT_TYPE && (type)->derive == NULL)
 
+#define Ivyc_is_iterator(type) \
+  ((type)->basic_type == ISandBox_ITERATOR_TYPE && (type)->derive == NULL)
+
 #define Ivyc_is_string(type) \
   ((type)->basic_type == ISandBox_STRING_TYPE && (type)->derive == NULL)
 

@@ -37,14 +37,14 @@ If everything is OK, it will output like this:
 	BLOCK7	20	1223
 	BLOCK8	28	28	28
 	BLOCK9	INT_TYPE	DOUBLE_TYPE	LONG_DOUBLE_TYPE	OBJECT_TYPE
-		STRING_TYPE	CLASS_TYPE	DELEGATE_TYPE		ENUM_TYPE
-		NULL_TYPE	NATIVE_POINTER_TYPE
-		20 is int --> true
-		20.000000 is int --> false
-		20.000000000000 is long double --> true
-		"I'm a string" is string --> true
-		typeof("I'm a string") is Type --> true
-		pucha!
+			STRING_TYPE	CLASS_TYPE	DELEGATE_TYPE		ENUM_TYPE
+			NULL_TYPE	NATIVE_POINTER_TYPE
+			20 is int --> true
+			20.000000 is int --> false
+			20.000000000000 is long double --> true
+			"I'm a string" is string --> true
+			typeof("I'm a string") is Type --> true
+			pucha!
 
 	-->test end<--
 	press enter to exit...

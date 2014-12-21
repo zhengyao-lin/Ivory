@@ -121,6 +121,7 @@ typedef enum {
     CLASS_OBJECT,
     NATIVE_POINTER_OBJECT,
     DELEGATE_OBJECT,
+    ITERATOR_OBJECT,
     OBJECT_TYPE_COUNT_PLUS_1
 } ObjectType;
 
@@ -157,6 +158,11 @@ typedef struct {
 } ISandBox_ClassObject;
 
 typedef struct {
+	int cursor;
+	ISandBox_Array		*array;
+} Iterator;
+
+typedef struct {
     void                        *pointer;
     ISandBox_NativePointerInfo       *info;
 } NativePointer;
@@ -178,6 +184,7 @@ struct ISandBox_Object_tag {
         ISandBox_ClassObject            class_object;
         NativePointer                   native_pointer;
         Delegate                        delegate;
+        Iterator                        iterator;
     } u;
     struct ISandBox_Object_tag *prev;
     struct ISandBox_Object_tag *next;

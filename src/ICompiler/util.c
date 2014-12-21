@@ -643,6 +643,9 @@ Ivyc_get_basic_type_name(ISandBox_BasicType type)
     case ISandBox_OBJECT_TYPE:
         return "object";
         break;
+    case ISandBox_ITERATOR_TYPE:
+        return "iterator";
+        break;
     case ISandBox_STRING_TYPE:
         return "string";
         break;

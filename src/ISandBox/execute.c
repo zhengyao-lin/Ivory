@@ -403,9 +403,8 @@ create_array_sub(ISandBox_VirtualMachine *ISandBox, int dim, int dim_index,
         case ISandBox_LONG_DOUBLE_TYPE:
             ret = ISandBox_create_array_long_double_i(ISandBox, size);
             break;
-		case ISandBox_OBJECT_TYPE:
-			ret = ISandBox_create_array_object_i(ISandBox, size);
-			break;
+		case ISandBox_OBJECT_TYPE: /* FALLTHRU */
+		case ISandBox_ITERATOR_TYPE: /* FALLTHRU */
         case ISandBox_STRING_TYPE: /* FALLTHRU */
         case ISandBox_NATIVE_POINTER_TYPE:
         case ISandBox_CLASS_TYPE:

@@ -46,7 +46,7 @@
         TRUE_T FALSE_T EXCLAMATION DOT
         ADD_ASSIGN_T SUB_ASSIGN_T MUL_ASSIGN_T DIV_ASSIGN_T MOD_ASSIGN_T
         INCREMENT DECREMENT TRY CATCH FINALLY THROW THROWS
-        VOID_T VARIABLE_ARGS VARIABLE_T BOOLEAN_T INT_T DOUBLE_T LONG_DOUBLE_T OBJECT_T STRING_T VCLASS_T NATIVE_POINTER_T
+        VOID_T VARIABLE_ARGS ITERATOR_T VARIABLE_T BOOLEAN_T INT_T DOUBLE_T LONG_DOUBLE_T OBJECT_T STRING_T VCLASS_T NATIVE_POINTER_T
         NEW USING RENAME
         CLASS_T INTERFACE_T PUBLIC_T PRIVATE_T VIRTUAL_T OVERRIDE_T
         ABSTRACT_T THIS_T SUPER_T CONSTRUCTOR INSTANCEOF ISTYPE
@@ -200,6 +200,10 @@ basic_type_specifier
         {
             $$ = ISandBox_OBJECT_TYPE;
         }
+        | ITERATOR_T
+        {
+            $$ = ISandBox_ITERATOR_TYPE;
+        }
         | STRING_T
         {
             $$ = ISandBox_STRING_TYPE;
@@ -279,16 +283,6 @@ parameter_list
         {
             $$ = Ivyc_chain_parameter($4, $1, $2);
         }
-        /*| VARIABLE_ARGS IDENTIFIER COMMA parameter_list
-        {
-			TypeSpecifier *basic_type = Ivyc_create_type_specifier(ISandBox_OBJECT_TYPE);
-            $$ = Ivyc_chain_parameter($4, Ivyc_create_array_type_specifier(basic_type), $2);
-        }
-        | VARIABLE_ARGS COMMA parameter_list
-        {
-			TypeSpecifier *basic_type = Ivyc_create_type_specifier(ISandBox_OBJECT_TYPE);
-            $$ = Ivyc_chain_parameter($3, Ivyc_create_array_type_specifier(basic_type), UNDEFINED_VARIABLE_ARGS);
-        }*/
         ;
 argument_list
         : assignment_expression

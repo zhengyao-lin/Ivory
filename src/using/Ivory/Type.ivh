@@ -14,6 +14,7 @@ enum TypeID {
     NULL_TYPE,
     NATIVE_POINTER_TYPE,
     BASE_TYPE,
+    ITERATOR_TYPE,
 	UNCLEAR_TYPE,
     UNSPECIFIED_IDENTIFIER_TYPE
 }
@@ -38,8 +39,9 @@ public class Type {
 			case 11:	this.type_id = TypeID.NULL_TYPE;
 			case 12:	this.type_id = TypeID.NATIVE_POINTER_TYPE;
 			case 13:	this.type_id = TypeID.BASE_TYPE;
-			case 14:	this.type_id = TypeID.UNCLEAR_TYPE;
-			case 15:	this.type_id = TypeID.UNSPECIFIED_IDENTIFIER_TYPE;
+			case 14:	this.type_id = TypeID.ITERATOR_TYPE;
+			case 15:	this.type_id = TypeID.UNCLEAR_TYPE;
+			case 16:	this.type_id = TypeID.UNSPECIFIED_IDENTIFIER_TYPE;
 			default:	0;
 		}
     }

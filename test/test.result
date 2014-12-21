@@ -136,17 +136,17 @@ a..3, b..4.000000
 no_arg
 a + b..28
 a + b + c..10.000000
-boolean_func..true
+bool_func..true
 int_func..3
 double_func..3.000000
 string_func..alpha
 ********** recursive call **********
  a..10 a..9 a..8 a..7 a..6 a..5 a..4 a..3 a..2 a..1 a..0
  a..0 a..1 a..2 a..3 a..4 a..5 a..6 a..7 a..8 a..9 a..10
-boolean_value..true
-!boolean_value..false
+bool_value..true
+!bool_value..false
 true
-boolean_value || false
+bool_value || false
 true == true good
 true != false good
 ! operator good.

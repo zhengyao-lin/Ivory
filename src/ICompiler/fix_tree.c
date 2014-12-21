@@ -2696,6 +2696,7 @@ fix_return_statement(Block *current_block, Statement *statement,
                 return_value->u.long_double_value = 0.0;
                 break;
             case ISandBox_OBJECT_TYPE: /* FALLTHRU */
+            case ISandBox_ITERATOR_TYPE: /* FALLTHRU */
             case ISandBox_STRING_TYPE: /* FALLTHRU */
             case ISandBox_NATIVE_POINTER_TYPE: /* FALLTHRU */
             case ISandBox_CLASS_TYPE:

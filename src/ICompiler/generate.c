@@ -565,6 +565,7 @@ get_opcode_type_offset(TypeSpecifier *type)
         return 3;
         break;
     case ISandBox_OBJECT_TYPE: /* FALLTHRU */
+    case ISandBox_ITERATOR_TYPE: /* FALLTHRU */
     case ISandBox_STRING_TYPE: /* FALLTHRU */
     case ISandBox_NATIVE_POINTER_TYPE: /* FALLTHRU */
     case ISandBox_CLASS_TYPE: /* FALLTHRU */

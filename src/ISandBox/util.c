@@ -66,6 +66,7 @@ ISandBox_initialize_value(ISandBox_TypeSpecifier *type, ISandBox_Value *value)
             value->long_double_value = 0.0;
             break;
         case ISandBox_OBJECT_TYPE: /* FALLTHRU */
+		case ISandBox_ITERATOR_TYPE: /* FALLTHRU */
         case ISandBox_STRING_TYPE: /* FALLTHRU */
         case ISandBox_NATIVE_POINTER_TYPE: /* FALLTHRU */
         case ISandBox_CLASS_TYPE: /* FALLTHRU */

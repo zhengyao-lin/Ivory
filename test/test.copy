@@ -316,9 +316,9 @@ int func_with_local_variable(double a) {
     print("a + b + c.." + (a + b + c) + "\n");
 }
 
-println("boolean_func.." + boolean_func(true));
+println("bool_func.." + bool_func(true));
 
-boolean boolean_func(boolean b) {
+bool bool_func(bool b) {
     return b;
 }
 
@@ -359,23 +359,23 @@ int recursive(int count) {
 
 
 ////////////////////////////////////////////////////////////
-// Check boolean operations
+// Check bool operations
 ////////////////////////////////////////////////////////////
-boolean boolean_value;
+bool bool_value;
 
-boolean_value = true;
-print("boolean_value.." + boolean_value + "\n");
-print("!boolean_value.." + !boolean_value + "\n");
-if (boolean_value) {
+bool_value = true;
+print("bool_value.." + bool_value + "\n");
+print("!bool_value.." + !bool_value + "\n");
+if (bool_value) {
     print("true\n");
 } else {
     print("false\n");
 }
-if (boolean_value || false) {
-    print("boolean_value || false\n");
+if (bool_value || false) {
+    print("bool_value || false\n");
 }
-if (boolean_value && false) {
-    print("boolean_value && false\n");
+if (bool_value && false) {
+    print("bool_value && false\n");
 }
 
 if (true == true) {
@@ -397,7 +397,7 @@ if (!false) {
     print("! operator good.\n");
 }
 
-boolean true_value;
+bool true_value;
 true_value = true;
 
 if (true_value == true) {
@@ -415,7 +415,7 @@ if (true_value != false) {
 if (!true_value) {
     print("! operator bad.\n");
 }
-boolean false_value;
+bool false_value;
 false_value = false;
 
 if (!false_value) {
