@@ -5,8 +5,8 @@ void println(string str) {
 }
 
 public class File {
-    native_pointer fp;
-    constructor initialize(native_pointer fp) {
+    native fp;
+    constructor initialize(native fp) {
 	    this.fp = fp;
     }
 }

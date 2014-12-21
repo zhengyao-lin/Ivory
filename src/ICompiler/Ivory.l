@@ -135,7 +135,7 @@ ISandBox_Boolean st_character_literal_state;
 <INITIAL>"long double"  return LONG_DOUBLE_T;
 <INITIAL>"object"       return OBJECT_T;
 <INITIAL>"string"       return STRING_T;
-<INITIAL>"native_pointer"       return NATIVE_POINTER_T;
+<INITIAL>"native"       return NATIVE_POINTER_T;
 <INITIAL>"new"          return NEW;
 <INITIAL>"using"        return USING;
 <INITIAL>"rename"       return RENAME;

@@ -218,7 +218,7 @@ void RUNNING_BLOCK9()
 
 	Arrow a;
 	ADDER b;
-	native_pointer p;
+	native p;
 	int[] i = {1, 2};
 	object[] o = {(object)a, p};
 

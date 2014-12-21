@@ -15,7 +15,7 @@
 ../Ivory nullpointer.ivy > nullpointer_.result 2>&1
 ../Ivory array_ex.ivy > array_ex_.result 2>&1
 ../Ivory else_ex.ivy > else_ex_.result 2>&1
-../Ivory native_pointer.ivy
+../Ivory native.ivy
 ../Ivory switch.ivy > switch_.result 2>&1
 ../Ivory final.ivy > final_.result 2>&1
 ../Ivory do_while.ivy > do_while_.result 2>&1

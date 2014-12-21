@@ -1,12 +1,12 @@
 using Ivory.lang;
 
-native_pointer __fopen(string file_name, string mode);
-string __fgets(native_pointer fp);
-void __fputs(string str, native_pointer fp);
-void __fclose(native_pointer fp);
+native __fopen(string file_name, string mode);
+string __fgets(native fp);
+void __fputs(string str, native fp);
+void __fclose(native fp);
 
 File fopen(string file_name, string mode) {
-    native_pointer fp = __fopen(file_name, mode);
+    native fp = __fopen(file_name, mode);
     if (fp == null) {
 	return null;
     } else {
