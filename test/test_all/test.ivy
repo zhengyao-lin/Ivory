@@ -259,7 +259,7 @@ void RUNNING_BLOCK9()
 
 }
 
-void RUNNING_BLOCK10()//iterator
+void RUNNING_BLOCK10()//iterator test
 {
 	print("BLOCK9");
 	double[] ii = {1.23442, 11, 3.141592654, 333, 10, 100, 1000};
