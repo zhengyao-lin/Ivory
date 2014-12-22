@@ -739,12 +739,6 @@ create_assign_cast(Expression *src, TypeSpecifier *dest, int i)
         return src;
     }
 
-	if (Ivyc_is_base_type(src->type))
-	{
-		src->type = Ivyc_alloc_type_specifier(dest->basic_type);
-		return src;
-	}
-
     if (Ivyc_is_int(src->type) && Ivyc_is_double(dest)) {
         cast_expr = alloc_cast_expression(INT_TO_DOUBLE_CAST, src);
         return cast_expr;
@@ -777,6 +771,10 @@ create_assign_cast(Expression *src, TypeSpecifier *dest, int i)
         return cast_expr;
     }/*********************************************************************************************/
 
+	if (Ivyc_is_base_type(src->type))
+	{
+		return src;
+	}
     if (i == 1)
         cast_mismatch_error(src->line_number, src->type, dest);
 

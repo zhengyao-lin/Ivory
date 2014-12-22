@@ -263,11 +263,13 @@ void RUNNING_BLOCK10()//iterator
 {
 	print("BLOCK9");
 	double[] ii = {1.23442, 11, 3.141592654, 333, 10, 100, 1000};
+	object res;
 	iterator ite;
 
 	for (ite = ii.getIterator(); ite.hasNext();) {
 		ite.next();
-		print(glue + (double)ite.current());
+		res = ite.current();
+		print(glue + (double)res);
 	}
 	println("");
 }
