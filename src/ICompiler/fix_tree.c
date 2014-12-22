@@ -771,7 +771,7 @@ create_assign_cast(Expression *src, TypeSpecifier *dest, int i)
         return cast_expr;
     }/*********************************************************************************************/
 
-	if (Ivyc_is_base_type(src->type))
+	if (Ivyc_is_base_type(src->type))/*****/
 	{
 		return src;
 	}
