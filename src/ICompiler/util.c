@@ -658,9 +658,11 @@ Ivyc_get_basic_type_name(ISandBox_BasicType type)
     case ISandBox_NULL_TYPE:
         return "null";
         break;
+	case ISandBox_BASE_TYPE: /* FALLTHRU */
+		return "base";
+		break;
     case ISandBox_DELEGATE_TYPE: /* FALLTHRU */
     case ISandBox_ENUM_TYPE: /* FALLTHRU */
-    case ISandBox_BASE_TYPE: /* FALLTHRU */
     case ISandBox_UNSPECIFIED_IDENTIFIER_TYPE: /* FALLTHRU */
     default:
         DBG_assert(0, ("bad case. type..%d\n", type));

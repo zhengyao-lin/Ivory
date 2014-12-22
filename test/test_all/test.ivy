@@ -259,7 +259,18 @@ void RUNNING_BLOCK9()
 
 }
 
+void RUNNING_BLOCK10()//iterator
+{
+	print("BLOCK9");
+	double[] ii = {1.23442, 11, 3.141592654, 333, 10, 100, 1000};
+	iterator ite;
 
+	for (ite = ii.getIterator(); ite.hasNext();) {
+		ite.next();
+		print(glue + (double)ite.current());
+	}
+	println("");
+}
 
 println("-->test start<--\n");
 
@@ -274,6 +285,7 @@ int k = 10;
 RUNNING_BLOCK7(k);
 RUNNING_BLOCK8();
 RUNNING_BLOCK9();
+RUNNING_BLOCK10();
 
 //println(plus1(2213213));
 

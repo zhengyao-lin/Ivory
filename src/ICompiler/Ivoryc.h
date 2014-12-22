@@ -221,6 +221,9 @@ typedef enum {
 #define Ivyc_is_unknown_type(type) \
   ((type)->basic_type == ISandBox_UNCLEAR_TYPE && (type)->derive == NULL)
 
+#define Ivyc_is_base_type(type) \
+  ((type)->basic_type == ISandBox_BASE_TYPE && (type)->derive == NULL)
+
 #define Ivyc_is_int(type) \
   ((type)->basic_type == ISandBox_INT_TYPE && (type)->derive == NULL)
 
@@ -923,6 +926,8 @@ struct Ivyc_Compiler_tag {
     FunctionDefinition  *array_method;
     int                 string_method_count;
     FunctionDefinition  *string_method;
+    int                 iterator_method_count; /* iterator */
+    FunctionDefinition  *iterator_method;
     Encoding            source_encoding;
 };
 

@@ -48,6 +48,8 @@ typedef enum {
     PARSE_DOUBLE_FORMAT_ERR,
     PARSE_LONG_DOUBLE_ARG_NULL_ERR,
     PARSE_LONG_DOUBLE_FORMAT_ERR,
+	OUT_OF_ITERATOR_ERR,
+	NEW_ITERATOR_ERR,
     NATIVE_RUNTIME_ERROR_COUNT_PLUS_1
 } NativeRuntimeError;
 
@@ -539,6 +541,17 @@ nv_array_add_proc(ISandBox_VirtualMachine *ISandBox,  ISandBox_Context *context,
 }
 
 static ISandBox_Value
+nv_array_iterator_proc(ISandBox_VirtualMachine *ISandBox, ISandBox_Context *context,
+                   int arg_count, ISandBox_Value *args)
+{
+    ISandBox_Value ret;
+
+	ret.object = ISandBox_create_iterator(ISandBox, context, args[0].object.data->u.array);
+
+    return ret;
+}
+
+static ISandBox_Value
 nv_string_length_proc(ISandBox_VirtualMachine *ISandBox, ISandBox_Context *context,
                       int arg_count, ISandBox_Value *args)
 {
@@ -597,6 +610,78 @@ nv_string_substr_proc(ISandBox_VirtualMachine *ISandBox, ISandBox_Context *conte
     }
 
     ret = ISandBox_string_substr(ISandBox, str, pos, len);
+
+    return ret;
+}
+
+static ISandBox_Value
+nv_iterator_next_proc(ISandBox_VirtualMachine *ISandBox, ISandBox_Context *context,
+                      int arg_count, ISandBox_Value *args)
+{
+    ISandBox_Value ret;
+	Iterator *iterator;
+
+	iterator = &args[0].object.data->u.iterator;
+	iterator->cursor = ( iterator->cursor+1 < iterator->array.size ? iterator->cursor+1 : -2 );
+	if (iterator->cursor >= 0) {
+		ret = ISandBox_get_iterator_currrent(ISandBox, context, args[0].object);
+	} else if (iterator->cursor == -1) {
+		ISandBox_set_exception(ISandBox, context, &st_lib_info,
+                          ISandBox_Ivory_DEFAULT_PACKAGE,
+                          NEW_ITERATOR_EXCEPTION_NAME,
+                          NEW_ITERATOR_ERR,
+                          ISandBox_MESSAGE_ARGUMENT_END);
+	} else if (iterator->cursor == -2) {
+		ISandBox_set_exception(ISandBox, context, &st_lib_info,
+                          ISandBox_Ivory_DEFAULT_PACKAGE,
+                          OUT_OF_ITERATOR_EXCEPTION_NAME,
+                          OUT_OF_ITERATOR_ERR,
+                          ISandBox_MESSAGE_ARGUMENT_END);
+	}
+
+    return ret;
+}
+
+static ISandBox_Value
+nv_iterator_hasNext_proc(ISandBox_VirtualMachine *ISandBox, ISandBox_Context *context,
+                      int arg_count, ISandBox_Value *args)
+{
+    ISandBox_Value ret;
+	Iterator *iterator;
+
+	iterator = &args[0].object.data->u.iterator;
+	if (iterator->cursor+1 < iterator->array.size) {
+		ret.int_value = ISandBox_TRUE;
+	} else {
+		ret.int_value = ISandBox_FALSE;
+	}
+
+    return ret;
+}
+
+static ISandBox_Value
+nv_iterator_current_proc(ISandBox_VirtualMachine *ISandBox, ISandBox_Context *context,
+                      int arg_count, ISandBox_Value *args)
+{
+    ISandBox_Value ret;
+	Iterator *iterator;
+
+	iterator = &args[0].object.data->u.iterator;
+	if (iterator->cursor >= 0 && iterator->cursor < iterator->array.size) {
+		ret = ISandBox_get_iterator_currrent(ISandBox, context, args[0].object);
+	} else if (iterator->cursor == -1) {
+		ISandBox_set_exception(ISandBox, context, &st_lib_info,
+                          ISandBox_Ivory_DEFAULT_PACKAGE,
+                          NEW_ITERATOR_EXCEPTION_NAME,
+                          NEW_ITERATOR_ERR,
+                          ISandBox_MESSAGE_ARGUMENT_END);
+	} else if (iterator->cursor == -2) {
+		ISandBox_set_exception(ISandBox, context, &st_lib_info,
+                          ISandBox_Ivory_DEFAULT_PACKAGE,
+                          OUT_OF_ITERATOR_EXCEPTION_NAME,
+                          OUT_OF_ITERATOR_ERR,
+                          ISandBox_MESSAGE_ARGUMENT_END);
+	}
 
     return ret;
 }
@@ -700,6 +785,20 @@ ISandBox_add_native_functions(ISandBox_VirtualMachine *ISandBox)
     ISandBox_add_native_function(ISandBox, BUILT_IN_METHOD_PACKAGE_NAME,
                             ARRAY_PREFIX ARRAY_METHOD_ADD,
                             nv_array_add_proc, 1, ISandBox_TRUE, ISandBox_FALSE);
+    ISandBox_add_native_function(ISandBox, BUILT_IN_METHOD_PACKAGE_NAME,
+                            ARRAY_PREFIX ARRAY_METHOD_ITERATOR,
+                            nv_array_iterator_proc, 0, ISandBox_TRUE, ISandBox_FALSE);
+
+	/* iterator */
+	ISandBox_add_native_function(ISandBox, BUILT_IN_METHOD_PACKAGE_NAME,
+                            ITERATOR_PREFIX ITERATOR_METHOD_NEXT,
+                            nv_iterator_next_proc, 0, ISandBox_TRUE, ISandBox_FALSE);
+	ISandBox_add_native_function(ISandBox, BUILT_IN_METHOD_PACKAGE_NAME,
+                            ITERATOR_PREFIX ITERATOR_METHOD_HASNEXT,
+                            nv_iterator_hasNext_proc, 0, ISandBox_TRUE, ISandBox_FALSE);
+	ISandBox_add_native_function(ISandBox, BUILT_IN_METHOD_PACKAGE_NAME,
+                            ITERATOR_PREFIX ITERATOR_METHOD_CURRENT,
+                            nv_iterator_current_proc, 0, ISandBox_TRUE, ISandBox_FALSE);
 
     ISandBox_add_native_function(ISandBox, BUILT_IN_METHOD_PACKAGE_NAME,
                             STRING_PREFIX STRING_METHOD_LENGTH,

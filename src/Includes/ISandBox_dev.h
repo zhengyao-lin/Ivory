@@ -125,6 +125,14 @@ ISandBox_Value ISandBox_check_exception(ISandBox_VirtualMachine *ISandBox);
 void ISandBox_check_gc(ISandBox_VirtualMachine *ISandBox);
 void ISandBox_add_reference_to_context(ISandBox_Context *context, ISandBox_Value value);
 ISandBox_ObjectRef
+ISandBox_create_iterator_i(ISandBox_VirtualMachine *ISandBox, ISandBox_Array array);
+ISandBox_ObjectRef
+ISandBox_create_iterator(ISandBox_VirtualMachine *ISandBox,  ISandBox_Context *context,
+                     ISandBox_Array array);
+ISandBox_Value
+ISandBox_get_iterator_currrent(ISandBox_VirtualMachine *ISandBox,  ISandBox_Context *context,
+                     ISandBox_ObjectRef iter);
+ISandBox_ObjectRef
 ISandBox_create_array_int(ISandBox_VirtualMachine *ISandBox, ISandBox_Context *context,
                      int size);
 ISandBox_ObjectRef

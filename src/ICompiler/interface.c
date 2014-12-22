@@ -42,6 +42,7 @@ static BuiltInMethod st_array_method[] = {
      ARRAY_SIZE(st_array_remove_arg)},
     {ARRAY_METHOD_ADD, ISandBox_VOID_TYPE, st_array_add_arg,
      ARRAY_SIZE(st_array_add_arg)},
+    {ARRAY_METHOD_ITERATOR, ISandBox_ITERATOR_TYPE, NULL, 0},
 };
 
 static BuiltInMethodParameter st_string_substr_arg[] = {
@@ -53,6 +54,14 @@ static BuiltInMethod st_string_method[] = {
     {"length", ISandBox_INT_TYPE, NULL, 0},
     {"substr", ISandBox_STRING_TYPE, st_string_substr_arg,
      ARRAY_SIZE(st_string_substr_arg)},
+};
+
+/* iterator method
+ */
+static BuiltInMethod st_iterator_method[] = {
+    {"next", ISandBox_BASE_TYPE, NULL, 0},
+    {"hasNext", ISandBox_BOOLEAN_TYPE, NULL, 0},
+    {"current", ISandBox_BASE_TYPE, NULL, 0},
 };
 
 static FunctionDefinition *
@@ -134,6 +143,10 @@ Ivyc_create_compiler(void)
     compiler->string_method
         = create_built_in_method(st_string_method,
                                  ARRAY_SIZE(st_string_method));
+    compiler->iterator_method_count = ARRAY_SIZE(st_iterator_method);/* iterator */
+    compiler->iterator_method
+        = create_built_in_method(st_iterator_method,
+                                 ARRAY_SIZE(st_iterator_method));
 
 #ifdef EUC_SOURCE
     compiler->source_encoding = EUC_ENCODING;

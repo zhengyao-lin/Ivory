@@ -85,6 +85,12 @@ public abstract class ApplicationException : Exception {
 public class NumberFormatException : ApplicationException {
 }
 
+public class OutOfIteratorException : ApplicationException {
+}
+
+public class NewIteratorException : ApplicationException {
+}
+
 delegate int HogeDelegate(int value);
 
 // BUGBUG for test routine

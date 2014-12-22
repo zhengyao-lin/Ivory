@@ -45,6 +45,7 @@ If everything is OK, it will output like this:
 			"I'm a string" is string --> true
 			typeof("I'm a string") is Type --> true
 			pucha!
+	BLOCK9	1.234420	11.000000	3.141593	333.000000	10.000000	100.000000	1000.000000
 
 	-->test end<--
 	press enter to exit...

@@ -159,7 +159,7 @@ typedef struct {
 
 typedef struct {
 	int cursor;
-	ISandBox_Array		*array;
+	ISandBox_Array		array;
 } Iterator;
 
 typedef struct {
@@ -272,6 +272,7 @@ struct ISandBox_VirtualMachine_tag {
     ExecutableEntry     *top_level;
     ISandBox_VTable  *array_v_table;
     ISandBox_VTable  *string_v_table;
+    ISandBox_VTable  *iterator_v_table;
     ISandBox_Context *current_context;
     ISandBox_Context *free_context;
 };

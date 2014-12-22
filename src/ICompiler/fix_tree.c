@@ -664,6 +664,11 @@ fix_force_cast_expression(Block *current_block, Expression *expr,
 	if (Ivyc_is_type_object(expr->type)) {
 		expr->type->u.object_ref.origin = expr->u.fcast.from;
 	}
+	if (Ivyc_is_base_type(expr->u.fcast.from))
+	{
+		expr->u.fcast.operand->type = expr->type;
+		return expr->u.fcast.operand;
+	}
 
     /*if (cast_expr = create_assign_cast(expr->u.fcast.operand, expr->u.fcast.type, 0) == NULL)
     {
@@ -733,6 +738,12 @@ create_assign_cast(Expression *src, TypeSpecifier *dest, int i)
         dest = src->type;
         return src;
     }
+
+	if (Ivyc_is_base_type(src->type))
+	{
+		src->type = Ivyc_alloc_type_specifier(dest->basic_type);
+		return src;
+	}
 
     if (Ivyc_is_int(src->type) && Ivyc_is_double(dest)) {
         cast_expr = alloc_cast_expression(INT_TO_DOUBLE_CAST, src);
@@ -1705,6 +1716,10 @@ fix_function_call_expression(Block *current_block, Expression *expr,
                                  ->type)) {
             fd = &compiler->string_method[func_expr->u.member_expression
                                           .method_index];
+        } else if (Ivyc_is_iterator(func_expr->u.member_expression.expression
+                                 ->type)) {
+            fd = &compiler->iterator_method[func_expr->u.member_expression
+                                          .method_index];
         } else {
             if (func_expr->u.member_expression.declaration->kind
                 == FIELD_MEMBER) {
@@ -1921,6 +1936,28 @@ fix_string_method_expression(Expression *expr,
 }
 
 static Expression *
+fix_iterator_method_expression(Expression *expr,
+                             Expression *obj, char *member_name)
+{
+    Ivyc_Compiler *compiler = Ivyc_get_current_compiler();
+    FunctionDefinition *fd;
+    int i;
+    
+    for (i = 0; i < compiler->iterator_method_count; i++) {
+        if (!strcmp(compiler->iterator_method[i].name, member_name))
+            break;
+    }
+    if (i == compiler->iterator_method_count) {
+        DBG_assert(0, ("iterator method used without delcaring"));
+    }
+    fd = &compiler->iterator_method[i];
+    expr->u.member_expression.method_index = i;
+    expr->type = create_function_derive_type(fd);
+
+    return expr;
+}
+
+static Expression *
 create_first_enumerator(EnumDefinition *ed)
 {
     Expression *expr;
@@ -1995,6 +2032,11 @@ fix_member_expression(Block *current_block, Expression *expr,
     } else if (Ivyc_is_string(obj->type)) {
         return
             fix_string_method_expression(expr, obj,
+                                         expr
+                                         ->u.member_expression.member_name);
+    } else if (Ivyc_is_iterator(obj->type)) {
+        return
+            fix_iterator_method_expression(expr, obj,
                                          expr
                                          ->u.member_expression.member_name);
     } else {

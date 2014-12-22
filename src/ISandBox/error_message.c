@@ -45,5 +45,7 @@ ISandBox_ErrorDefinition ISandBox_native_error_message_format[] = {
     {"parse_double()の引数がnullです。"},
     {"parse_double()のフォーマットエラー。元の文字列:「$(str)」"},
     {"parse_long_double(): the parameter is NULL"},
-    {"parse_long_double(): wrong format of string: \"$(str)\""}
+    {"parse_long_double(): wrong format of string: \"$(str)\""},
+	{"out of iterator"},
+	{"used new iterator without init"},
 };

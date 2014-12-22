@@ -1217,7 +1217,8 @@ get_method_index(MemberExpression *member)
     int method_index;
 
     if (Ivyc_is_array(member->expression->type)
-        || Ivyc_is_string(member->expression->type)) {
+        || Ivyc_is_string(member->expression->type)
+		|| Ivyc_is_iterator(member->expression->type)) {
         method_index = member->method_index;
     } else {
         DBG_assert(member->declaration->kind == METHOD_MEMBER,
@@ -1257,7 +1258,8 @@ generate_function_call_expression(ISandBox_Executable *exe, Block *block,
 
     if (fce->function->kind == MEMBER_EXPRESSION
         && ((Ivyc_is_array(fce->function->u.member_expression.expression->type)
-             || Ivyc_is_string(fce->function->u.member_expression.expression->type))
+             || Ivyc_is_string(fce->function->u.member_expression.expression->type)
+			 || Ivyc_is_iterator(fce->function->u.member_expression.expression->type))
              || (fce->function->u.member_expression.declaration->kind == METHOD_MEMBER))) {
         generate_method_call_expression(exe, block, expr, ob);
         return;

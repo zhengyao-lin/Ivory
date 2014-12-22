@@ -2535,6 +2535,8 @@ ISandBox_dispose_virtual_machine(ISandBox_VirtualMachine *ISandBox)
     MEM_free(ISandBox->array_v_table);
     MEM_free(ISandBox->string_v_table->table);
     MEM_free(ISandBox->string_v_table);
+    MEM_free(ISandBox->iterator_v_table->table);
+    MEM_free(ISandBox->iterator_v_table);
     MEM_free(ISandBox->class);
 
     MEM_free(ISandBox);

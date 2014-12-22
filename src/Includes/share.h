@@ -38,17 +38,25 @@ typedef enum {
 #define MULTIBYTE_CONVERTION_EXCEPTION_NAME \
   ("MultibyteCharacterConvertionException")
 #define NUMBER_FORMAT_EXCEPTION_NAME ("NumberFormatException")
+#define OUT_OF_ITERATOR_EXCEPTION_NAME ("OutOfIteratorException")
+#define NEW_ITERATOR_EXCEPTION_NAME ("NewIteratorException")
 
 #define ARRAY_METHOD_SIZE "size"
 #define ARRAY_METHOD_RESIZE "resize"
 #define ARRAY_METHOD_INSERT "insert"
 #define ARRAY_METHOD_REMOVE "remove"
 #define ARRAY_METHOD_ADD "add"
+#define ARRAY_METHOD_ITERATOR "getIterator"
 #define ARRAY_PREFIX "array#"
 
 #define STRING_METHOD_LENGTH "length"
 #define STRING_METHOD_SUBSTR "substr"
 #define STRING_PREFIX "string#"
+
+#define ITERATOR_METHOD_NEXT "next"
+#define ITERATOR_METHOD_HASNEXT "hasNext"
+#define ITERATOR_METHOD_CURRENT "current"
+#define ITERATOR_PREFIX "iterator#"
 
 #define ARRAY_SIZE(array)  (sizeof(array) / sizeof((array)[0]))
 

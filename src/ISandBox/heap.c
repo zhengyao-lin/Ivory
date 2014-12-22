@@ -119,6 +119,58 @@ alloc_array(ISandBox_VirtualMachine *ISandBox, ArrayType type, int size)
 }
 
 ISandBox_ObjectRef
+ISandBox_create_iterator_i(ISandBox_VirtualMachine *ISandBox, ISandBox_Array array)
+{
+    ISandBox_ObjectRef ret;
+	ISandBox_ObjectRef copy_array;
+
+	ret = alloc_object(ISandBox, ITERATOR_OBJECT);
+	ret.data->u.iterator.cursor = -1;
+	ret.data->u.iterator.array = array;
+	ret.v_table = ISandBox->iterator_v_table;
+
+    return ret;
+}
+
+ISandBox_ObjectRef
+ISandBox_create_iterator(ISandBox_VirtualMachine *ISandBox,  ISandBox_Context *context,
+                     ISandBox_Array array)
+{
+    ISandBox_ObjectRef ret;
+
+    ret = ISandBox_create_iterator_i(ISandBox, array);
+
+    return ret;
+}
+
+ISandBox_Value
+ISandBox_get_iterator_currrent(ISandBox_VirtualMachine *ISandBox,  ISandBox_Context *context,
+                     ISandBox_ObjectRef iter)
+{
+    ISandBox_Value ret;
+	Iterator iterator = iter.data->u.iterator;
+
+    switch (iterator.array.type) {
+		case INT_ARRAY:
+			ret.int_value = iterator.array.u.int_array[iterator.cursor];
+			break;
+		case DOUBLE_ARRAY:
+			ret.double_value = iterator.array.u.double_array[iterator.cursor];
+			break;
+		case LONG_DOUBLE_ARRAY:
+			ret.long_double_value = iterator.array.u.long_double_array[iterator.cursor];
+			break;
+		case OBJECT_ARRAY:
+			ret.object = iterator.array.u.object[iterator.cursor];
+			break;
+		default:
+			DBG_panic(("iterator.array.type..%d", iterator.array.type));
+	}
+
+    return ret;
+}
+
+ISandBox_ObjectRef
 ISandBox_create_array_int_i(ISandBox_VirtualMachine *ISandBox, int size)
 {
     ISandBox_ObjectRef ret;
@@ -601,6 +653,8 @@ gc_dispose_object(ISandBox_VirtualMachine *ISandBox, ISandBox_Object *obj)
         }
         break;
     case DELEGATE_OBJECT:
+        break;
+    case ITERATOR_OBJECT:
         break;
     case OBJECT_TYPE_COUNT_PLUS_1:
     default:

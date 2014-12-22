@@ -792,7 +792,8 @@ static VTableItem st_array_method_v_table[] = {
     {ARRAY_PREFIX ARRAY_METHOD_RESIZE, FUNCTION_NOT_FOUND},
     {ARRAY_PREFIX ARRAY_METHOD_INSERT, FUNCTION_NOT_FOUND},
     {ARRAY_PREFIX ARRAY_METHOD_REMOVE, FUNCTION_NOT_FOUND},
-    {ARRAY_PREFIX ARRAY_METHOD_ADD, FUNCTION_NOT_FOUND}
+    {ARRAY_PREFIX ARRAY_METHOD_ADD, FUNCTION_NOT_FOUND},
+	{ARRAY_PREFIX ARRAY_METHOD_ITERATOR, FUNCTION_NOT_FOUND},
 };
 
 static VTableItem st_string_method_v_table[] = {
@@ -800,11 +801,18 @@ static VTableItem st_string_method_v_table[] = {
     {STRING_PREFIX STRING_METHOD_SUBSTR, FUNCTION_NOT_FOUND},
 };
 
+static VTableItem st_iterator_method_v_table[] = {
+    {ITERATOR_PREFIX ITERATOR_METHOD_NEXT, FUNCTION_NOT_FOUND},
+    {ITERATOR_PREFIX ITERATOR_METHOD_HASNEXT, FUNCTION_NOT_FOUND},
+    {ITERATOR_PREFIX ITERATOR_METHOD_CURRENT, FUNCTION_NOT_FOUND},
+};
+
 static void
 set_built_in_methods(ISandBox_VirtualMachine *ISandBox)
 {
     ISandBox_VTable *array_v_table;
     ISandBox_VTable *string_v_table;
+    ISandBox_VTable *iterator_v_table;
     int i;
 
     array_v_table = alloc_v_table(NULL);
@@ -830,6 +838,18 @@ set_built_in_methods(ISandBox_VirtualMachine *ISandBox)
                                   string_v_table->table[i].name);
     }
     ISandBox->string_v_table = string_v_table;
+
+    iterator_v_table = alloc_v_table(NULL);
+    iterator_v_table->table_size = ARRAY_SIZE(st_iterator_method_v_table);
+    iterator_v_table->table = MEM_malloc(sizeof(VTableItem)
+                                      * iterator_v_table->table_size);
+    for (i = 0; i < iterator_v_table->table_size; i++) {
+        iterator_v_table->table[i] = st_iterator_method_v_table[i];
+        iterator_v_table->table[i].index
+            = ISandBox_search_function(ISandBox, BUILT_IN_METHOD_PACKAGE_NAME,
+                                  iterator_v_table->table[i].name);
+    }
+    ISandBox->iterator_v_table = iterator_v_table;
 }
 
 ISandBox_VirtualMachine *
