@@ -1,0 +1,58 @@
+/* Ivory.Iterator package
+ */
+public interface Iterator {
+	public object next() throws OutOfIteratorException;
+	public bool hasNext();
+	public object current() throws NewIteratorException;
+}
+
+/* Iterators */
+
+/*
+ * { ListIterator }
+ * can be initialized by { ArrayIterator }
+ * inherit interface { Iterator }
+ */
+public class ListIterator : Iterator
+{
+	public int size;
+	public int cursor;
+	public object[] data;
+
+	public override object next() {
+		OutOfIteratorException e = new OutOfIteratorException();
+		e.message = "out of iterator";
+
+		if (this.cursor+1 < this.size) {
+			this.cursor += 1;
+			return this.data[this.cursor];
+		} else {
+			throw e;
+		}
+		return null;
+	}
+	public override object current() {
+		NewIteratorException e = new NewIteratorException();
+		e.message = "used new iterator without initializing";
+
+		if (this.cursor < 0) {
+			throw e;
+			return null;
+		}
+		return this.data[this.cursor];
+	}
+	public override bool hasNext() {
+		if (this.cursor+1 < this.size) {
+			return true;
+		}
+		return false;
+	}
+	public constructor initialize(ArrayIterator ite) {
+		this.data = new object[0];
+		for (this.size = 0; ite.hasNext(); this.size++) {
+			this.data.add((object)ite.next());
+		}
+
+		this.cursor = -1;
+	}
+}

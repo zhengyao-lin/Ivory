@@ -1,6 +1,7 @@
 //----->test<-----
 using Ivory.IO;
 using Ivory.Type;
+using Ivory.Iterator;
 const glue = "\t";
 
 public class Arrow
@@ -209,6 +210,7 @@ void RUNNING_BLOCK8()//delegate-object test
 	print(glue + ((ADDER)o1)(true, 1, 2, 3, 4, 5, 6, 7));
 	object o2 = o1;
 	print(glue + ((ADDER)o2)(true, 1, 2, 3, 4, 5, 6, 7));
+
 	println("");
 }
 
@@ -261,17 +263,42 @@ void RUNNING_BLOCK9()
 
 void RUNNING_BLOCK10()//iterator test
 {
-	print("BLOCK9");
+	print("BLOCK10");
 	double[] ii = {1.23442, 11, 3.141592654, 333, 10, 100, 1000};
 	object res;
-	iterator ite;
+	ArrayIterator ite;
 
-	for (ite = ii.getIterator(); ite.hasNext();) {
+	for (ite = ii.iterator(); ite.hasNext();) {
 		ite.next();
 		res = ite.current();
 		print(glue + (double)res);
 	}
-	println("");
+
+	string[] sentence1 = {"Hello, ", "this ", "is ", "Mr.Lin."};
+	string[] sentence2 = {"I ", "am ", "very ", "angry."};
+	string[] sentence3 = {"I ", "failed ", "my ", "test."};
+	string[] sentence4 = {"Because ", "of ", "my ", "careless."};
+
+	string[][] sentences = { sentence1, sentence2, sentence3, sentence4 };
+	Iterator block = new ListIterator(sentences.iterator());
+	ArrayIterator ite_now;
+
+	try {
+		block.current();
+	} finally {
+		goto END;
+	}
+[END]
+
+	println("\n");
+	print(glue);
+	for (; block.hasNext();) {
+		for (ite_now = ((string[])(block.next())).iterator(); ite_now.hasNext();) {
+			print(ite_now.next());
+		}
+		println("");
+		print(glue);
+	}
 }
 
 println("-->test start<--\n");

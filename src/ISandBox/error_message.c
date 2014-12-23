@@ -47,5 +47,5 @@ ISandBox_ErrorDefinition ISandBox_native_error_message_format[] = {
     {"parse_long_double(): the parameter is NULL"},
     {"parse_long_double(): wrong format of string: \"$(str)\""},
 	{"out of iterator"},
-	{"used new iterator without init"},
+	{"used new iterator without initializing"},
 };

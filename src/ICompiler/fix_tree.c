@@ -664,7 +664,7 @@ fix_force_cast_expression(Block *current_block, Expression *expr,
 	if (Ivyc_is_type_object(expr->type)) {
 		expr->type->u.object_ref.origin = expr->u.fcast.from;
 	}
-	if (Ivyc_is_base_type(expr->u.fcast.from))
+	if (Ivyc_is_base_type(expr->u.fcast.from) && !Ivyc_is_type_object(expr->type))
 	{
 		expr->u.fcast.operand->type = expr->type;
 		return expr->u.fcast.operand;
@@ -3514,6 +3514,41 @@ fix_constant_list(Ivyc_Compiler *compiler)
     }
 }
 
+#define ITERATOR_IDENTIFIER "__iterator"
+
+static void
+add_iterator_interface(Ivyc_Compiler *compiler)
+{
+	TypeSpecifier *base_type = Ivyc_alloc_type_specifier(ISandBox_BASE_TYPE);
+	MemberDeclaration *next;
+	MemberDeclaration *hasNext;
+	MemberDeclaration *current;
+	MemberDeclaration *list;
+	FunctionDefinition *fnext;
+	FunctionDefinition *fhasNext;
+	FunctionDefinition *fcurrent;
+
+	Ivyc_start_class_definition(NULL, ISandBox_INTERFACE_DEFINITION,
+								ITERATOR_IDENTIFIER, NULL);
+
+	fnext = Ivyc_method_function_define(base_type, ITERATOR_METHOD_NEXT, NULL, NULL, NULL);
+	fhasNext = Ivyc_method_function_define(base_type, ITERATOR_METHOD_HASNEXT, NULL, NULL, NULL);
+	fcurrent = Ivyc_method_function_define(base_type, ITERATOR_METHOD_CURRENT, NULL, NULL, NULL);
+	next = Ivyc_create_method_member(NULL, fnext, ISandBox_FALSE);
+	hasNext = Ivyc_create_method_member(NULL, fhasNext, ISandBox_FALSE);
+	current = Ivyc_create_method_member(NULL, fcurrent, ISandBox_FALSE);
+	list = Ivyc_chain_member_declaration(
+		Ivyc_chain_member_declaration(next, hasNext), current);
+
+	Ivyc_class_define(list);
+}
+
+static void
+add_const_class(Ivyc_Compiler *compiler)
+{
+	add_iterator_interface(compiler);
+}
+
 void
 Ivyc_fix_tree(Ivyc_Compiler *compiler)
 {
@@ -3526,6 +3561,7 @@ Ivyc_fix_tree(Ivyc_Compiler *compiler)
     fix_enum_list(compiler);
     fix_delegate_list(compiler);
     fix_constant_list(compiler);
+	/*add_const_class(compiler);*/
 
     for (func_pos = compiler->function_list; func_pos;
          func_pos = func_pos->next) {
