@@ -283,6 +283,41 @@ fix_throws(ExceptionList *throws)
     }
 }
 
+static ISandBox_Boolean
+search_type_parameter(TypeParameterList *list, char *name)
+{
+	TypeParameterList *pos;
+	for (pos = list; pos; pos = pos->next) {
+		if (strcmp(name, pos->name)) {
+			return ISandBox_TRUE;
+		}
+	}
+	return ISandBox_FALSE;
+}
+
+static char *
+instantiation_generic_type_specifier(TypeSpecifier *type)
+{
+	int length;
+	char *ret;
+	char *origin;
+	TypeArgumentList *pos;
+
+	origin = type->identifier;
+	/*length = strlen(origin);
+	for (pos = type->type_argument_list; pos; pos = pos->next) {
+		length += strlen(Ivyc_get_basic_type_name(pos->type->basic_type)) + 1;
+	}*/
+	ret = strdup(origin);
+	ret = strcat(ret, "_");
+	for (pos = type->type_argument_list; pos; pos = pos->next) {
+		ret = strcat(ret, Ivyc_get_basic_type_name(pos->type->basic_type));
+		ret = strcat(ret, (pos->next ? "_" : ""));
+	}
+	type->identifier = ret;
+	return ret;
+}
+
 static void
 fix_type_specifier(TypeSpecifier *type)
 {
@@ -301,6 +336,7 @@ fix_type_specifier(TypeSpecifier *type)
     }
 
     if (type->basic_type == ISandBox_UNSPECIFIED_IDENTIFIER_TYPE) {
+		RETRY:
         cd = Ivyc_search_class(type->identifier);
         if (cd) {
             if (!Ivyc_compare_package_name(cd->package_name,
@@ -331,6 +367,31 @@ fix_type_specifier(TypeSpecifier *type)
                 = reserve_enum_index(compiler, ed, ISandBox_FALSE);
             return;
         }
+		cd = Ivyc_search_template_class(type->identifier);
+		if (cd) {
+			if (type->is_generic ==ISandBox_TRUE) {
+				/************************placeholder***************************/
+				instantiation_generic_type_specifier(type);
+				if (Ivyc_search_template_class(type->identifier)) {
+					goto RETRY;
+				}
+				/* instantiate the class */
+				
+				return;
+			} else {
+				Ivyc_compile_error(type->line_number,
+                          		GENERIC_CLASS_WITH_NO_ARGUMENT,
+                          		STRING_MESSAGE_ARGUMENT, "name", type->identifier,
+                          		MESSAGE_ARGUMENT_END);
+			}
+		}
+		cd = compiler->current_class_definition;
+		if (cd != NULL
+			&& cd->is_generic == ISandBox_TRUE
+			&& search_type_parameter(cd->type_parameter_list, type->identifier)) {
+			type->basic_type = ISandBox_PLACEHOLDER;
+			return;
+		}
         Ivyc_compile_error(type->line_number,
                           TYPE_NAME_NOT_FOUND_ERR,
                           STRING_MESSAGE_ARGUMENT, "name", type->identifier,
@@ -1589,10 +1650,17 @@ search_class_and_add(int line_number, char *name, int *class_index_p)
 
     cd = Ivyc_search_class(name);
     if (cd == NULL) {
-        Ivyc_compile_error(line_number,
-                          CLASS_NOT_FOUND_ERR,
-                          STRING_MESSAGE_ARGUMENT, "name", name,
-                          MESSAGE_ARGUMENT_END);
+		if (Ivyc_search_template_class(name)) {
+			Ivyc_compile_error(line_number,
+                          	GENERIC_CLASS_WITH_NO_ARGUMENT,
+                          	STRING_MESSAGE_ARGUMENT, "name", name,
+                          	MESSAGE_ARGUMENT_END);
+		} else {
+			Ivyc_compile_error(line_number,
+                          	CLASS_NOT_FOUND_ERR,
+                          	STRING_MESSAGE_ARGUMENT, "name", name,
+                          	MESSAGE_ARGUMENT_END);
+		}
     }
     *class_index_p = add_class(cd);
 
@@ -3270,7 +3338,7 @@ add_default_constructor(ClassDefinition *cd)
         block->statement_list = NULL;
     }
     fd = Ivyc_create_function_definition(type, DEFAULT_CONSTRUCTOR_NAME,
-                                        NULL, NULL, block);
+                                        NULL, NULL, block, ISandBox_TRUE);
     if (tail) {
         tail->next = Ivyc_create_method_member(&modifier, fd, ISandBox_TRUE);
     } else {
@@ -3380,7 +3448,6 @@ fix_class_list(Ivyc_Compiler *compiler)
 
     for (class_pos = compiler->class_definition_list;
          class_pos; class_pos = class_pos->next) {
-
         compiler->current_class_definition = class_pos;
 
         get_super_field_method_count(class_pos, &field_index, &method_index);
@@ -3513,7 +3580,7 @@ fix_constant_list(Ivyc_Compiler *compiler)
         constant_count++;
     }
 }
-
+/*
 #define ITERATOR_IDENTIFIER "__iterator"
 
 static void
@@ -3547,7 +3614,126 @@ static void
 add_const_class(Ivyc_Compiler *compiler)
 {
 	add_iterator_interface(compiler);
+}*/
+
+static void
+fix_template_class_list(Ivyc_Compiler *compiler)
+{
+    ClassDefinition *class_pos;
+    MemberDeclaration *member_pos;
+    MemberDeclaration *super_member;
+    int field_index;
+    int method_index;
+    char *abstract_method_name;
+
+    for (class_pos = compiler->template_class_definition_list;
+         class_pos; class_pos = class_pos->next) {
+        add_class(class_pos);
+        fix_extends(class_pos);
+    }
+    for (class_pos = compiler->template_class_definition_list;
+         class_pos; class_pos = class_pos->next) {
+        add_super_interfaces(class_pos);
+    }
+    for (class_pos = compiler->template_class_definition_list;
+         class_pos; class_pos = class_pos->next) {
+        if (class_pos->class_or_interface != ISandBox_CLASS_DEFINITION)
+            continue;
+        compiler->current_class_definition = class_pos;
+        add_default_constructor(class_pos);
+        compiler->current_class_definition = NULL;
+    }
+
+    for (class_pos = compiler->template_class_definition_list;
+         class_pos; class_pos = class_pos->next) {
+        compiler->current_class_definition = class_pos;
+
+        get_super_field_method_count(class_pos, &field_index, &method_index);
+        abstract_method_name = NULL;
+        for (member_pos = class_pos->member; member_pos;
+             member_pos = member_pos->next) {
+            if (member_pos->kind == METHOD_MEMBER) {
+                fix_function(member_pos->u.method.function_definition);
+
+                super_member
+                    = search_member_in_super(class_pos,
+                                             member_pos->u.method
+                                             .function_definition->name);
+                if (super_member) {
+                    if (super_member->kind != METHOD_MEMBER) {
+                        Ivyc_compile_error(member_pos->line_number,
+                                          FIELD_OVERRIDED_ERR,
+                                          STRING_MESSAGE_ARGUMENT, "name",
+                                          super_member->u.field.name,
+                                          MESSAGE_ARGUMENT_END);
+                    }
+                    if (!super_member->u.method.is_virtual) {
+                        Ivyc_compile_error(member_pos->line_number,
+                                          NON_VIRTUAL_METHOD_OVERRIDED_ERR,
+                                          STRING_MESSAGE_ARGUMENT, "name",
+                                          member_pos->u.method
+                                          .function_definition->name,
+                                          MESSAGE_ARGUMENT_END);
+                    }
+                    if (!member_pos->u.method.is_override) {
+                        Ivyc_compile_error(member_pos->line_number,
+                                          NEED_OVERRIDE_ERR,
+                                          STRING_MESSAGE_ARGUMENT, "name",
+                                          member_pos->u.method
+                                          .function_definition->name,
+                                          MESSAGE_ARGUMENT_END);
+                    }
+                    check_method_override(super_member, member_pos);
+
+                    member_pos->u.method.method_index
+                        = super_member->u.method.method_index;
+                } else {
+                    member_pos->u.method.method_index = method_index;
+                    method_index++;
+                }
+                if (member_pos->u.method.is_abstract) {
+                    abstract_method_name = member_pos->u.method
+                        .function_definition->name;
+                }
+            } else {
+                ExceptionList *el = NULL;
+                DBG_assert(member_pos->kind == FIELD_MEMBER,
+                           ("member_pos->kind..%d", member_pos->kind));
+                fix_type_specifier(member_pos->u.field.type);
+                if (member_pos->u.field.initializer) {
+                    member_pos->u.field.initializer
+                        = fix_expression(NULL, member_pos->u.field.initializer,
+                                         NULL, &el);
+                    member_pos->u.field.initializer
+                        = create_assign_cast(member_pos->u.field.initializer,
+                                             member_pos->u.field.type, 1);
+                }
+                super_member
+                    = search_member_in_super(class_pos,
+                                             member_pos->u.field.name);
+                if (super_member) {
+                    Ivyc_compile_error(member_pos->line_number,
+                                      FIELD_NAME_DUPLICATE_ERR,
+                                      STRING_MESSAGE_ARGUMENT, "name",
+                                      member_pos->u.field.name,
+                                      MESSAGE_ARGUMENT_END);
+                } else {
+                    member_pos->u.field.field_index = field_index;
+                    field_index++;
+                }
+            }
+        }
+        if (abstract_method_name && !class_pos->is_abstract) {
+            Ivyc_compile_error(class_pos->line_number,
+                              ABSTRACT_METHOD_IN_CONCRETE_CLASS_ERR,
+                              STRING_MESSAGE_ARGUMENT,
+                              "method_name", abstract_method_name,
+                              MESSAGE_ARGUMENT_END);
+        }
+        compiler->current_class_definition = NULL;
+    }
 }
+
 
 void
 Ivyc_fix_tree(Ivyc_Compiler *compiler)

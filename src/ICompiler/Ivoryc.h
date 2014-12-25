@@ -151,6 +151,7 @@ typedef enum {
     TOO_LONG_CHARACTER_LITERAL_ERR,
     ASSIGN_EXPRESSION_LEFT_ITEM_FORCE_CAST_ERR,
     ISTYPE_EXPRESSION_OPERAND_MUST_BE_OBJECT_ERR,
+	GENERIC_CLASS_WITH_NO_ARGUMENT,
     COMPILE_ERROR_COUNT_PLUS_1
 } CompileError;
 
@@ -295,6 +296,11 @@ typedef struct ArgumentList_tag {
     struct ArgumentList_tag *next;
 } ArgumentList;
 
+typedef struct TypeArgumentList_tag {
+    struct TypeSpecifier_tag *type;
+    struct TypeArgumentList_tag *next;
+} TypeArgumentList;
+
 typedef struct TypeSpecifier_tag TypeSpecifier;
 
 typedef struct ParameterList_tag {
@@ -303,6 +309,13 @@ typedef struct ParameterList_tag {
     int                 line_number;
     struct ParameterList_tag *next;
 } ParameterList;
+
+typedef struct TypeParameterList_tag {
+	char				*name;
+	TypeSpecifier       *target;
+    int                 line_number;
+    struct TypeParameterList_tag *next;
+} TypeParameterList;
 
 typedef enum {
     FUNCTION_DERIVE,
@@ -344,6 +357,9 @@ typedef struct DelegateDefinition_tag DelegateDefinition;
 typedef struct EnumDefinition_tag EnumDefinition;
 
 struct TypeSpecifier_tag {
+	ISandBox_Boolean		 is_generic;
+	TypeArgumentList		 *type_argument_list;
+
     ISandBox_BasicType       basic_type;
     char        *identifier;
     union {
@@ -511,6 +527,8 @@ typedef struct {
 } UpCastExpression;
 
 typedef struct {
+	TypeArgumentList	*type_argument_list;
+
     char                *class_name;
     ClassDefinition     *class_definition;
     int                 class_index;
@@ -819,7 +837,18 @@ struct MemberDeclaration_tag {
     struct MemberDeclaration_tag *next;
 };
 
+typedef struct TypeParameterRequireList_tag {
+	TypeSpecifier		*pointer;
+	struct TypeParameterRequireList_tag *next;
+} TypeParameterRequireList;
+
 struct ClassDefinition_tag {
+	/* generic */
+    ISandBox_Boolean                 is_generic;
+	TypeParameterList				 *type_parameter_list;
+	TypeParameterRequireList		 *type_parameter_require_list;
+	/* generic */
+
     ISandBox_Boolean is_abstract;
     ISandBox_AccessModifier access_modifier;
     ISandBox_ClassOrInterface class_or_interface;
@@ -911,6 +940,7 @@ struct Ivyc_Compiler_tag {
     DeclarationList     *declaration_list;
     StatementList       *statement_list;
     ClassDefinition     *class_definition_list;
+    ClassDefinition     *template_class_definition_list;
     DelegateDefinition  *delegate_definition_list;
     EnumDefinition      *enum_definition_list;
     ConstantDefinition  *constant_definition_list;
@@ -966,14 +996,19 @@ void Ivyc_set_using_and_rename_list(UsingList *using_list,
 FunctionDefinition *
 Ivyc_create_function_definition(TypeSpecifier *type, char *identifier,
                                ParameterList *parameter_list,
-                               ExceptionList *throws, Block *block);
+                               ExceptionList *throws, Block *block,
+							   ISandBox_Boolean if_add);
 void Ivyc_function_define(TypeSpecifier *type, char *identifier,
                          ParameterList *parameter_list,
                          ExceptionList *throws, Block *block);
 ParameterList *Ivyc_create_parameter(TypeSpecifier *type, char *identifier);
 ParameterList *Ivyc_chain_parameter(ParameterList *list, TypeSpecifier *type,
                                    char *identifier);
+TypeParameterList *Ivyc_create_type_parameter(char *identifier);
+TypeParameterList *Ivyc_chain_type_parameter(TypeParameterList *list, char *identifier);
 ArgumentList *Ivyc_create_argument_list(Expression *expression);
+TypeArgumentList *Ivyc_create_type_argument_list(TypeSpecifier *type);
+TypeArgumentList *Ivyc_chain_type_argument_list(TypeArgumentList *list, TypeSpecifier *type);
 ArgumentList *Ivyc_chain_argument_list(ArgumentList *list, Expression *expr);
 ExpressionList *Ivyc_create_expression_list(Expression *expression);
 ExpressionList *Ivyc_chain_expression_list(ExpressionList *list,
@@ -983,6 +1018,7 @@ StatementList *Ivyc_chain_statement_list(StatementList *list,
                                         Statement *statement);
 TypeSpecifier *Ivyc_create_type_specifier(ISandBox_BasicType basic_type);
 TypeSpecifier *Ivyc_create_identifier_type_specifier(char *identifier);
+TypeSpecifier *Ivyc_create_generic_identifier_type_specifier(char *identifier, TypeArgumentList *list);
 TypeSpecifier *Ivyc_create_array_type_specifier(TypeSpecifier *base);
 Expression *Ivyc_alloc_expression(ExpressionKind type);
 Expression *Ivyc_create_comma_expression(Expression *left, Expression *right);
@@ -1013,7 +1049,7 @@ Expression *Ivyc_create_member_expression(Expression *expression,
                                          char *member_name);
 Expression *Ivyc_create_boolean_expression(ISandBox_Boolean value);
 Expression *Ivyc_create_null_expression(void);
-Expression *Ivyc_create_new_expression(char *class_name, char *method_name,
+Expression *Ivyc_create_new_expression(char *class_name, TypeArgumentList *type_list, char *method_name,
                                       ArgumentList *argument);
 Expression *Ivyc_create_array_literal_expression(ExpressionList *list);
 Expression *Ivyc_create_basic_array_creation(ISandBox_BasicType basic_type,
@@ -1076,6 +1112,7 @@ void
 Ivyc_start_class_definition(ClassOrMemberModifierList *modifier,
                            ISandBox_ClassOrInterface class_or_interface,
                            char *identifier,
+						   TypeParameterList *list,
                            ExtendsList *extends);
 void Ivyc_class_define(MemberDeclaration *member_list);
 ExtendsList *Ivyc_create_extends_list(char *identifier);
@@ -1139,12 +1176,14 @@ TypeDerive *Ivyc_alloc_type_derive(DeriveTag derive_tag);
 TypeSpecifier *Ivyc_alloc_type_specifier2(TypeSpecifier *src);
 ISandBox_Boolean Ivyc_compare_parameter(ParameterList *param1,
                                   ParameterList *param2);
+ISandBox_Boolean Ivyc_compare_type_argument_list(TypeArgumentList *list1, TypeArgumentList *list2);
 ISandBox_Boolean Ivyc_compare_type(TypeSpecifier *type1, TypeSpecifier *type2);
 ISandBox_Boolean Ivyc_compare_package_name(PackageName *p1, PackageName *p2);
 FunctionDefinition *Ivyc_search_function(char *name);
 Declaration *Ivyc_search_declaration(char *identifier, Block *block);
 ConstantDefinition *Ivyc_search_constant(char *identifier);
 ClassDefinition *Ivyc_search_class(char *identifier);
+ClassDefinition *Ivyc_search_template_class(char *identifier);
 DelegateDefinition *Ivyc_search_delegate(char *identifier);
 EnumDefinition *Ivyc_search_enum(char *identifier);
 MemberDeclaration *Ivyc_search_member(ClassDefinition *class_def,

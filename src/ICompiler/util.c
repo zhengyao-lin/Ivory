@@ -48,6 +48,7 @@ Ivyc_alloc_type_specifier(ISandBox_BasicType type)
 {
     TypeSpecifier *ts = Ivyc_malloc(sizeof(TypeSpecifier));
 
+	ts->is_generic = ISandBox_FALSE;
     ts->basic_type = type;
     ts->line_number = 0;
     ts->derive = NULL;
@@ -102,6 +103,23 @@ Ivyc_compare_parameter(ParameterList *param1, ParameterList *param2)
 }
 
 ISandBox_Boolean
+Ivyc_compare_type_argument_list(TypeArgumentList *list1, TypeArgumentList *list2)
+{
+	TypeArgumentList *pos1;
+	TypeArgumentList *pos2;
+
+	for (pos1 = list1, pos2 = list2; pos1 && pos2; pos1 = pos1->next, pos2 = pos2->next) {
+		if (!Ivyc_compare_type(pos1->type, pos2->type)) {
+			return ISandBox_FALSE;
+		}
+	}
+	if (pos1 || pos2) {
+		return ISandBox_FALSE;
+	}
+	return ISandBox_TRUE;
+}
+
+ISandBox_Boolean
 Ivyc_compare_type(TypeSpecifier *type1, TypeSpecifier *type2)
 {
     TypeDerive *d1;
@@ -110,6 +128,16 @@ Ivyc_compare_type(TypeSpecifier *type1, TypeSpecifier *type2)
     if (type1->basic_type != type2->basic_type) {
         return ISandBox_FALSE;
     }
+
+	if (type1->is_generic && type2->is_generic) {
+		if (Ivyc_compare_type_argument_list(type1->type_argument_list, type2->type_argument_list)) {
+			return ISandBox_TRUE;
+		} else {
+			return ISandBox_FALSE;
+		}
+	} else if (type1->is_generic || type2->is_generic) {
+		return ISandBox_FALSE;
+	}
 
     if (type1->basic_type == ISandBox_CLASS_TYPE) {
         if (type1->u.class_ref.class_definition
@@ -372,6 +400,44 @@ Ivyc_search_class(char *identifier)
     for (comp_pos = compiler->usingd_list; comp_pos;
          comp_pos = comp_pos->next) {
         for (class_def = comp_pos->compiler->class_definition_list;
+             class_def; class_def = class_def->next) {
+            if (!strcmp(class_def->name, identifier)) {
+                return class_def;
+            }
+        }
+    }
+
+    return NULL;
+}
+
+ClassDefinition *
+Ivyc_search_template_class(char *identifier)
+{
+    Ivyc_Compiler *compiler;
+    RenameList *ren_pos;
+    CompilerList *comp_pos;
+    ClassDefinition *class_def;
+
+    compiler = Ivyc_get_current_compiler();
+    for (class_def = compiler->template_class_definition_list;
+         class_def; class_def = class_def->next) {
+        if (!strcmp(class_def->name, identifier)) {
+            return class_def;
+        }
+    }
+
+    for (ren_pos = compiler->rename_list; ren_pos; ren_pos = ren_pos->next) {
+        if (!strcmp(ren_pos->renamed_name, identifier)) {
+            class_def = search_renamed_class(compiler, ren_pos);
+            if (class_def) {
+                return class_def;
+            }
+        }
+    }
+
+    for (comp_pos = compiler->usingd_list; comp_pos;
+         comp_pos = comp_pos->next) {
+        for (class_def = comp_pos->compiler->template_class_definition_list;
              class_def; class_def = class_def->next) {
             if (!strcmp(class_def->name, identifier)) {
                 return class_def;
@@ -660,6 +726,9 @@ Ivyc_get_basic_type_name(ISandBox_BasicType type)
         break;
 	case ISandBox_BASE_TYPE: /* FALLTHRU */
 		return "base";
+		break;
+	case ISandBox_PLACEHOLDER: /* FALLTHRU */
+		return "placeholder";
 		break;
     case ISandBox_DELEGATE_TYPE: /* FALLTHRU */
     case ISandBox_ENUM_TYPE: /* FALLTHRU */

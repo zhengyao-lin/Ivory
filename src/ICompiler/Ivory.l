@@ -138,6 +138,7 @@ ISandBox_Boolean st_character_literal_state;
 <INITIAL>"object"       return OBJECT_T;
 <INITIAL>"string"       return STRING_T;
 <INITIAL>"native"       return NATIVE_POINTER_T;
+<INITIAL>"with"         return WITH;
 <INITIAL>"new"          return NEW;
 <INITIAL>"using"        return USING;
 <INITIAL>"rename"       return RENAME;

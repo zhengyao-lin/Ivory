@@ -70,6 +70,7 @@ ISandBox_initialize_value(ISandBox_TypeSpecifier *type, ISandBox_Value *value)
         case ISandBox_STRING_TYPE: /* FALLTHRU */
         case ISandBox_NATIVE_POINTER_TYPE: /* FALLTHRU */
         case ISandBox_CLASS_TYPE: /* FALLTHRU */
+		case ISandBox_PLACEHOLDER: /* FALLTHRU */
         case ISandBox_DELEGATE_TYPE:
             value->object = ISandBox_null_object_ref;
             break;

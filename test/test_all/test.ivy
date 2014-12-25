@@ -254,7 +254,11 @@ void RUNNING_BLOCK9()
 		println("");
 		print(glue + "pucha!\n");
 	}
+	if (__typeof((int){1, 2, 3}.iterator().next()) == int) {
+		print(glue + "haha!\n");
+	}
 
+	println("");
 	//str[0] = 123;
 	//println(str[0]);
 	//println(UPPER("asddd"));
@@ -315,6 +319,17 @@ RUNNING_BLOCK7(k);
 RUNNING_BLOCK8();
 RUNNING_BLOCK9();
 RUNNING_BLOCK10();
+int plus_one(int i){ return i++; }
+println(10);
+
+class Sky <T1, T2>
+{
+	T1 data;
+	T1 ret(T2 a){
+		return a;
+	}
+}
+/*Sky with<string, int> sky;*/
 
 //println(plus1(2213213));
 

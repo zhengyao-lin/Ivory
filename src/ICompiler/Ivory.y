@@ -10,6 +10,8 @@
     RenameList          *rename_list;
     ParameterList       *parameter_list;
     ArgumentList        *argument_list;
+	TypeParameterList   *type_parameter_list;
+	TypeArgumentList	*type_argument_list;
     Expression          *expression;
     ExpressionList      *expression_list;
     Statement           *statement;
@@ -47,7 +49,7 @@
         ADD_ASSIGN_T SUB_ASSIGN_T MUL_ASSIGN_T DIV_ASSIGN_T MOD_ASSIGN_T
         INCREMENT DECREMENT TRY CATCH FINALLY THROW THROWS
         VOID_T VARIABLE_ARGS ITERATOR_T VARIABLE_T BASE_T BOOLEAN_T INT_T DOUBLE_T LONG_DOUBLE_T OBJECT_T STRING_T VCLASS_T NATIVE_POINTER_T
-        NEW USING RENAME
+        WITH NEW USING RENAME
         CLASS_T INTERFACE_T PUBLIC_T PRIVATE_T VIRTUAL_T OVERRIDE_T
         ABSTRACT_T THIS_T SUPER_T CONSTRUCTOR INSTANCEOF ISTYPE
         DOWN_CAST_BEGIN DOWN_CAST_END WL DELEGATE FINAL ENUM CONST
@@ -57,6 +59,8 @@
 %type   <rename_list> rename_list rename_declaration
 %type   <parameter_list> parameter_list
 %type   <argument_list> argument_list
+%type   <type_parameter_list> type_parameter_list type_parameters
+%type	<type_argument_list> type_argument_list type_arguments
 %type   <expression> expression expression_opt
         assignment_expression logical_and_expression logical_or_expression
         equality_expression relational_expression
@@ -182,7 +186,7 @@ basic_type_specifier
         }
 		| BASE_T
 		{
-			$$ = ISandBox_BOOLEAN_TYPE;
+			$$ = ISandBox_BASE_TYPE;
 		}
         | BOOLEAN_T
         {
@@ -222,29 +226,41 @@ identifier_type_specifier
         {
             $$ = Ivyc_create_identifier_type_specifier($1);
         }
+		| IDENTIFIER type_arguments
+		{
+			$$ = Ivyc_create_generic_identifier_type_specifier($1, $2);
+		}
         ;
 array_type_specifier
-        : basic_type_specifier LB RB
-        {
-            TypeSpecifier *basic_type
-                = Ivyc_create_type_specifier($1);
-            $$ = Ivyc_create_array_type_specifier(basic_type);
-        }
-        | IDENTIFIER LB RB
-        {
-            TypeSpecifier *identifier_type
-                = Ivyc_create_identifier_type_specifier($1);
-            $$ = Ivyc_create_array_type_specifier(identifier_type);
-        }
-        | array_type_specifier LB RB
+        : type_specifier LB RB
         {
             $$ = Ivyc_create_array_type_specifier($1);
+        }
+        ;
+type_argument_list
+        : type_specifier
+        {
+            $$ = Ivyc_create_type_argument_list($1);
+        }
+        | type_argument_list COMMA type_specifier
+        {
+            $$ = Ivyc_chain_type_argument_list($1, $3);
+        }
+        ;
+type_arguments
+        : /* NULL */
+        {
+            $$ = NULL;
+        }
+        | WITH LT type_argument_list GT
+        {
+            $$ = $3;
         }
         ;
 type_specifier
         : basic_type_specifier
         {
-                    $$ = Ivyc_create_type_specifier($1);
+        	$$ = Ivyc_create_type_specifier($1);
         }
         | array_type_specifier
         | identifier_type_specifier
@@ -521,6 +537,12 @@ primary_no_new_array
             $$ = Ivyc_create_down_cast_expression($1, $3);
         }
         | INT_LITERAL
+		| basic_type_specifier
+		{
+			Expression  *expression = Ivyc_alloc_expression(INT_EXPRESSION);
+    		expression->u.int_value = $1;
+    		$$ = expression;
+		}
         | LONG_DOUBLE_LITERAL
         | DOUBLE_LITERAL
         | STRING_LITERAL
@@ -546,21 +568,21 @@ primary_no_new_array
         {
             $$ = Ivyc_create_super_expression();
         }
-        | NEW IDENTIFIER LP RP
+        | NEW IDENTIFIER type_arguments LP RP
         {
-            $$ = Ivyc_create_new_expression($2, NULL, NULL);
+            $$ = Ivyc_create_new_expression($2, $3, NULL, NULL);
         }
-        | NEW IDENTIFIER LP argument_list RP
+        | NEW IDENTIFIER type_arguments LP argument_list RP
         {
-            $$ = Ivyc_create_new_expression($2, NULL, $4);
+            $$ = Ivyc_create_new_expression($2, $3, NULL, $5);
         }
-        | NEW IDENTIFIER DOT IDENTIFIER LP RP
+        | NEW IDENTIFIER type_arguments DOT IDENTIFIER LP RP
         {
-            $$ = Ivyc_create_new_expression($2, $4, NULL);
+            $$ = Ivyc_create_new_expression($2, $3, $5, NULL);
         }
-        | NEW IDENTIFIER DOT IDENTIFIER LP argument_list RP
+        | NEW IDENTIFIER type_arguments DOT IDENTIFIER LP argument_list RP
         {
-            $$ = Ivyc_create_new_expression($2, $4, $6);
+            $$ = Ivyc_create_new_expression($2, $3, $5, $7);
         }
         ;
 array_literal
@@ -938,36 +960,59 @@ block
             $$ = Ivyc_close_block(Ivyc_open_block(), NULL);
 		}
         ;
+type_parameter_list
+        : IDENTIFIER
+        {
+            $$ = Ivyc_create_type_parameter($1);
+        }
+		| IDENTIFIER COMMA type_parameter_list
+        {
+            $$ = Ivyc_chain_type_parameter($3, $1);
+        }
+        ;
+type_parameters
+        : /* NULL */
+        {
+            $$ = NULL;
+        }
+		| LT type_parameter_list GT
+        {
+            $$ = $2;
+        }
+        ;
 class_definition
-        : class_or_interface IDENTIFIER
+        : class_or_interface IDENTIFIER type_parameters
           extends LC
         {
-            Ivyc_start_class_definition(NULL, $1, $2, $3);
+            Ivyc_start_class_definition(NULL, $1, $2, $3, $4);
         }
           member_declaration_list RC
         {
-            Ivyc_class_define($6);
-        }
-        | class_or_member_modifier_list class_or_interface IDENTIFIER
-          extends LC
-        {
-            Ivyc_start_class_definition(&$1, $2, $3, $4);
-        } member_declaration_list RC
-        {
             Ivyc_class_define($7);
         }
-        | class_or_interface IDENTIFIER extends LC
+		/***********************************************************/
+        | class_or_member_modifier_list class_or_interface IDENTIFIER type_parameters
+          extends LC
         {
-            Ivyc_start_class_definition(NULL, $1, $2, $3);
+            Ivyc_start_class_definition(&$1, $2, $3, $4, $5);
+        } member_declaration_list RC
+        {
+            Ivyc_class_define($8);
+        }
+		/***********************************************************/
+        | class_or_interface IDENTIFIER type_parameters extends LC
+        {
+            Ivyc_start_class_definition(NULL, $1, $2, $3, $4);
         }
           RC
         {
             Ivyc_class_define(NULL);
         }
-        | class_or_member_modifier_list class_or_interface IDENTIFIER
+		/***********************************************************/
+        | class_or_member_modifier_list class_or_interface IDENTIFIER type_parameters
           extends LC
         {
-            Ivyc_start_class_definition(&$1, $2, $3, $4);
+            Ivyc_start_class_definition(&$1, $2, $3, $4, $5);
         }
           RC
         {

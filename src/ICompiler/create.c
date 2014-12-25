@@ -294,7 +294,8 @@ add_function_to_compiler(FunctionDefinition *fd)
 FunctionDefinition *
 Ivyc_create_function_definition(TypeSpecifier *type, char *identifier,
                                ParameterList *parameter_list,
-                               ExceptionList *throws, Block *block)
+                               ExceptionList *throws, Block *block,
+							   ISandBox_Boolean if_add)
 {
     FunctionDefinition *fd;
     Ivyc_Compiler *compiler;
@@ -317,7 +318,9 @@ Ivyc_create_function_definition(TypeSpecifier *type, char *identifier,
         block->type = FUNCTION_BLOCK;
         block->parent.function.function = fd;
     }
-    add_function_to_compiler(fd);
+	if (if_add) {
+    	add_function_to_compiler(fd);
+	}
 
     return fd;
 }
@@ -338,7 +341,7 @@ Ivyc_function_define(TypeSpecifier *type, char *identifier,
         return;
     }
     fd = Ivyc_create_function_definition(type, identifier, parameter_list,
-                                        throws, block);
+                                        throws, block, ISandBox_TRUE);
 }
 
 ParameterList *
@@ -369,6 +372,33 @@ Ivyc_chain_parameter(ParameterList *list, TypeSpecifier *type,
     return pos;
 }
 
+TypeParameterList *
+Ivyc_create_type_parameter(char *identifier)
+{
+    TypeParameterList       *p;
+
+    p = Ivyc_malloc(sizeof(TypeParameterList));
+    p->name = identifier;
+	p->target = NULL;
+    p->line_number = Ivyc_get_current_compiler()->current_line_number;
+    p->next = NULL;
+
+    return p;
+}
+
+TypeParameterList *
+Ivyc_chain_type_parameter(TypeParameterList *list, char *identifier)
+{
+    TypeParameterList *pos;
+
+    /*for (pos = list; pos->next; pos = pos->next)
+        ;*/
+    pos = Ivyc_create_type_parameter(identifier);
+	pos->next = list;
+
+    return pos;
+}
+
 ArgumentList *
 Ivyc_create_argument_list(Expression *expression)
 {
@@ -376,6 +406,18 @@ Ivyc_create_argument_list(Expression *expression)
 
     al = Ivyc_malloc(sizeof(ArgumentList));
     al->expression = expression;
+    al->next = NULL;
+
+    return al;
+}
+
+TypeArgumentList *
+Ivyc_create_type_argument_list(TypeSpecifier *type)
+{
+    TypeArgumentList *al;
+
+    al = Ivyc_malloc(sizeof(TypeArgumentList));
+    al->type = type;
     al->next = NULL;
 
     return al;
@@ -390,6 +432,19 @@ Ivyc_chain_argument_list(ArgumentList *list, Expression *expr)
         ;
 
     pos->next = Ivyc_create_argument_list(expr);
+
+    return list;
+}
+
+TypeArgumentList *
+Ivyc_chain_type_argument_list(TypeArgumentList *list, TypeSpecifier *type)
+{
+    TypeArgumentList *pos;
+
+	for (pos = list; pos->next; pos = pos->next)
+        ;
+
+    pos->next = Ivyc_create_type_argument_list(type);
 
     return list;
 }
@@ -463,6 +518,21 @@ Ivyc_create_identifier_type_specifier(char *identifier)
     TypeSpecifier *type;
 
     type = Ivyc_alloc_type_specifier(ISandBox_UNSPECIFIED_IDENTIFIER_TYPE);
+	type->is_generic = ISandBox_FALSE;
+    type->identifier = identifier;
+    type->line_number = Ivyc_get_current_compiler()->current_line_number;
+
+    return type;
+}
+
+TypeSpecifier *
+Ivyc_create_generic_identifier_type_specifier(char *identifier, TypeArgumentList *list)
+{
+    TypeSpecifier *type;
+
+    type = Ivyc_alloc_type_specifier(ISandBox_UNSPECIFIED_IDENTIFIER_TYPE);
+	type->is_generic = ISandBox_TRUE;
+	type->type_argument_list = list;
     type->identifier = identifier;
     type->line_number = Ivyc_get_current_compiler()->current_line_number;
 
@@ -745,12 +815,13 @@ Ivyc_create_super_expression(void)
 }
 
 Expression *
-Ivyc_create_new_expression(char *class_name, char *method_name,
+Ivyc_create_new_expression(char *class_name, TypeArgumentList *type_list, char *method_name,
                           ArgumentList *argument)
 {
     Expression *exp;
 
     exp = Ivyc_alloc_expression(NEW_EXPRESSION);
+	exp->u.new_e.type_argument_list = type_list;
     exp->u.new_e.class_name = class_name;
     exp->u.new_e.class_definition = NULL;
     exp->u.new_e.method_name = method_name;
@@ -1231,12 +1302,21 @@ void
 Ivyc_start_class_definition(ClassOrMemberModifierList *modifier,
                            ISandBox_ClassOrInterface class_or_interface,
                            char *identifier,
+						   TypeParameterList *list,
                            ExtendsList *extends)
 {
     ClassDefinition *cd;
     Ivyc_Compiler *compiler = Ivyc_get_current_compiler();
 
     cd = Ivyc_malloc(sizeof(ClassDefinition));
+
+	if (list) {
+		cd->is_generic = ISandBox_TRUE;
+	} else {
+		cd->is_generic = ISandBox_FALSE;
+	}
+	cd->type_parameter_list = list;
+	cd->type_parameter_require_list = NULL;
 
     cd->is_abstract = (class_or_interface == ISandBox_INTERFACE_DEFINITION);
     cd->access_modifier = ISandBox_FILE_ACCESS;
@@ -1271,15 +1351,28 @@ void Ivyc_class_define(MemberDeclaration *member_list)
     cd = compiler->current_class_definition;
     DBG_assert(cd != NULL, ("current_class_definition is NULL."));
 
-    if (compiler->class_definition_list == NULL) {
-        compiler->class_definition_list = cd;
-    } else {
-        for (pos = compiler->class_definition_list; pos->next;
-             pos = pos->next)
-            ;
-        pos->next = cd;
-    }
-    cd->member = member_list;
+	cd->member = member_list;
+
+	if (cd->is_generic == ISandBox_TRUE) {
+		if (compiler->template_class_definition_list == NULL) {
+        	compiler->template_class_definition_list = cd;
+    	} else {
+        	for (pos = compiler->template_class_definition_list; pos->next;
+             	pos = pos->next)
+            	;
+        	pos->next = cd;
+    	}
+	} else {
+    	if (compiler->class_definition_list == NULL) {
+        	compiler->class_definition_list = cd;
+    	} else {
+        	for (pos = compiler->class_definition_list; pos->next;
+             	pos = pos->next)
+            	;
+        	pos->next = cd;
+    	}
+	}
+
     compiler->current_class_definition = NULL;
 }
 
@@ -1480,8 +1573,18 @@ Ivyc_method_function_define(TypeSpecifier *type, char *identifier,
 {
     FunctionDefinition *fd;
 
-    fd = Ivyc_create_function_definition(type, identifier, parameter_list,
-                                        throws, block);
+	Ivyc_Compiler *compiler;
+
+    compiler = Ivyc_get_current_compiler();
+
+    if (compiler->current_class_definition != NULL
+		&& compiler->current_class_definition->is_generic == ISandBox_TRUE) {
+    	fd = Ivyc_create_function_definition(type, identifier, parameter_list,
+                                        	throws, block, ISandBox_FALSE);
+	} else {
+		fd = Ivyc_create_function_definition(type, identifier, parameter_list,
+                                        	throws, block, ISandBox_TRUE);
+	}
 
     return fd;
 }

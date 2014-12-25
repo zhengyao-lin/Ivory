@@ -127,5 +127,6 @@ ErrorDefinition Ivyc_error_message_format[] = {
     {"文字リテラルが2文字以上あります。"},
     {"assign expression's left item can't be force casted $(name)"},
 	{"the operand of \"is\" expression must be object type"},
+	{"the generic class \"$(name)\" needs type arguments"},
     {"dummy"}
 };

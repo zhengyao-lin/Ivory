@@ -20,6 +20,7 @@ typedef enum {
     ISandBox_BASE_TYPE,
 	ISandBox_ITERATOR_TYPE,
 	ISandBox_UNCLEAR_TYPE,
+	ISandBox_PLACEHOLDER,
     ISandBox_UNSPECIFIED_IDENTIFIER_TYPE
 } ISandBox_BasicType;
 

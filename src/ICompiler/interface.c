@@ -126,6 +126,7 @@ Ivyc_create_compiler(void)
     compiler->declaration_list = NULL;
     compiler->statement_list = NULL;
     compiler->class_definition_list = NULL;
+    compiler->template_class_definition_list = NULL;
     compiler->delegate_definition_list = NULL;
     compiler->enum_definition_list = NULL;
     compiler->constant_definition_list = NULL;
