@@ -1,0 +1,27 @@
+public Stack <T>
+{
+	int __INDEX;/* point to the last element */
+	T[] __DATA;
+	public constructor initialize(...data)
+	{
+		this.__DATA = new T[0];
+
+		for (this.__INDEX = 0; this.__INDEX < data.size(); this.__INDEX++) {
+			this.__DATA.add((T)(data[i]));
+		}
+		this.__INDEX--;
+	}
+	public T pop()
+	{
+		T pop = this.__DATA[this.__INDEX];
+		this.__DATA.remove(this.__INDEX);
+		this.__INDEX--;
+		return pop;
+	}
+	public int push(T target)
+	{
+		this.__DATA.add(target);
+		this.__INDEX++;
+		return this.__INDEX;
+	}
+}

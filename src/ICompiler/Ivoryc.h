@@ -306,6 +306,7 @@ typedef struct TypeSpecifier_tag TypeSpecifier;
 typedef struct ParameterList_tag {
     char                *name;
     TypeSpecifier       *type;
+	Expression			*initializer;
     int                 line_number;
     struct ParameterList_tag *next;
 } ParameterList;
@@ -358,10 +359,12 @@ typedef struct EnumDefinition_tag EnumDefinition;
 
 struct TypeSpecifier_tag {
 	ISandBox_Boolean		 is_generic;
+	ISandBox_Boolean         is_placeholder;
 	TypeArgumentList		 *type_argument_list;
 
     ISandBox_BasicType       basic_type;
     char        *identifier;
+	char        *orig_identifier;
     union {
         struct {
             ClassDefinition *class_definition;
@@ -527,6 +530,7 @@ typedef struct {
 } UpCastExpression;
 
 typedef struct {
+	ISandBox_Boolean 	*is_generic;
 	TypeArgumentList	*type_argument_list;
 
     char                *class_name;
@@ -769,17 +773,18 @@ struct Statement_tag {
 };
 
 struct FunctionDefinition_tag {
-    TypeSpecifier       *type;
-    PackageName         *package_name;
-    char                *name;
-    ParameterList       *parameter;
+	ISandBox_Boolean    has_fixed;/**/
+    TypeSpecifier       *type;/**/
+    PackageName         *package_name;/**/
+    char                *name;/**/
+    ParameterList       *parameter;/**/
     Block               *block;
-    int                 local_variable_count;
-    Declaration         **local_variable;
-    ClassDefinition     *class_definition;
-    ExceptionList       *throws;
-    int                 end_line_number;
-    struct FunctionDefinition_tag       *next;
+    int                 local_variable_count;/**/
+    Declaration         **local_variable;/**/
+    ClassDefinition     *class_definition;/**/
+    ExceptionList       *throws;/**/
+    int                 end_line_number;/**/
+    struct FunctionDefinition_tag       *next;/**/
 };
 
 typedef enum {
@@ -799,7 +804,9 @@ typedef struct {
 } ClassOrMemberModifierList;
 
 typedef struct ExtendsList_tag {
+	ISandBox_Boolean is_generic;
     char *identifier;
+	TypeArgumentList *type_argument_list;
     ClassDefinition *class_definition;
     struct ExtendsList_tag *next;
 } ExtendsList;
@@ -844,22 +851,21 @@ typedef struct TypeParameterRequireList_tag {
 
 struct ClassDefinition_tag {
 	/* generic */
-    ISandBox_Boolean                 is_generic;
-	TypeParameterList				 *type_parameter_list;
-	TypeParameterRequireList		 *type_parameter_require_list;
+    ISandBox_Boolean                 is_generic;/**/
+	TypeParameterList				 *type_parameter_list;/**/
 	/* generic */
 
-    ISandBox_Boolean is_abstract;
-    ISandBox_AccessModifier access_modifier;
-    ISandBox_ClassOrInterface class_or_interface;
-    PackageName *package_name;
-    char *name;
-    ExtendsList *extends;
-    ClassDefinition *super_class;
-    ExtendsList *interface_list;
+    ISandBox_Boolean is_abstract;/**/
+    ISandBox_AccessModifier access_modifier;/**/
+    ISandBox_ClassOrInterface class_or_interface;/**/
+    PackageName *package_name;/**/
+    char *name;/**/
+    ExtendsList *extends;/**/
+    ClassDefinition *super_class;/**/
+    ExtendsList *interface_list;/**/
     MemberDeclaration *member;
-    int line_number;
-    struct ClassDefinition_tag *next;
+    int line_number;/**/
+    struct ClassDefinition_tag *next;/**/
 };
 
 typedef struct CompilerList_tag {
@@ -1001,9 +1007,9 @@ Ivyc_create_function_definition(TypeSpecifier *type, char *identifier,
 void Ivyc_function_define(TypeSpecifier *type, char *identifier,
                          ParameterList *parameter_list,
                          ExceptionList *throws, Block *block);
-ParameterList *Ivyc_create_parameter(TypeSpecifier *type, char *identifier);
+ParameterList *Ivyc_create_parameter(TypeSpecifier *type, char *identifier, Expression *initializer);
 ParameterList *Ivyc_chain_parameter(ParameterList *list, TypeSpecifier *type,
-                                   char *identifier);
+                                   char *identifier, Expression *initializer);
 TypeParameterList *Ivyc_create_type_parameter(char *identifier);
 TypeParameterList *Ivyc_chain_type_parameter(TypeParameterList *list, char *identifier);
 ArgumentList *Ivyc_create_argument_list(Expression *expression);
@@ -1115,8 +1121,8 @@ Ivyc_start_class_definition(ClassOrMemberModifierList *modifier,
 						   TypeParameterList *list,
                            ExtendsList *extends);
 void Ivyc_class_define(MemberDeclaration *member_list);
-ExtendsList *Ivyc_create_extends_list(char *identifier);
-ExtendsList *Ivyc_chain_extends_list(ExtendsList *list, char *add);
+ExtendsList *Ivyc_create_extends_list(char *identifier, TypeArgumentList *add_list);
+ExtendsList *Ivyc_chain_extends_list(ExtendsList *list, char *add, TypeArgumentList *add_list);
 ClassOrMemberModifierList
 Ivyc_create_class_or_member_modifier(ClassOrMemberModifierKind modifier);
 ClassOrMemberModifierList

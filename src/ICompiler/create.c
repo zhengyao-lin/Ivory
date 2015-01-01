@@ -303,6 +303,7 @@ Ivyc_create_function_definition(TypeSpecifier *type, char *identifier,
     compiler = Ivyc_get_current_compiler();
 
     fd = Ivyc_malloc(sizeof(FunctionDefinition));
+	fd->has_fixed = ISandBox_FALSE;
     fd->type = type;
     fd->package_name = compiler->package_name;
     fd->name = identifier;
@@ -345,13 +346,14 @@ Ivyc_function_define(TypeSpecifier *type, char *identifier,
 }
 
 ParameterList *
-Ivyc_create_parameter(TypeSpecifier *type, char *identifier)
+Ivyc_create_parameter(TypeSpecifier *type, char *identifier, Expression *initializer)
 {
     ParameterList       *p;
 
     p = Ivyc_malloc(sizeof(ParameterList));
     p->name = identifier;
     p->type = type;
+	p->initializer = initializer;
     p->line_number = Ivyc_get_current_compiler()->current_line_number;
     p->next = NULL;
 
@@ -360,13 +362,13 @@ Ivyc_create_parameter(TypeSpecifier *type, char *identifier)
 
 ParameterList *
 Ivyc_chain_parameter(ParameterList *list, TypeSpecifier *type,
-                    char *identifier)
+                    char *identifier, Expression *initializer)
 {
     ParameterList *pos;
 
     /*for (pos = list; pos->next; pos = pos->next)
         ;*/
-    pos = Ivyc_create_parameter(type, identifier);
+    pos = Ivyc_create_parameter(type, identifier, initializer);
 	pos->next = list;
 
     return pos;
@@ -821,6 +823,11 @@ Ivyc_create_new_expression(char *class_name, TypeArgumentList *type_list, char *
     Expression *exp;
 
     exp = Ivyc_alloc_expression(NEW_EXPRESSION);
+	if (type_list != NULL) {
+		exp->u.new_e.is_generic = ISandBox_TRUE;
+	} else {
+		exp->u.new_e.is_generic = ISandBox_FALSE;
+	}
 	exp->u.new_e.type_argument_list = type_list;
     exp->u.new_e.class_name = class_name;
     exp->u.new_e.class_definition = NULL;
@@ -1316,7 +1323,6 @@ Ivyc_start_class_definition(ClassOrMemberModifierList *modifier,
 		cd->is_generic = ISandBox_FALSE;
 	}
 	cd->type_parameter_list = list;
-	cd->type_parameter_require_list = NULL;
 
     cd->is_abstract = (class_or_interface == ISandBox_INTERFACE_DEFINITION);
     cd->access_modifier = ISandBox_FILE_ACCESS;
@@ -1377,12 +1383,18 @@ void Ivyc_class_define(MemberDeclaration *member_list)
 }
 
 ExtendsList *
-Ivyc_create_extends_list(char *identifier)
+Ivyc_create_extends_list(char *identifier, TypeArgumentList *add_list)
 {
     ExtendsList *list;
 
     list = Ivyc_malloc(sizeof(ExtendsList));
     list->identifier = identifier;
+	list->type_argument_list = add_list;
+	if (add_list != NULL) {
+		list->is_generic = ISandBox_TRUE;
+	} else {
+		list->is_generic = ISandBox_FALSE;
+	}
     list->class_definition = NULL;
     list->next = NULL;
 
@@ -1390,13 +1402,13 @@ Ivyc_create_extends_list(char *identifier)
 }
 
 ExtendsList *
-Ivyc_chain_extends_list(ExtendsList *list, char *add)
+Ivyc_chain_extends_list(ExtendsList *list, char *add, TypeArgumentList *add_list)
 {
     ExtendsList *pos;
 
     for (pos = list; pos->next; pos = pos->next)
         ;
-    pos->next = Ivyc_create_extends_list(add);
+    pos->next = Ivyc_create_extends_list(add, add_list);
 
     return list;
 }

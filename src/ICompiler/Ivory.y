@@ -67,7 +67,7 @@
         additive_expression multiplicative_expression
         unary_expression postfix_expression primary_expression
         primary_no_new_array array_literal array_creation
-        initializer_opt /*var_args_list*/
+        initializer_opt /*var_args_list*/ parameter_initializer_opt
 
 /* !!!unstable!!! */
 %type   <force_cast_type> force_cast
@@ -242,9 +242,9 @@ type_argument_list
         {
             $$ = Ivyc_create_type_argument_list($1);
         }
-        | type_argument_list COMMA type_specifier
+        | type_specifier COMMA type_argument_list 
         {
-            $$ = Ivyc_chain_type_argument_list($1, $3);
+            $$ = Ivyc_chain_type_argument_list($3, $1);
         }
         ;
 type_arguments
@@ -284,24 +284,34 @@ function_definition
             Ivyc_function_define($1, $2, NULL, $5, NULL);
         }
         ;
+parameter_initializer_opt
+		: /* NULL */
+		{
+			$$ = NULL;
+		}
+		| ASSIGN_T assignment_expression
+		{
+			$$ = $2;
+		}
+		;
 parameter_list
-        : type_specifier IDENTIFIER
+        : type_specifier IDENTIFIER parameter_initializer_opt
         {
-            $$ = Ivyc_create_parameter($1, $2);
+            $$ = Ivyc_create_parameter($1, $2, $3);
         }
 		| VARIABLE_ARGS IDENTIFIER
         {
 			TypeSpecifier *basic_type = Ivyc_create_type_specifier(ISandBox_OBJECT_TYPE);
-            $$ = Ivyc_create_parameter(Ivyc_create_array_type_specifier(basic_type), $2);
+            $$ = Ivyc_create_parameter(Ivyc_create_array_type_specifier(basic_type), $2, NULL);
         }
 		| VARIABLE_ARGS
         {
 			TypeSpecifier *basic_type = Ivyc_create_type_specifier(ISandBox_OBJECT_TYPE);
-            $$ = Ivyc_create_parameter(Ivyc_create_array_type_specifier(basic_type), UNDEFINED_VARIABLE_ARGS);
+            $$ = Ivyc_create_parameter(Ivyc_create_array_type_specifier(basic_type), UNDEFINED_VARIABLE_ARGS, NULL);
         }
-		| type_specifier IDENTIFIER COMMA parameter_list
+		| type_specifier IDENTIFIER parameter_initializer_opt COMMA parameter_list
         {
-            $$ = Ivyc_chain_parameter($4, $1, $2);
+            $$ = Ivyc_chain_parameter($5, $1, $2, $3);
         }
         ;
 argument_list
@@ -1062,13 +1072,13 @@ extends
         }
         ;
 extends_list
-        : IDENTIFIER
+        : IDENTIFIER type_arguments
         {
-            $$ = Ivyc_create_extends_list($1);
+            $$ = Ivyc_create_extends_list($1, $2);
         }
-        | extends_list COMMA IDENTIFIER
+        | extends_list COMMA IDENTIFIER type_arguments
         {
-            $$ = Ivyc_chain_extends_list($1, $3);
+            $$ = Ivyc_chain_extends_list($1, $3, $4);
         }
         ;
 member_declaration_list

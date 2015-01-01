@@ -1,0 +1,38 @@
+public interface IStack <T>
+{
+	public T pop();
+	public int push(T target);
+}
+
+public class Stack <T> : IStack with<T>, IStack with<T>
+{
+	public int __LAST;/* point to the last element */
+	public T[] __DATA;
+	/*public constructor initialize(...data)
+	{
+		this.__DATA = new T[0];
+
+		for (this.__LAST = 0; this.__LAST < data.size(); this.__LAST++) {
+			this.__DATA.add((T)(data[this.__LAST]));
+		}
+		this.__LAST--;
+	}*/
+	public constructor initialize()
+	{
+		this.__DATA = new T[0];
+		this.__LAST = -1;
+	}
+	public override T pop()
+	{
+		T pop = this.__DATA[this.__LAST];
+		this.__DATA.remove(this.__LAST);
+		this.__LAST--;
+		return pop;
+	}
+	public override int push(T target)
+	{
+		this.__DATA.add(target);
+		this.__LAST++;
+		return this.__LAST;
+	}
+}

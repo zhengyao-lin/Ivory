@@ -19,6 +19,7 @@ static TargetPackage st_target_package[] = {
     {"Ivory.System", "ivh"},
     {"Ivory.Type", "ivh"},
     {"Ivory.Iterator", "ivh"},
+    {"Ivory.Container.Stack", "ivh"},
 };
 
 static void

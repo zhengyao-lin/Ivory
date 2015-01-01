@@ -48,6 +48,7 @@ Ivyc_alloc_type_specifier(ISandBox_BasicType type)
 {
     TypeSpecifier *ts = Ivyc_malloc(sizeof(TypeSpecifier));
 
+	ts->is_placeholder = ISandBox_FALSE;
 	ts->is_generic = ISandBox_FALSE;
     ts->basic_type = type;
     ts->line_number = 0;
@@ -56,6 +57,7 @@ Ivyc_alloc_type_specifier(ISandBox_BasicType type)
         ts->identifier = NULL;
         ts->u.class_ref.class_definition = NULL;
     }
+	ts->orig_identifier = NULL;
 
     return ts;
 }
@@ -421,7 +423,7 @@ Ivyc_search_template_class(char *identifier)
     compiler = Ivyc_get_current_compiler();
     for (class_def = compiler->template_class_definition_list;
          class_def; class_def = class_def->next) {
-        if (!strcmp(class_def->name, identifier)) {
+        if (strcmp(class_def->name, identifier) == 0) {
             return class_def;
         }
     }

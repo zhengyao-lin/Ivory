@@ -83,11 +83,11 @@ create_built_in_method(BuiltInMethod *src, int method_count)
             if (param_list) {
                 param_list
                     = Ivyc_chain_parameter(param_list, type,
-                                          src[i].parameter[param_idx].name);
+                                          src[i].parameter[param_idx].name, NULL);
             } else {
                 param_list
                     = Ivyc_create_parameter(type,
-                                           src[i].parameter[param_idx].name);
+                                           src[i].parameter[param_idx].name, NULL);
             }
         }
         fd_array[i].parameter = param_list;

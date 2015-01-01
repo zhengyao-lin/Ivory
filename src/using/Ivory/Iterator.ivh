@@ -13,6 +13,9 @@ public interface Iterator {
  * can be initialized by { ArrayIterator }
  * inherit interface { Iterator }
  */
+const OUT_OF_ITERATOR_ERR = "out of iterator";
+const NEW_ITERATOR_ERR = "used new iterator without initializing";
+
 public class ListIterator : Iterator
 {
 	public int size;
@@ -21,7 +24,7 @@ public class ListIterator : Iterator
 
 	public override object next() {
 		OutOfIteratorException e = new OutOfIteratorException();
-		e.message = "out of iterator";
+		e.message = OUT_OF_ITERATOR_ERR;
 
 		if (this.cursor+1 < this.size) {
 			this.cursor += 1;
@@ -33,7 +36,7 @@ public class ListIterator : Iterator
 	}
 	public override object current() {
 		NewIteratorException e = new NewIteratorException();
-		e.message = "used new iterator without initializing";
+		e.message = NEW_ITERATOR_ERR;
 
 		if (this.cursor < 0) {
 			throw e;

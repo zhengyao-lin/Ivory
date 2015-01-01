@@ -306,7 +306,7 @@ search_class(Ivyc_Compiler *compiler, ClassDefinition *src)
             return &compiler->ISandBox_class[i];
         }
     }
-    DBG_assert(0, ("function %s::%s not found.", src_package_name, src->name));
+    DBG_assert(0, ("line %d: class %s::%s not found.", src->line_number, src_package_name, src->name));
 
     return NULL; /* make compiler happy. */
 }
@@ -570,13 +570,14 @@ get_opcode_type_offset(TypeSpecifier *type)
     case ISandBox_NATIVE_POINTER_TYPE: /* FALLTHRU */
     case ISandBox_CLASS_TYPE: /* FALLTHRU */
     case ISandBox_DELEGATE_TYPE: /* FALLTHRU */
+	case ISandBox_BASE_TYPE: /* FALLTHRU */
         return 2;
         break;
     case ISandBox_NULL_TYPE: /* FALLTHRU */
-    case ISandBox_BASE_TYPE: /* FALLTHRU */
     case ISandBox_UNSPECIFIED_IDENTIFIER_TYPE: /* FALLTHRU */
+		printf("%s\n", type->identifier);
     default:
-        DBG_assert(0, ("basic_type..%d", type->basic_type));
+        DBG_assert(0, ("line %d:basic_type..%d", type->line_number, type->basic_type));
     }
 
     return 0;

@@ -4,6 +4,18 @@
 #include "DBG.h"
 #include "Ivoryc.h"
 
+static Expression *fix_expression(Block *current_block, Expression *expr,
+                                  Expression *parent, ExceptionList **el_p);
+
+static void
+search_and_add_template(char *name, char *rename, TypeArgumentList *arg_list);
+
+static char *
+instantiation_generic_type_specifier_by_name(char *origin, TypeArgumentList *list);
+
+static TypeArgumentList *
+fix_type_argument_list(TypeArgumentList *list);
+
 static Expression *
 create_assign_cast(Expression *src, TypeSpecifier *dest, int i);
 
@@ -162,6 +174,7 @@ add_class(ClassDefinition *src)
     Ivyc_Compiler *compiler = Ivyc_get_current_compiler();
     ExtendsList *sup_pos;
     int ret;
+	char *temp_str;
 
     src_package_name = Ivyc_package_name_to_string(src->package_name);
     for (i = 0; i < compiler->ISandBox_class_count; i++) {
@@ -186,6 +199,14 @@ add_class(ClassDefinition *src)
 
     for (sup_pos = src->extends; sup_pos; sup_pos = sup_pos->next) {
         int dummy;
+		if (sup_pos->is_generic == ISandBox_TRUE) {
+			sup_pos->type_argument_list = fix_type_argument_list(sup_pos->type_argument_list);
+			temp_str = instantiation_generic_type_specifier_by_name(sup_pos->identifier, sup_pos->type_argument_list);
+			if (Ivyc_search_class(temp_str) == NULL) {
+				search_and_add_template(sup_pos->identifier, temp_str, sup_pos->type_argument_list);
+			}
+			sup_pos->identifier = temp_str;
+		}
         search_class_and_add(src->line_number, sup_pos->identifier, &dummy);
     }
 
@@ -247,7 +268,7 @@ is_exception_class(ClassDefinition *cd)
     }
 }
 
-static void fix_type_specifier(TypeSpecifier *type);
+static TypeSpecifier * fix_type_specifier(TypeSpecifier *type);
 
 static void
 fix_parameter_list(ParameterList *parameter_list)
@@ -255,7 +276,10 @@ fix_parameter_list(ParameterList *parameter_list)
     ParameterList *param;
 
     for (param = parameter_list; param; param = param->next) {
-        fix_type_specifier(param->type);
+        param->type = fix_type_specifier(param->type);
+		if (param->initializer != NULL) {
+			param->initializer = fix_expression(NULL, param->initializer, NULL, NULL);
+		}
     }
 }
 
@@ -283,7 +307,7 @@ fix_throws(ExceptionList *throws)
     }
 }
 
-static ISandBox_Boolean
+/*static ISandBox_Boolean
 search_type_parameter(TypeParameterList *list, char *name)
 {
 	TypeParameterList *pos;
@@ -293,7 +317,7 @@ search_type_parameter(TypeParameterList *list, char *name)
 		}
 	}
 	return ISandBox_FALSE;
-}
+}*/
 
 static char *
 instantiation_generic_type_specifier(TypeSpecifier *type)
@@ -318,14 +342,272 @@ instantiation_generic_type_specifier(TypeSpecifier *type)
 	return ret;
 }
 
+static char *
+instantiation_generic_type_specifier_by_name(char *origin, TypeArgumentList *list)
+{
+	int length;
+	char *ret;
+	TypeArgumentList *pos;
+
+	/*length = strlen(origin);
+	for (pos = type->type_argument_list; pos; pos = pos->next) {
+		length += strlen(Ivyc_get_basic_type_name(pos->type->basic_type)) + 1;
+	}*/
+	ret = strdup(origin);
+	ret = strcat(ret, "_");
+	for (pos = list; pos; pos = pos->next) {
+		ret = strcat(ret, Ivyc_get_basic_type_name(pos->type->basic_type));
+		ret = strcat(ret, (pos->next ? "_" : ""));
+	}
+	return ret;
+}
+
 static void
-fix_type_specifier(TypeSpecifier *type)
+fix_template_class_list(ClassDefinition *class, char *rename, TypeArgumentList *arg_list);
+
+static TypeArgumentList *
+fix_type_argument_list(TypeArgumentList *list)
+{
+	TypeArgumentList *pos;
+	for (pos = list; pos; pos = pos->next) {
+		pos->type = fix_type_specifier(pos->type);
+	}
+	return list;
+}
+
+/************************************************************ what a lab! ***********************************************************/
+
+/*static TypeParameterList*
+copy_type_parameter_list(TypeParameterList *readonly)
+{
+	TypeParameterList *pos1;
+	TypeParameterList *pos2;
+	TypeParameterList *ret;
+
+	for (pos1 = readonly; pos1; pos1 = pos1->next) {
+		if (ret == NULL) {
+			ret = Ivyc_malloc(sizeof(TypeParameterList));
+			ret->name = strdup(pos1->name);
+			ret->target = NULL;
+			ret->line_number = pos1->line_number;
+		} else {
+			for (pos2 = ret; pos2->next; pos2 = pos2->next) {
+			} pos2->next = Ivyc_malloc(sizeof(TypeParameterList));
+			pos2->next->name = strdup(pos1->name);
+			pos2->next->target = NULL;
+			pos2->next->line_number = pos1->line_number;
+		}
+	}
+	return ret;
+}
+
+static ExtendsList *
+copy_extends_list(ExtendsList *readonly)
+{
+	ExtendsList *pos1;
+	ExtendsList *ret;
+
+	for (pos1 = readonly; pos1; pos1 = pos1->next) {
+		if (ret == NULL) {
+			ret = Ivyc_create_extends_list(strdup(pos1->identifier), pos1->type_argument_list);
+		} else {
+			ret = Ivyc_chain_extends_list(ret, strdup(pos1->identifier), pos1->type_argument_list);
+		}
+	}
+	return ret;
+}
+
+static TypeSpecifier *
+copy_type_specifier(TypeSpecifier *readonly)
+{
+	TypeSpecifier *ret;
+
+	ret						=	Ivyc_malloc(sizeof(TypeSpecifier));
+	ret->is_generic			=	readonly->is_generic;
+	ret->is_placeholder		=	readonly->is_placeholder;
+	ret->type_argument_list	=	readonly->type_argument_list;
+	ret->basic_type			=	readonly->basic_type;
+	ret->identifier			=	strdup(readonly->identifier);
+	ret->orig_identifier	=	strdup(readonly->orig_identifier);
+	ret->u.class_ref		=	readonly->u.class_refp;
+	ret->line_number		=	readonly->line_number;
+	ret->derive				=	readonly->derive;
+
+	return ret;
+}
+
+static ParameterList *
+copy_parameter_list(ParameterList *readonly)
+{
+	ParameterList *pos1;
+	ParameterList *ret;
+
+	for (pos1 = readonly; pos2; pos2 = pos2->next) {
+		if (ret == NULL) {
+			ret = Ivyc_create_parameter(copy_type_specifier(pos1->type), strdup(pos1->name));
+		} else {
+			ret = Ivyc_chain_parameter(ret, copy_type_specifier(pos1->type), strdup(pos1->name));
+		}
+	}
+	return ret;
+}
+
+static Statement *
+copy_statement(Statement *readonly)
+{
+	Statement *ret;
+
+	ret = Ivyc_malloc(sizeof(Statement));
+}
+
+static StatementList *
+copy_statement_list(StatementList *readonly)
+{
+	StatementList *ret;
+
+	ret				=	Ivyc_malloc(sizeof(StatementList));
+}
+
+static Block *
+copy_block(Block *readonly)
+{
+	Block *ret;
+
+	ret					=	Ivyc_malloc(sizeof(Block));
+	ret->type			=	readonly->type;
+	ret->outer_block	=	readonly->outer_block;
+	
+}
+
+static FunctionDefinition *
+copy_function_definition(FunctionDefinition *readonly)
+{
+	FunctionDefinition *ret;
+
+	ret							=	Ivyc_malloc(sizeof(FunctionDefinition));
+	ret->has_fixed				=	readonly->has_fixed;
+	ret->package_name			=	readonly->package_name;
+	ret->name 					= 	strdup(readonly->name);
+	ret->type					=	copy_type_specifier(readonly->type);
+	ret->parameter				=	copy_parameter_list(readonly->parameter);
+	ret->end_line_number		=	readonly->end_line_number;
+	ret->next					=	readonly->next;
+	ret->class_definition		=	readonly->class_definition;
+	ret->throws					=	readonly->throws;
+	ret->local_variable_count	=	0;
+	ret->local_variable			=	NULL;
+}
+
+static MethodMember
+copy_method_member(MethodMember readonly)
+{
+	MethodMember ret			=	readonly;
+	ret.function_definition		=	copy_function_definition(readonly.function_definition);
+}
+
+static MemberDeclaration *
+copy_member_declaration_single(MemberDeclaration *readonly)
+{
+	MemberDeclaration *ret;
+
+	ret = Ivyc_malloc(sizeof(MemberDeclaration));
+	ret->kind					=	readonly->kind;
+	ret->access_modifier		= 	readonly->access_modifier;
+	ret->line_number			=	readonly->line_number;
+	switch (readonly->kind) {
+		case METHOD_MEMBER:	{
+			
+		}
+	}
+}
+
+static ClassDefinition*
+copy_class_definition(ClassDefinition* readonly)
+{
+	ClassDefinition *ret;
+
+	ret = Ivyc_malloc(sizeof(ClassDefinition));
+	ret->is_generic 			= 	readonly->is_generic;
+	ret->is_abstract 			= 	readonly->is_abstract;
+	ret->access_modifier 		= 	readonly->access_modifier;
+	ret->class_or_interface 	= 	readonly->class_or_interface;
+	ret->name 					= 	strdup(readonly->name);
+	ret->line_number 			= 	readonly->line_number;
+	ret->next 					= 	readonly->next;
+	ret->super_class 			= 	readonly->super_class;
+	ret->type_parameter_list	=	copy_type_parameter_list(readonly->type_parameter_list);
+	ret->package_name			=	readonly->package_name;
+	ret->extends				=	copy_extends_list(readonly->extends);
+	ret->interface_list			=	copy_extends_list(readonly->interface_list);
+	
+
+	return ret;
+}*/
+
+static void
+search_and_add_template(char *name, char *rename, TypeArgumentList *arg_list)
+{
+	char *temp_str;
+	ClassDefinition *cd;
+	ClassDefinition *next;
+	TypeParameterList *pos1;
+	TypeParameterList *backup;
+	TypeArgumentList *pos2;
+
+	cd = Ivyc_search_template_class(name);
+
+	if (cd != NULL) {
+		for (pos1 = cd->type_parameter_list, pos2 = arg_list;
+			pos1 && pos2;
+			pos1 = pos1->next, pos2 = pos2->next) {
+			temp_str = Ivyc_strdup(pos1->name);
+			if (backup == NULL) {
+				backup = Ivyc_create_type_parameter(temp_str);
+			} else {
+				backup = Ivyc_chain_type_parameter(backup, temp_str);
+			}
+		}
+		if (pos1 || pos2) {
+			DBG_assert(0, ("unfitable generic type arguments"));
+		}
+
+		fix_template_class_list(cd, rename, arg_list);
+		/*printf(LIGHT_GRAY "hello?" CLOSE_COLOR);*/
+		cd->type_parameter_list = backup;
+	}
+}
+
+static TypeSpecifier *
+search_type_parameter(char *target)
+{
+	ClassDefinition *cd;
+	TypeParameterList *pos1;
+	Ivyc_Compiler *compiler = Ivyc_get_current_compiler();
+
+	cd = compiler->current_class_definition;
+	pos1 = cd->type_parameter_list;
+
+	for (pos1 = cd->type_parameter_list; pos1; pos1 = pos1->next) {
+		if (strcmp(pos1->name, target) == 0) {
+			return pos1->target;
+		}
+	}
+
+	return NULL;
+}
+
+static TypeSpecifier *
+fix_type_specifier(TypeSpecifier *input)
 {
     ClassDefinition *cd;
     DelegateDefinition *dd;
     EnumDefinition *ed;
+	TypeSpecifier *type;
     TypeDerive *derive_pos;
     Ivyc_Compiler *compiler = Ivyc_get_current_compiler();
+
+	type = Ivyc_malloc(sizeof(TypeSpecifier));
+	*type = *input;
 
     for (derive_pos = type->derive; derive_pos;
          derive_pos = derive_pos->next) {
@@ -335,8 +617,18 @@ fix_type_specifier(TypeSpecifier *type)
         }
     }
 
+	/*if (compiler->current_class_definition != NULL
+		&& type->is_placeholder == ISandBox_TRUE) {
+		TypeSpecifier *copy;
+		copy = Ivyc_alloc_type_specifier(ISandBox_UNSPECIFIED_IDENTIFIER_TYPE);
+		copy->identifier = type->orig_identifier;
+		copy->is_placeholder = type->is_placeholder;
+		copy->line_number = type->line_number;
+		copy->derive = type->derive;
+		type = copy;
+	}*/
+
     if (type->basic_type == ISandBox_UNSPECIFIED_IDENTIFIER_TYPE) {
-		RETRY:
         cd = Ivyc_search_class(type->identifier);
         if (cd) {
             if (!Ivyc_compare_package_name(cd->package_name,
@@ -351,13 +643,13 @@ fix_type_specifier(TypeSpecifier *type)
             type->basic_type = ISandBox_CLASS_TYPE;
             type->u.class_ref.class_definition = cd;
             type->u.class_ref.class_index = add_class(cd);
-            return;
+            return type;
         }
         dd = Ivyc_search_delegate(type->identifier);
         if (dd) {
             type->basic_type = ISandBox_DELEGATE_TYPE;
             type->u.delegate_ref.delegate_definition = dd;
-            return;
+            return type;
         }
         ed = Ivyc_search_enum(type->identifier);
         if (ed) {
@@ -365,19 +657,34 @@ fix_type_specifier(TypeSpecifier *type)
             type->u.enum_ref.enum_definition = ed;
             type->u.enum_ref.enum_index
                 = reserve_enum_index(compiler, ed, ISandBox_FALSE);
-            return;
+            return type;
         }
 		cd = Ivyc_search_template_class(type->identifier);
 		if (cd) {
 			if (type->is_generic ==ISandBox_TRUE) {
 				/************************placeholder***************************/
-				instantiation_generic_type_specifier(type);
-				if (Ivyc_search_template_class(type->identifier)) {
-					goto RETRY;
+				char *origin = type->identifier;
+				fix_type_argument_list(type->type_argument_list);
+				char *ins = instantiation_generic_type_specifier(type);
+
+				if (Ivyc_search_class(ins) == NULL) {
+					search_and_add_template(origin, ins, type->type_argument_list);
 				}
 				/* instantiate the class */
-				
-				return;
+				cd = Ivyc_search_class(type->identifier);
+            	if (!Ivyc_compare_package_name(cd->package_name,
+                                          	compiler->package_name)
+                	&& cd->access_modifier != ISandBox_PUBLIC_ACCESS) {
+                	Ivyc_compile_error(type->line_number,
+                                  	PACKAGE_CLASS_ACCESS_ERR,
+                                  	STRING_MESSAGE_ARGUMENT, "class_name",
+                                  	cd->name,
+                                  	MESSAGE_ARGUMENT_END);
+            	}
+            	type->basic_type = ISandBox_CLASS_TYPE;
+            	type->u.class_ref.class_definition = cd;
+            	type->u.class_ref.class_index = add_class(cd);
+				return type;
 			} else {
 				Ivyc_compile_error(type->line_number,
                           		GENERIC_CLASS_WITH_NO_ARGUMENT,
@@ -386,17 +693,26 @@ fix_type_specifier(TypeSpecifier *type)
 			}
 		}
 		cd = compiler->current_class_definition;
+		TypeSpecifier *try;
+
+		TypeDerive *derive;
+		derive = type->derive;
+
 		if (cd != NULL
-			&& cd->is_generic == ISandBox_TRUE
-			&& search_type_parameter(cd->type_parameter_list, type->identifier)) {
-			type->basic_type = ISandBox_PLACEHOLDER;
-			return;
+			&& cd->is_generic == ISandBox_TRUE) {
+			/*printf("%d%s\n", type->line_number, type->identifier);*/
+			try = Ivyc_alloc_type_specifier2(search_type_parameter(type->identifier));
+			if (try != NULL) {
+				try->derive = derive;
+				return try;
+			}
 		}
         Ivyc_compile_error(type->line_number,
                           TYPE_NAME_NOT_FOUND_ERR,
                           STRING_MESSAGE_ARGUMENT, "name", type->identifier,
                           MESSAGE_ARGUMENT_END);
     }
+	return type;
 }
 
 static TypeSpecifier *
@@ -413,9 +729,6 @@ create_function_derive_type(FunctionDefinition *fd)
 
     return ret;
 }
-
-static Expression *fix_expression(Block *current_block, Expression *expr,
-                                  Expression *parent, ExceptionList **el_p);
 
 static Expression *
 fix_identifier_expression(Block *current_block, Expression *expr)
@@ -473,7 +786,7 @@ fix_identifier_expression(Block *current_block, Expression *expr)
     expr->u.identifier.u.function.function_definition = fd;
     expr->u.identifier.u.function.function_index
         = reserve_function_index(compiler, fd);
-    fix_type_specifier(expr->type);
+    expr->type = fix_type_specifier(expr->type);
 
     return expr;
 }
@@ -716,6 +1029,12 @@ fix_force_cast_expression(Block *current_block, Expression *expr,
     expr->u.fcast.operand
         = fix_expression(current_block, expr->u.fcast.operand, expr,
                          el_p);
+	expr->u.fcast.type = fix_type_specifier(expr->u.fcast.type);
+	if (Ivyc_is_type_object(expr->u.fcast.operand->type)
+		&& Ivyc_is_type_object(expr->u.fcast.type))
+	{
+		return expr->u.fcast.operand;
+	}
 	if (Ivyc_compare_type(expr->u.fcast.operand->type, expr->u.fcast.type))
 	{
 		return expr->u.fcast.operand;
@@ -757,7 +1076,10 @@ create_assign_cast(Expression *src, TypeSpecifier *dest, int i)
     if (Ivyc_is_class_object(src->type) && Ivyc_is_class_object(dest)) {
         ISandBox_Boolean is_interface;
         int interface_index;
-        if (is_super_class(src->type->u.class_ref.class_definition,
+		/*printf("%d\n", strcmp(src->type->identifier, dest->identifier));*/
+        if (dest->is_generic == ISandBox_TRUE && strcmp(src->type->identifier, dest->identifier) == 0) {
+			return src;
+        } else if (is_super_class(src->type->u.class_ref.class_definition,
                            dest->u.class_ref.class_definition,
                            &is_interface, &interface_index)) {
             if (is_interface) {
@@ -770,6 +1092,7 @@ create_assign_cast(Expression *src, TypeSpecifier *dest, int i)
         } else {
             cast_mismatch_error(src->line_number, src->type, dest);
         }
+		
     }
 
     if (Ivyc_is_function(src->type) && Ivyc_is_delegate(dest)) {
@@ -1594,12 +1917,15 @@ check_argument(Block *current_block, int line_number,
                ExceptionList **el_p, TypeSpecifier *array_base)
 {
     ParameterList *param;
+	ArgumentList *last;
     TypeSpecifier *temp_type;
 	ExpressionList *vargs;
 
+	last = arg;
     for (param = param_list;
          param && arg;
          param = param->next, arg = arg->next) {
+		last = arg;
         arg->expression
             = fix_expression(current_block, arg->expression, NULL,
                              el_p);
@@ -1635,6 +1961,13 @@ check_argument(Block *current_block, int line_number,
         arg->expression
             = create_assign_cast(arg->expression, temp_type, 1);
     }
+
+	if (param != NULL && arg == NULL) {
+		for (; param && param->initializer; param = param->next) {
+			last->next = Ivyc_create_argument_list(fix_expression(current_block, param->initializer, NULL, el_p));
+			last = last->next;
+		}
+	}
 
     if (param || arg) {
         Ivyc_compile_error(line_number,
@@ -1840,7 +2173,7 @@ fix_function_call_expression(Block *current_block, Expression *expr,
     expr->type->derive = func_type->derive;
     if (func_type->basic_type == ISandBox_CLASS_TYPE) {
         expr->type->identifier = func_type->identifier;
-        fix_type_specifier(expr->type);
+        expr->type = fix_type_specifier(expr->type);
     }
 
     return expr;
@@ -1910,7 +2243,7 @@ fix_class_member_expression(Expression *expr,
     ClassDefinition *target_interface;
     int interface_index;
 
-    fix_type_specifier(obj->type);
+    obj->type = fix_type_specifier(obj->type);
     member = Ivyc_search_member(obj->type->u.class_ref.class_definition,
                                member_name);
     if (member == NULL) {
@@ -2256,7 +2589,7 @@ fix_instanceof_expression(Block *current_block, Expression *expr,
     expr->u.instanceof.operand
         = fix_expression(current_block, expr->u.instanceof.operand, expr,
                          el_p);
-    fix_type_specifier(expr->u.instanceof.type);
+    expr->u.instanceof.type = fix_type_specifier(expr->u.instanceof.type);
 
     operand = expr->u.instanceof.operand;
     target = expr->u.instanceof.type;
@@ -2343,7 +2676,7 @@ fix_istype_expression(Block *current_block, Expression *expr,
 	}
 
 	expr->u.istype.operand = create_assign_cast(expr->u.istype.operand, Ivyc_alloc_type_specifier(ISandBox_OBJECT_TYPE), 1);
-	fix_type_specifier(expr->u.istype.type);
+	expr->u.istype.type = fix_type_specifier(expr->u.istype.type);
 
     expr->type = Ivyc_alloc_type_specifier(ISandBox_BOOLEAN_TYPE);
 
@@ -2362,7 +2695,7 @@ fix_down_cast_expression(Block *current_block, Expression *expr,
     expr->u.down_cast.operand
         = fix_expression(current_block, expr->u.down_cast.operand, expr,
                          el_p);
-    fix_type_specifier(expr->u.down_cast.type);
+    expr->u.down_cast.type = fix_type_specifier(expr->u.down_cast.type);
     org_type = expr->u.down_cast.operand->type;
     target_type = expr->u.down_cast.type;
 
@@ -2402,6 +2735,17 @@ fix_new_expression(Block *current_block, Expression *expr,
 {
     MemberDeclaration *member;
     TypeSpecifier *type;
+	Ivyc_Compiler *compiler = Ivyc_get_current_compiler();
+	char *temp_str;
+
+	if (expr->u.new_e.is_generic == ISandBox_TRUE) {
+		fix_type_argument_list(expr->u.new_e.type_argument_list);
+		temp_str = instantiation_generic_type_specifier_by_name(expr->u.new_e.class_name, expr->u.new_e.type_argument_list);
+		if (Ivyc_search_class(temp_str) == NULL) {
+			search_and_add_template(expr->u.new_e.class_name, temp_str, expr->u.new_e.type_argument_list);
+		}
+		expr->u.new_e.class_name = temp_str;
+	}
 
     expr->u.new_e.class_definition
         = search_class_and_add(expr->line_number,
@@ -2456,7 +2800,7 @@ fix_new_expression(Block *current_block, Expression *expr,
                    expr->u.new_e.argument, el_p, NULL);
 
     expr->u.new_e.method_declaration = member;
-    type = Ivyc_alloc_type_specifier(ISandBox_CLASS_TYPE);
+	type = Ivyc_alloc_type_specifier(ISandBox_CLASS_TYPE);
     type->identifier = expr->u.new_e.class_definition->name;
     type->u.class_ref.class_definition = expr->u.new_e.class_definition;
     expr->type = type;
@@ -2472,7 +2816,7 @@ fix_array_creation_expression(Block *current_block, Expression *expr,
     TypeDerive *derive = NULL;
     TypeDerive *tmp_derive;
 
-    fix_type_specifier(expr->u.array_creation.type);
+    expr->u.array_creation.type = fix_type_specifier(expr->u.array_creation.type);
 
     for (dim_pos = expr->u.array_creation.dimension; dim_pos;
          dim_pos = dim_pos->next) {
@@ -2616,7 +2960,7 @@ fix_expression(Block *current_block, Expression *expr, Expression *parent,
     default:
         DBG_assert(0, ("bad case. kind..%d\n", expr->kind));
     }
-    fix_type_specifier(expr->type);
+    expr->type = fix_type_specifier(expr->type);
 
     return expr;
 }
@@ -2882,7 +3226,7 @@ fix_try_statement(Block *current_block, Statement *statement,
         catch_backup = compiler->current_catch_clause;
         compiler->current_catch_clause = catch_pos;
 
-        fix_type_specifier(catch_pos->type);
+        catch_pos->type = fix_type_specifier(catch_pos->type);
 
         if (!Ivyc_is_class_object(catch_pos->type)) {
             Ivyc_compile_error(catch_pos->line_number,
@@ -2943,7 +3287,7 @@ fix_throw_statement(Block *current_block, Statement *statement,
         = fix_expression(current_block, statement->u.throw_s.exception, NULL,
                          el_p);
     if (statement->u.throw_s.exception) {
-        fix_type_specifier(statement->u.throw_s.exception->type);
+        statement->u.throw_s.exception->type = fix_type_specifier(statement->u.throw_s.exception->type);
         if (!Ivyc_is_class_object(statement->u.throw_s.exception->type)) {
             Ivyc_compile_error(statement->line_number,
                               THROW_TYPE_IS_NOT_CLASS_ERR,
@@ -3060,8 +3404,10 @@ fix_statement(Block *current_block, Statement *statement,
                            el_p);
         break;
     case RETURN_STATEMENT:
-        check_in_finally(current_block, statement);
-        fix_return_statement(current_block, statement, fd, el_p);
+		if (fd->has_fixed != ISandBox_TRUE) {
+        	check_in_finally(current_block, statement);
+        	fix_return_statement(current_block, statement, fd, el_p);
+		}
         break;
     case BREAK_STATEMENT:
         check_in_finally(current_block, statement);
@@ -3083,7 +3429,7 @@ fix_statement(Block *current_block, Statement *statement,
     case DECLARATION_STATEMENT:
         add_declaration(current_block, statement->u.declaration_s, fd,
                         statement->line_number, ISandBox_FALSE);
-        fix_type_specifier(statement->u.declaration_s->type);
+        statement->u.declaration_s->type = fix_type_specifier(statement->u.declaration_s->type);
         if (statement->u.declaration_s->initializer) {
             statement->u.declaration_s->initializer
                 = fix_expression(current_block,
@@ -3099,7 +3445,7 @@ fix_statement(Block *current_block, Statement *statement,
         {
             add_declaration(current_block, pos->declaration, fd,
                             statement->line_number, ISandBox_FALSE);
-            fix_type_specifier(pos->declaration->type);
+            pos->declaration->type = fix_type_specifier(pos->declaration->type);
             if (!pos->declaration->initializer && pos->declaration->type->basic_type == ISandBox_UNCLEAR_TYPE)
             {
                 DBG_assert(0, ("\"var\" type variable must have an initializer to identify the true type. \n"));
@@ -3144,18 +3490,22 @@ add_parameter_as_declaration(FunctionDefinition *fd)
     ParameterList *param;
 
     for (param = fd->parameter; param; param = param->next) {
-        if (Ivyc_search_declaration(param->name, fd->block)) {
-            Ivyc_compile_error(param->line_number,
-                              PARAMETER_MULTIPLE_DEFINE_ERR,
-                              STRING_MESSAGE_ARGUMENT, "name", param->name,
-                              MESSAGE_ARGUMENT_END);
-        }
-        fix_type_specifier(param->type);
-        decl = Ivyc_alloc_declaration(ISandBox_FALSE, param->type, param->name); /* changed! */
-        if (fd == NULL || fd->block) {
-            add_declaration(fd->block, decl, fd, param->line_number,
-                            ISandBox_TRUE);
-        }
+		param->type = fix_type_specifier(param->type);
+		if (fd->has_fixed != ISandBox_TRUE) {
+		    if (Ivyc_search_declaration(param->name, fd->block)) {
+		        Ivyc_compile_error(param->line_number,
+		                          PARAMETER_MULTIPLE_DEFINE_ERR,
+		                          STRING_MESSAGE_ARGUMENT, "name", param->name,
+		                          MESSAGE_ARGUMENT_END);
+		    }
+
+		    decl = Ivyc_alloc_declaration(ISandBox_FALSE, param->type, param->name); /* changed! */
+			decl->initializer = param->initializer;
+		    if (fd == NULL || fd->block) {
+		        add_declaration(fd->block, decl, fd, param->line_number,
+		                        ISandBox_TRUE);
+		    }
+		}
     }
 }
 
@@ -3192,8 +3542,9 @@ fix_function(FunctionDefinition *fd)
     ExceptionList *el = NULL;
     ExceptionList *error_exception;
 
-    add_parameter_as_declaration(fd);
-    fix_type_specifier(fd->type);
+	add_parameter_as_declaration(fd);
+
+    fd->type = fix_type_specifier(fd->type);
     fix_throws(fd->throws);
 
     if (fd->block) {
@@ -3201,6 +3552,7 @@ fix_function(FunctionDefinition *fd)
                            fd->block->statement_list, fd, &el);
         add_return_function(fd, &el);
     }
+	fd->has_fixed = ISandBox_TRUE;
     /*if (!check_throws(fd->throws, el, &error_exception)) {
         Ivyc_compile_error(fd->end_line_number,
                           EXCEPTION_HAS_TO_BE_THROWN_ERR,
@@ -3247,6 +3599,7 @@ fix_extends(ClassDefinition *cd)
     ClassDefinition *super;
     int dummy_class_index;
     ExtendsList *new_el;
+	char *temp_str;
 
     if (cd->class_or_interface == ISandBox_INTERFACE_DEFINITION
         && cd->extends != NULL) {
@@ -3257,6 +3610,14 @@ fix_extends(ClassDefinition *cd)
     cd->interface_list = NULL;
 
     for (e_pos = cd->extends; e_pos; e_pos = e_pos->next) {
+		/*if (e_pos->is_generic == ISandBox_TRUE) {
+			temp_str = instantiation_generic_type_specifier_by_name(e_pos->identifier, e_pos->type_argument_list);
+			if (Ivyc_search_class(temp_str) == NULL) {
+				search_and_add_template(e_pos->identifier, temp_str, e_pos->type_argument_list);
+			}
+			e_pos->identifier = temp_str;
+		}*/
+
         super = search_class_and_add(cd->line_number,
                                      e_pos->identifier,
                                      &dummy_class_index);
@@ -3501,7 +3862,7 @@ fix_class_list(Ivyc_Compiler *compiler)
                 ExceptionList *el = NULL;
                 DBG_assert(member_pos->kind == FIELD_MEMBER,
                            ("member_pos->kind..%d", member_pos->kind));
-                fix_type_specifier(member_pos->u.field.type);
+                member_pos->u.field.type = fix_type_specifier(member_pos->u.field.type);
                 if (member_pos->u.field.initializer) {
                     member_pos->u.field.initializer
                         = fix_expression(NULL, member_pos->u.field.initializer,
@@ -3555,7 +3916,7 @@ fix_delegate_list(Ivyc_Compiler *compiler)
     for (dd_pos = compiler->delegate_definition_list; dd_pos;
          dd_pos = dd_pos->next) {
 
-        fix_type_specifier(dd_pos->type);
+        dd_pos->type = fix_type_specifier(dd_pos->type);
         fix_parameter_list(dd_pos->parameter_list);
         fix_throws(dd_pos->throws);
     }
@@ -3617,121 +3978,246 @@ add_const_class(Ivyc_Compiler *compiler)
 }*/
 
 static void
-fix_template_class_list(Ivyc_Compiler *compiler)
+add_function_to_compiler(FunctionDefinition *fd)
 {
-    ClassDefinition *class_pos;
+    Ivyc_Compiler *compiler;
+    FunctionDefinition *pos;
+
+    compiler = Ivyc_get_current_compiler();
+    if (compiler->function_list) {
+        for (pos = compiler->function_list; pos->next; pos = pos->next)
+            ;
+        pos->next = fd;
+    } else {
+        compiler->function_list = fd;
+    }
+	fd->next = NULL;
+}
+
+/*static FunctionDefinition *
+copy_function_definition(FunctionDefinition *origin)
+{
+	FunctionDefinition *ret;
+	TypeSpecifier *type;
+	TypeSpecifier *temp_type;
+	char *identifier;
+	ExceptionList *throws;
+	char *temp;
+	ExceptionList *epos;
+	Block *block;
+	StatementList *list;
+	StatementList *spos;
+	ParameterList *parameter_list;
+	ParameterList *new_parameter_list;
+	ParameterList *ppos;
+
+	ret = MEM_malloc(sizeof(FunctionDefinition));
+
+	if(origin->type != NULL) {
+		type = Ivyc_alloc_type_specifier2(origin->type);
+	}
+	identifier = Ivyc_strdup(origin->name);
+
+	for (epos = origin->throws; epos; epos = epos->next) {
+		temp = Ivyc_strdup(epos->ref->identifier);
+		if (throws == NULL) {
+			throws = Ivyc_create_throws(temp);
+		} else {
+			throws = Ivyc_chain_exception_list(throws, temp);
+		}
+	}
+
+	block = Ivyc_open_block();
+
+    for (spos = origin->block->statement_list; spos; spos = spos->next) {
+		if (list == NULL) {
+			list = Ivyc_create_statement_list(spos->statement);
+		} else {
+			list = Ivyc_chain_statement_list(list, Ivyc_create_statement_list(spos->statement));
+		}
+    }
+	block = Ivyc_close_block(block, list);
+
+	for (ppos = origin->parameter; ppos; ppos = ppos->next) {
+		temp_type = Ivyc_alloc_type_specifier2(ppos->type);
+		temp = Ivyc_strdup(ppos->name);
+		if (new_parameter_list == NULL) {
+			new_parameter_list = Ivyc_create_parameter(temp_type, temp);
+		} else {
+			new_parameter_list = Ivyc_chain_parameter(new_parameter_list, temp_type,
+                    								  temp);
+		}
+    }
+
+	return Ivyc_create_function_definition(type, identifier,
+                               		new_parameter_list,
+                               		throws, block,
+							   		ISandBox_TRUE);
+}*/
+
+static void
+fix_template_class_list(ClassDefinition *class, char *rename, TypeArgumentList *arg_list)
+{
+	Ivyc_Compiler *compiler;
+	ClassDefinition *class_pos;
+	ClassDefinition *pos;
+	ClassDefinition *backup;
+	FunctionDefinition *func_pos;
+	FunctionDefinition *copy_fd;
+	MemberDeclaration *copy_member;
     MemberDeclaration *member_pos;
     MemberDeclaration *super_member;
     int field_index;
     int method_index;
     char *abstract_method_name;
 
-    for (class_pos = compiler->template_class_definition_list;
-         class_pos; class_pos = class_pos->next) {
-        add_class(class_pos);
-        fix_extends(class_pos);
+	compiler = Ivyc_get_current_compiler();
+	backup = compiler->current_class_definition;
+	class_pos = Ivyc_malloc(sizeof(ClassDefinition));
+	*class_pos = *class;
+	class_pos->name = Ivyc_strdup(rename);
+
+	TypeParameterList *pos1;
+	TypeArgumentList *pos2;
+	for (pos1 = class_pos->type_parameter_list, pos2 = arg_list;
+		pos1 && pos2;
+		pos1 = pos1->next, pos2 = pos2->next) {
+		pos1->target = Ivyc_alloc_type_specifier2(pos2->type);
+	}
+
+	if (compiler->class_definition_list == NULL) {
+        	compiler->class_definition_list = class_pos;
+    } else {
+        for (pos = compiler->class_definition_list; pos->next;
+             pos = pos->next)
+            ;
+        pos->next = class_pos;
     }
-    for (class_pos = compiler->template_class_definition_list;
-         class_pos; class_pos = class_pos->next) {
-        add_super_interfaces(class_pos);
-    }
-    for (class_pos = compiler->template_class_definition_list;
-         class_pos; class_pos = class_pos->next) {
-        if (class_pos->class_or_interface != ISandBox_CLASS_DEFINITION)
-            continue;
-        compiler->current_class_definition = class_pos;
-        add_default_constructor(class_pos);
-        compiler->current_class_definition = NULL;
-    }
+	class_pos->next = NULL;
 
-    for (class_pos = compiler->template_class_definition_list;
-         class_pos; class_pos = class_pos->next) {
-        compiler->current_class_definition = class_pos;
+	/*FunctionDefinition *fd;
+	for (member_pos = class_pos->member; member_pos;
+         member_pos = member_pos->next) {
+        if (member_pos->kind == METHOD_MEMBER) {
+			fd = Ivyc_malloc(sizeof(FunctionDefinition));
+			*fd = *member_pos->u.method.function_definition;
+			fd->class_definition = class_pos;
+			add_function_to_compiler(fd);
+		}
+	}*/
 
-        get_super_field_method_count(class_pos, &field_index, &method_index);
-        abstract_method_name = NULL;
-        for (member_pos = class_pos->member; member_pos;
-             member_pos = member_pos->next) {
-            if (member_pos->kind == METHOD_MEMBER) {
-                fix_function(member_pos->u.method.function_definition);
+	/*for (member_pos = class_pos->member; member_pos;
+         member_pos = member_pos->next) {
+        if (member_pos->kind == METHOD_MEMBER) {
+			add_function_to_compiler(member_pos->u.method.function_definition);
+		}
+	}*/
+	compiler->current_class_definition = class_pos;
+    add_class(class_pos);
+    fix_extends(class_pos);
+    add_super_interfaces(class_pos);
+    if (class_pos->class_or_interface != ISandBox_CLASS_DEFINITION) {
+	} else {
+    	add_default_constructor(class_pos);
+	}
 
-                super_member
-                    = search_member_in_super(class_pos,
-                                             member_pos->u.method
-                                             .function_definition->name);
-                if (super_member) {
-                    if (super_member->kind != METHOD_MEMBER) {
-                        Ivyc_compile_error(member_pos->line_number,
-                                          FIELD_OVERRIDED_ERR,
-                                          STRING_MESSAGE_ARGUMENT, "name",
-                                          super_member->u.field.name,
-                                          MESSAGE_ARGUMENT_END);
-                    }
-                    if (!super_member->u.method.is_virtual) {
-                        Ivyc_compile_error(member_pos->line_number,
-                                          NON_VIRTUAL_METHOD_OVERRIDED_ERR,
-                                          STRING_MESSAGE_ARGUMENT, "name",
-                                          member_pos->u.method
-                                          .function_definition->name,
-                                          MESSAGE_ARGUMENT_END);
-                    }
-                    if (!member_pos->u.method.is_override) {
-                        Ivyc_compile_error(member_pos->line_number,
-                                          NEED_OVERRIDE_ERR,
-                                          STRING_MESSAGE_ARGUMENT, "name",
-                                          member_pos->u.method
-                                          .function_definition->name,
-                                          MESSAGE_ARGUMENT_END);
-                    }
-                    check_method_override(super_member, member_pos);
+    get_super_field_method_count(class_pos, &field_index, &method_index);
+    abstract_method_name = NULL;
 
-                    member_pos->u.method.method_index
-                        = super_member->u.method.method_index;
-                } else {
-                    member_pos->u.method.method_index = method_index;
-                    method_index++;
-                }
-                if (member_pos->u.method.is_abstract) {
-                    abstract_method_name = member_pos->u.method
-                        .function_definition->name;
-                }
-            } else {
-                ExceptionList *el = NULL;
-                DBG_assert(member_pos->kind == FIELD_MEMBER,
-                           ("member_pos->kind..%d", member_pos->kind));
-                fix_type_specifier(member_pos->u.field.type);
-                if (member_pos->u.field.initializer) {
-                    member_pos->u.field.initializer
-                        = fix_expression(NULL, member_pos->u.field.initializer,
-                                         NULL, &el);
-                    member_pos->u.field.initializer
-                        = create_assign_cast(member_pos->u.field.initializer,
-                                             member_pos->u.field.type, 1);
-                }
-                super_member
-                    = search_member_in_super(class_pos,
-                                             member_pos->u.field.name);
-                if (super_member) {
+    for (member_pos = class_pos->member; member_pos;
+         member_pos = member_pos->next) {/*printf(YELLOW "hi?" CLOSE_COLOR);*/
+
+        if (member_pos->kind == METHOD_MEMBER) {
+			copy_fd = Ivyc_malloc(sizeof(FunctionDefinition));
+			*copy_fd = *member_pos->u.method.function_definition;
+			member_pos->u.method.function_definition = copy_fd;
+			
+			/*member_pos->u.method.function_definition->class_definition =
+																		copy_function_definition(
+																		member_pos->u.method.function_definition->class_definition);*/
+			member_pos->u.method.function_definition->class_definition = class_pos;
+
+			add_function_to_compiler(member_pos->u.method.function_definition);
+            fix_function(member_pos->u.method.function_definition);
+
+            super_member
+                = search_member_in_super(class_pos,
+                                         member_pos->u.method
+                                         .function_definition->name);
+            if (super_member) {
+                if (super_member->kind != METHOD_MEMBER) {
                     Ivyc_compile_error(member_pos->line_number,
-                                      FIELD_NAME_DUPLICATE_ERR,
+                                      FIELD_OVERRIDED_ERR,
                                       STRING_MESSAGE_ARGUMENT, "name",
-                                      member_pos->u.field.name,
+                                      super_member->u.field.name,
                                       MESSAGE_ARGUMENT_END);
-                } else {
-                    member_pos->u.field.field_index = field_index;
-                    field_index++;
                 }
+                if (!super_member->u.method.is_virtual) {
+                    Ivyc_compile_error(member_pos->line_number,
+                                      NON_VIRTUAL_METHOD_OVERRIDED_ERR,
+                                      STRING_MESSAGE_ARGUMENT, "name",
+                                      member_pos->u.method
+                                      .function_definition->name,
+                                      MESSAGE_ARGUMENT_END);
+                }
+                if (!member_pos->u.method.is_override) {
+                    Ivyc_compile_error(member_pos->line_number,
+                                      NEED_OVERRIDE_ERR,
+                                      STRING_MESSAGE_ARGUMENT, "name",
+                                      member_pos->u.method
+                                      .function_definition->name,
+                                      MESSAGE_ARGUMENT_END);
+                }
+                check_method_override(super_member, member_pos);
+
+                member_pos->u.method.method_index
+                    = super_member->u.method.method_index;
+            } else {
+                member_pos->u.method.method_index = method_index;
+                method_index++;
+            }
+            if (member_pos->u.method.is_abstract) {
+                abstract_method_name = member_pos->u.method
+                    .function_definition->name;
+            }
+			reserve_function_index(compiler, member_pos->u.method.function_definition);
+        } else {
+            ExceptionList *el = NULL;
+            DBG_assert(member_pos->kind == FIELD_MEMBER,
+                       ("member_pos->kind..%d", member_pos->kind));
+            member_pos->u.field.type = fix_type_specifier(member_pos->u.field.type);
+			/*printf("%d\n", member_pos->u.field.type->basic_type);*/
+            if (member_pos->u.field.initializer) {
+                member_pos->u.field.initializer
+                    = fix_expression(NULL, member_pos->u.field.initializer,
+                                     NULL, &el);
+                member_pos->u.field.initializer
+                    = create_assign_cast(member_pos->u.field.initializer,
+                                         member_pos->u.field.type, 1);
+            }
+            super_member
+                = search_member_in_super(class_pos,
+                                         member_pos->u.field.name);
+            if (super_member) {
+                Ivyc_compile_error(member_pos->line_number,
+                                  FIELD_NAME_DUPLICATE_ERR,
+                                  STRING_MESSAGE_ARGUMENT, "name",
+                                  member_pos->u.field.name,
+                                  MESSAGE_ARGUMENT_END);
+            } else {
+                member_pos->u.field.field_index = field_index;
+                field_index++;
             }
         }
-        if (abstract_method_name && !class_pos->is_abstract) {
-            Ivyc_compile_error(class_pos->line_number,
-                              ABSTRACT_METHOD_IN_CONCRETE_CLASS_ERR,
-                              STRING_MESSAGE_ARGUMENT,
-                              "method_name", abstract_method_name,
-                              MESSAGE_ARGUMENT_END);
-        }
-        compiler->current_class_definition = NULL;
     }
+    if (abstract_method_name && !class_pos->is_abstract) {
+        Ivyc_compile_error(class_pos->line_number,
+                          ABSTRACT_METHOD_IN_CONCRETE_CLASS_ERR,
+                          STRING_MESSAGE_ARGUMENT,
+                          "method_name", abstract_method_name,
+                          MESSAGE_ARGUMENT_END);
+    }
+	compiler->current_class_definition = backup;
 }
 
 
@@ -3739,20 +4225,22 @@ void
 Ivyc_fix_tree(Ivyc_Compiler *compiler)
 {
     FunctionDefinition *func_pos;
+	ClassDefinition *cd_pos;
     DeclarationList *dl;
     int var_count = 0;
     ExceptionList *el = NULL;
 
-    fix_class_list(compiler);
     fix_enum_list(compiler);
     fix_delegate_list(compiler);
     fix_constant_list(compiler);
+    fix_class_list(compiler);
 	/*add_const_class(compiler);*/
 
-    for (func_pos = compiler->function_list; func_pos;
+	for (func_pos = compiler->function_list; func_pos;
          func_pos = func_pos->next) {
         reserve_function_index(compiler, func_pos);
     }
+
     fix_statement_list(NULL, compiler->statement_list, 0, &el);
 
     for (func_pos = compiler->function_list; func_pos;
