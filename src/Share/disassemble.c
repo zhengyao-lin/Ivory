@@ -78,6 +78,12 @@ dump_type(ISandBox_Executable *exe, ISandBox_TypeSpecifier *type)
     case ISandBox_STRING_TYPE:
         printf("string ");
         break;
+    case ISandBox_OBJECT_TYPE:
+        printf("object");
+        break;
+    case ISandBox_ITERATOR_TYPE:
+        printf("ArrayIterator");
+        break;
     case ISandBox_NATIVE_POINTER_TYPE:
         printf("native_pointer ");
         break;

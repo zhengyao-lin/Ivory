@@ -1,7 +1,7 @@
-public interface IStack <T>
+public interface IStack <TYPE>
 {
-	public T pop();
-	public int push(T target);
+	public TYPE pop();
+	public int push(TYPE target);
 }
 
 public class Stack <T> : IStack with<T>, IStack with<T>

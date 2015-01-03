@@ -108,7 +108,8 @@
 %type   <enumerator> enumerator_list
 %%
 translation_unit
-        : initial_declaration definition_or_statement
+		: initial_declaration
+        | initial_declaration definition_or_statement
         | translation_unit definition_or_statement
         ;
 initial_declaration

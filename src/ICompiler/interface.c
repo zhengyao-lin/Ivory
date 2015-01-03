@@ -225,14 +225,14 @@ search_buitin_source(char *package_name, SourceSuffix suffix,
 }
 
 static void
-make_search_path(int line_number, PackageName *package_name, char *buf)
+make_search_path(int line_number, PackageName *package_name, char *buf, char *tail)
 {
     PackageName *pos;
     int len = 0;
     int prev_len = 0;
     int suffix_len;
 
-    suffix_len = strlen(Ivory_USING_SUFFIX);
+    suffix_len = strlen(tail);
     buf[0] = '\0';
     for (pos = package_name; pos; pos = pos->next) {
         prev_len = len;
@@ -248,7 +248,7 @@ make_search_path(int line_number, PackageName *package_name, char *buf)
             len++;
         }
     }
-    strcpy(&buf[len], Ivory_USING_SUFFIX);
+    strcpy(&buf[len], tail);
 }
 
 static void
@@ -275,15 +275,35 @@ make_search_path_impl(char *package_name, char *buf)
     strcat(buf, Ivory_IMPLEMENTATION_SUFFIX);
 }
 
+static char *
+get_folder_by_path(char *path)
+{
+	int length;
+	int i;
+	char *ret;
+
+	length = strlen(path);
+	for (i = length - 1;
+		path[i] != '\\'
+		&& path[i] != '/'; i--);
+	ret = (char *)malloc(sizeof(char) * (i + 1));
+	strncpy(ret, path, i + 1);
+	return ret;
+}
+
 static void
 get_using_input(UsingList *req, char *found_path,
                   SourceInput *source_input)
 {
     char *search_path;
     char search_file[FILENAME_MAX];
+    char research_file[FILENAME_MAX];
     FILE *fp;
+    FILE *fp2;
     char *package_name;
     SearchFileStatus status;
+    SearchFileStatus status2;
+	Ivyc_Compiler *compiler = Ivyc_get_current_compiler();
 
     package_name = Ivyc_package_name_to_string(req->package_name);
     if (search_buitin_source(package_name, IVH_SOURCE, source_input)) {
@@ -293,20 +313,22 @@ get_using_input(UsingList *req, char *found_path,
     }
     MEM_free(package_name);
 
-    search_path = getenv("IVY_USING_SEARCH_PATH");
+    search_path = getenv(Ivory_USING_FILE_DEFAULT_PATH);
     if (search_path == NULL) {
-        search_path = ".";
+        search_path = get_folder_by_path(compiler->path);
     }
-    make_search_path(req->line_number, req->package_name, search_file);
-
+    make_search_path(req->line_number, req->package_name, search_file, Ivory_USING_SUFFIX);
+    make_search_path(req->line_number, req->package_name, research_file, Ivory_IMPLEMENTATION_SUFFIX);
     status = ISandBox_search_file(search_path, search_file, found_path, &fp);
+	status2 = ISandBox_search_file(search_path, research_file, found_path, &fp2);
     
-    if (status != SEARCH_FILE_SUCCESS) {
-        if (status == SEARCH_FILE_NOT_FOUND) {
-            Ivyc_compile_error(req->line_number,
-                              USING_FILE_NOT_FOUND_ERR,
-                              STRING_MESSAGE_ARGUMENT, "file", search_file,
-                              MESSAGE_ARGUMENT_END);
+    if (status != SEARCH_FILE_SUCCESS && status2 != SEARCH_FILE_SUCCESS) {
+        if (status == SEARCH_FILE_NOT_FOUND && status2 == SEARCH_FILE_NOT_FOUND) {
+	        Ivyc_compile_error(req->line_number,
+	                          USING_FILE_NOT_FOUND_ERR,
+	                          STRING_MESSAGE_ARGUMENT, "file1", search_file,
+	                          STRING_MESSAGE_ARGUMENT, "file2", research_file,
+	                          MESSAGE_ARGUMENT_END);
         } else {
             Ivyc_compile_error(req->line_number,
                               USING_FILE_ERR,
@@ -314,8 +336,15 @@ get_using_input(UsingList *req, char *found_path,
                               MESSAGE_ARGUMENT_END);
         }
     }
-    source_input->input_mode = FILE_INPUT_MODE;
-    source_input->u.file.fp = fp;
+
+	source_input->input_mode = FILE_INPUT_MODE;
+	if (status == SEARCH_FILE_SUCCESS) {
+    	source_input->u.file.fp = fp;
+		req->source_suffix = IVH_SOURCE;
+	} else {
+    	source_input->u.file.fp = fp2;
+		req->source_suffix = IVY_SOURCE;
+	}
 }
 
 static ISandBox_Boolean
@@ -355,6 +384,15 @@ set_path_to_compiler(Ivyc_Compiler *compiler, char *path)
     strcpy(compiler->path, path);
 }
 
+static SourceSuffix
+get_source_suffix(char *path)
+{
+	if (path[strlen(path)-1] == 'h') {
+		return IVH_SOURCE;
+	}
+	return IVY_SOURCE;
+}
+
 static ISandBox_Executable *
 do_compile(Ivyc_Compiler *compiler, ISandBox_ExecutableList *list,
            char *path, ISandBox_Boolean is_usingd)
@@ -387,7 +425,7 @@ do_compile(Ivyc_Compiler *compiler, ISandBox_ExecutableList *list,
         
         /* BUGBUG req_comp references parent compiler's MEM_storage */
         req_comp->package_name = req_pos->package_name;
-        req_comp->source_suffix = IVH_SOURCE;
+		req_comp->source_suffix = req_pos->source_suffix;
 
         compiler->usingd_list
             = add_compiler_to_list(compiler->usingd_list, req_comp);
@@ -410,7 +448,7 @@ do_compile(Ivyc_Compiler *compiler, ISandBox_ExecutableList *list,
     } else {
         exe->path = NULL;
     }
-    /* ISandBox_disassemble(exe);*/
+    /*ISandBox_disassemble(exe);*/
 
     exe->is_usingd = is_usingd;
     if (!add_exe_to_list(exe, list)) {

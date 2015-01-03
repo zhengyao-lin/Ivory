@@ -277,8 +277,14 @@ typedef struct PackageName_tag {
     struct PackageName_tag      *next;
 } PackageName;
 
+typedef enum {
+    IVH_SOURCE,
+    IVY_SOURCE
+} SourceSuffix;
+
 typedef struct UsingList_tag {
     PackageName *package_name;
+	SourceSuffix source_suffix;
     int line_number;
     struct UsingList_tag      *next;
 } UsingList;
@@ -773,18 +779,18 @@ struct Statement_tag {
 };
 
 struct FunctionDefinition_tag {
-	ISandBox_Boolean    has_fixed;/**/
-    TypeSpecifier       *type;/**/
-    PackageName         *package_name;/**/
-    char                *name;/**/
-    ParameterList       *parameter;/**/
+	ISandBox_Boolean    has_fixed;
+    TypeSpecifier       *type;
+    PackageName         *package_name;
+    char                *name;
+    ParameterList       *parameter;
     Block               *block;
-    int                 local_variable_count;/**/
-    Declaration         **local_variable;/**/
-    ClassDefinition     *class_definition;/**/
-    ExceptionList       *throws;/**/
-    int                 end_line_number;/**/
-    struct FunctionDefinition_tag       *next;/**/
+    int                 local_variable_count;
+    Declaration         **local_variable;
+    ClassDefinition     *class_definition;
+    ExceptionList       *throws;
+    int                 end_line_number;
+    struct FunctionDefinition_tag       *next;
 };
 
 typedef enum {
@@ -851,32 +857,27 @@ typedef struct TypeParameterRequireList_tag {
 
 struct ClassDefinition_tag {
 	/* generic */
-    ISandBox_Boolean                 is_generic;/**/
-	TypeParameterList				 *type_parameter_list;/**/
+    ISandBox_Boolean                 is_generic;
+	TypeParameterList				 *type_parameter_list;
 	/* generic */
 
-    ISandBox_Boolean is_abstract;/**/
-    ISandBox_AccessModifier access_modifier;/**/
-    ISandBox_ClassOrInterface class_or_interface;/**/
-    PackageName *package_name;/**/
-    char *name;/**/
-    ExtendsList *extends;/**/
-    ClassDefinition *super_class;/**/
-    ExtendsList *interface_list;/**/
+    ISandBox_Boolean is_abstract;
+    ISandBox_AccessModifier access_modifier;
+    ISandBox_ClassOrInterface class_or_interface;
+    PackageName *package_name;
+    char *name;
+    ExtendsList *extends;
+    ClassDefinition *super_class;
+    ExtendsList *interface_list;
     MemberDeclaration *member;
-    int line_number;/**/
-    struct ClassDefinition_tag *next;/**/
+    int line_number;
+    struct ClassDefinition_tag *next;
 };
 
 typedef struct CompilerList_tag {
     Ivyc_Compiler *compiler;
     struct CompilerList_tag *next;
 } CompilerList;
-
-typedef enum {
-    IVH_SOURCE,
-    IVY_SOURCE
-} SourceSuffix;
 
 typedef enum {
     FILE_INPUT_MODE = 1,
@@ -939,8 +940,6 @@ struct Ivyc_Compiler_tag {
     ISandBox_Function        *ISandBox_function;
     int                 ISandBox_enum_count;
     ISandBox_Enum            *ISandBox_enum;
-    /*int                 ISandBox_constant_count;
-    ISandBox_Constant        *ISandBox_constant;*/
     int                 ISandBox_class_count;
     ISandBox_Class           *ISandBox_class;
     DeclarationList     *declaration_list;

@@ -157,6 +157,7 @@ Ivyc_create_using_list(PackageName *package_name)
 
     rl = Ivyc_malloc(sizeof(UsingList));
     rl->package_name = package_name;
+	rl->source_suffix = IVH_SOURCE;
     rl->line_number = Ivyc_get_current_compiler()->current_line_number;
     rl->next = NULL;
 

@@ -1,0 +1,19 @@
+using Ivory.Container.Stack;
+using Ivory.IO;
+using Ivory.Type;
+using Ivory.Iterator;
+using test;
+
+int add_three_test1(int a1, int a2 = 0, int a3 = 0)
+{
+	return a1 + a2 + a3;
+}
+
+void RUNNING_BLOCK11()
+{
+	print("BLOCK11" + glue);
+	print(add_three_test1(1024) + glue);
+	print(add_three_test1(1024, 2048) + glue);
+	print(add_three_test1(1024, 2048, 4096));
+	println("");
+}

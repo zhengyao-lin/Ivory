@@ -16,7 +16,7 @@ ISandBox_ErrorDefinition ISandBox_error_message_format[] = {
     {"error: $(org) is this class.$(target) can't be casted."},
     {"error: the enumeration $(package)#$(name) has been defined already"},
     {"errpr: the constance $(package)#$(name) has been defined already"},
-    {"error: the function $(name) can't be loaded dynamically"},
+    {"error: the function $(name) can not be found in any used package"},
     {"dummy"}
 };
 

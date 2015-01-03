@@ -24,7 +24,8 @@ typedef enum {
 #define FILE_PATH_SEPARATOR     (':')
 #endif
 
-#define Ivory_USING_SUFFIX   (".ivh")
+#define Ivory_USING_FILE_DEFAULT_PATH    ("IVY_USING_SEARCH_PATH")
+#define Ivory_USING_SUFFIX    (".ivh")
 #define Ivory_IMPLEMENTATION_SUFFIX    (".ivy")
 #define Ivory_STACK_TRACE_CLASS ("StackTrace")
 #define Ivory_PRINT_STACK_TRACE_FUNC ("Exception#print_stack_trace")

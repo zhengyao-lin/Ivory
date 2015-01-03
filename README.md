@@ -51,6 +51,8 @@ If everything is OK, it will output like this:
 		I am very angry.
 		I failed my test.
 		Because of my careless.
+
+	BLOCK11	1024	3072	7168
 	
 	-->test end<--
 	press enter to exit...

@@ -309,10 +309,10 @@ char *st_Ivory_Iterator_ivh_text[] = {
     NULL
 };
 char *st_Ivory_Container_Stack_ivh_text[] = {
-    "public interface IStack <T>\n",
+    "public interface IStack <TYPE>\n",
     "{\n",
-    "\tpublic T pop();\n",
-    "\tpublic int push(T target);\n",
+    "\tpublic TYPE pop();\n",
+    "\tpublic int push(TYPE target);\n",
     "}\n",
     "\n",
     "public class Stack <T> : IStack with<T>, IStack with<T>\n",
