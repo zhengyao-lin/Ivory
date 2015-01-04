@@ -410,7 +410,7 @@ do_compile(Ivyc_Compiler *compiler, ISandBox_ExecutableList *list,
     compiler_backup = Ivyc_get_current_compiler();
     Ivyc_set_current_compiler(compiler);
     if (yyparse()) {
-        fprintf(stderr, "Error ! Error ! Error !\n");
+        fprintf(stderr, "Serious Panic Error!\n");
         exit(1);
     }
     for (req_pos = compiler->using_list; req_pos;
@@ -421,6 +421,7 @@ do_compile(Ivyc_Compiler *compiler, ISandBox_ExecutableList *list,
                 = add_compiler_to_list(compiler->usingd_list, req_comp);
             continue;
         }
+
         req_comp = Ivyc_create_compiler();
         
         /* BUGBUG req_comp references parent compiler's MEM_storage */

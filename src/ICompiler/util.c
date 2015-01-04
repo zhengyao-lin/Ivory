@@ -570,6 +570,58 @@ Ivyc_search_enum(char *identifier)
     return NULL;
 }
 
+ISandBox_Boolean
+Ivyc_compare_arguments(ParameterList *param, ArgumentList *args)
+{
+	ParameterList *pos1;
+	ArgumentList *pos2;
+
+	for (pos1 = param, pos2 = args;
+		pos1 && pos2; pos1 = pos1->next, pos2 = pos2->next) {
+	}
+	if (pos1 || pos2) {
+		return ISandBox_FALSE;
+	}
+	return ISandBox_TRUE;
+}
+
+MemberDeclaration *
+Ivyc_search_initialize(ClassDefinition *class_def, ArgumentList *args)
+{
+    MemberDeclaration *member;
+    ExtendsList *extends_p;
+    
+    for (member = class_def->member; member;
+         member = member->next) {
+        if (member->kind == METHOD_MEMBER
+			&& member->u.method.is_constructor
+			&& Ivyc_compare_arguments(member->u.method.function_definition->parameter, args)) {
+			break;
+		}
+    }
+    if (member) {
+        return member;
+    }
+
+    if (class_def->super_class) {
+        member = Ivyc_search_initialize(class_def->super_class, args);
+    }
+    if (member) {
+        return member;
+    }
+
+    for (extends_p = class_def->interface_list;
+         extends_p;
+         extends_p = extends_p->next) {
+        member = Ivyc_search_initialize(extends_p->class_definition, args);
+        if (member) {
+            return member;
+        }
+    }
+
+    return NULL;
+}
+
 MemberDeclaration *
 Ivyc_search_member(ClassDefinition *class_def,
                   char *member_name)

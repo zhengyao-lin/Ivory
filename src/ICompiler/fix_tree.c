@@ -2798,11 +2798,13 @@ fix_new_expression(Block *current_block, Expression *expr,
                           expr->u.new_e.class_name,
                           MESSAGE_ARGUMENT_END);
     }
-    if (!expr->u.new_e.method_name) {
+
+	if (!expr->u.new_e.method_name) {
         expr->u.new_e.method_name = DEFAULT_CONSTRUCTOR_NAME;
     }
-    member = Ivyc_search_member(expr->u.new_e.class_definition,
-                               expr->u.new_e.method_name);
+
+    member = Ivyc_search_initialize(expr->u.new_e.class_definition, expr->u.new_e.argument);
+
     if (member == NULL) {
         Ivyc_compile_error(expr->line_number,
                           MEMBER_NOT_FOUND_ERR,
@@ -4159,9 +4161,9 @@ Ivyc_fix_tree(Ivyc_Compiler *compiler)
     int var_count = 0;
     ExceptionList *el = NULL;
 
+	fix_constant_list(compiler);
     fix_enum_list(compiler);
     fix_delegate_list(compiler);
-    fix_constant_list(compiler);
     fix_class_list(compiler);
 	/*add_const_class(compiler);*/
 

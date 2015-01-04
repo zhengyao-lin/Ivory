@@ -1191,6 +1191,8 @@ ClassDefinition *Ivyc_search_class(char *identifier);
 ClassDefinition *Ivyc_search_template_class(char *identifier);
 DelegateDefinition *Ivyc_search_delegate(char *identifier);
 EnumDefinition *Ivyc_search_enum(char *identifier);
+ISandBox_Boolean Ivyc_compare_arguments(ParameterList *param, ArgumentList *args);
+MemberDeclaration *Ivyc_search_initialize(ClassDefinition *class_def, ArgumentList *args);
 MemberDeclaration *Ivyc_search_member(ClassDefinition *class_def,
                                      char *member_name);
 void Ivyc_vstr_clear(VString *v);
