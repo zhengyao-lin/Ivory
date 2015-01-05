@@ -579,9 +579,16 @@ Ivyc_compare_arguments(ParameterList *param, ArgumentList *args)
 	for (pos1 = param, pos2 = args;
 		pos1 && pos2; pos1 = pos1->next, pos2 = pos2->next) {
 	}
+
+	if (pos1 != NULL && pos2 == NULL) {
+		for (; pos1 && pos1->initializer; pos1 = pos1->next)
+			;
+	}
+
 	if (pos1 || pos2) {
 		return ISandBox_FALSE;
 	}
+
 	return ISandBox_TRUE;
 }
 

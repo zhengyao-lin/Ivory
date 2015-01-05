@@ -67,7 +67,7 @@
         additive_expression multiplicative_expression
         unary_expression postfix_expression primary_expression
         primary_no_new_array array_literal array_creation
-        initializer_opt /*var_args_list*/ parameter_initializer_opt
+        /*initializer_opt*/ parameter_initializer_opt
 
 /* !!!unstable!!! */
 %type   <force_cast_type> force_cast
@@ -77,7 +77,7 @@
         if_statement switch_statement
         while_statement for_statement do_while_statement foreach_statement
         return_statement label_statement goto_statement break_statement continue_statement try_statement
-        throw_statement /*declaration_statement*/ declaration_list_statement
+        throw_statement declaration_list_statement
 
 /* !!!unstable!!! */
 %type   <declaration> declaration_equation
@@ -888,38 +888,18 @@ throw_statement
             $$ = Ivyc_create_throw_statement(NULL);
         }
         ;
-/*declaration_statement
-        : type_specifier IDENTIFIER SEMICOLON
-        {
-            $$ = Ivyc_create_declaration_statement(ISandBox_FALSE, $1, $2, NULL);
-        }
-        | type_specifier IDENTIFIER ASSIGN_T expression SEMICOLON
-        {
-            $$ = Ivyc_create_declaration_statement(ISandBox_FALSE, $1, $2, $4);
-        }
-        | FINAL type_specifier IDENTIFIER SEMICOLON
-        {
-            $$ = Ivyc_create_declaration_statement(ISandBox_TRUE, $2, $3, NULL);
-        }
-        | FINAL type_specifier IDENTIFIER ASSIGN_T expression SEMICOLON
-        {
-            $$ = Ivyc_create_declaration_statement(ISandBox_TRUE, $2, $3, $5);
-        }
-        ;*/
-
-/* !!!unstable!!! */
 declaration_list_statement
         : type_specifier declaration_items SEMICOLON
         {
             $$ = Ivyc_retype_declaration_list(ISandBox_FALSE, $1, $2);
         }
-        | FINAL type_specifier declaration_items SEMICOLON
-        {
-            $$ = Ivyc_retype_declaration_list(ISandBox_TRUE, $2, $3);
-        }
         | VARIABLE_T declaration_items SEMICOLON
         {
             $$ = Ivyc_retype_declaration_list(ISandBox_FALSE, NULL, $2);
+        }
+        | FINAL type_specifier declaration_items SEMICOLON
+        {
+            $$ = Ivyc_retype_declaration_list(ISandBox_TRUE, $2, $3);
         }
         | FINAL VARIABLE_T declaration_items SEMICOLON
         {
@@ -1178,8 +1158,8 @@ access_modifier
             $$ = Ivyc_create_class_or_member_modifier(PRIVATE_MODIFIER);
         }
         ;
-initializer_opt
-        : /* empty */
+/*initializer_opt
+        :
         {
             $$ = NULL;
         }
@@ -1187,25 +1167,25 @@ initializer_opt
         {
             $$ = $2;
         }
-        ;
+        ;*/
 field_member
-        : type_specifier IDENTIFIER initializer_opt SEMICOLON
+        : type_specifier declaration_items SEMICOLON
         {
-            $$ = Ivyc_create_field_member(NULL, ISandBox_FALSE, $1, $2, $3);
+            $$ = Ivyc_create_field_member(NULL, ISandBox_FALSE, $1, $2);
         }
         | class_or_member_modifier_list type_specifier
-          IDENTIFIER initializer_opt SEMICOLON
+          declaration_items SEMICOLON
         {
-            $$ = Ivyc_create_field_member(&$1, ISandBox_FALSE, $2, $3, $4);
+            $$ = Ivyc_create_field_member(&$1, ISandBox_FALSE, $2, $3);
         }
-        | FINAL type_specifier IDENTIFIER initializer_opt SEMICOLON
+        | FINAL type_specifier declaration_items SEMICOLON
         {
-            $$ = Ivyc_create_field_member(NULL, ISandBox_TRUE, $2, $3, $4);
+            $$ = Ivyc_create_field_member(NULL, ISandBox_TRUE, $2, $3);
         }
         | class_or_member_modifier_list
-          FINAL type_specifier IDENTIFIER initializer_opt SEMICOLON
+          FINAL type_specifier declaration_items SEMICOLON
         {
-            $$ = Ivyc_create_field_member(&$1, ISandBox_TRUE, $3, $4, $5);
+            $$ = Ivyc_create_field_member(&$1, ISandBox_TRUE, $3, $4);
         }
         ;
 delegate_definition

@@ -1143,8 +1143,8 @@ Ivyc_constructor_function_define(char *identifier,
                                 ExceptionList *throws, Block *block);
 MemberDeclaration *
 Ivyc_create_field_member(ClassOrMemberModifierList *modifier,
-                        ISandBox_Boolean is_final, TypeSpecifier *type, char *name,
-                        Expression *initializer);
+                        ISandBox_Boolean is_final, TypeSpecifier *type,
+						DeclarationList *list);
 ExceptionList *Ivyc_create_throws(char *identifier);
 ExceptionList *Ivyc_chain_exception_list(ExceptionList *list, char *identifier);
 void Ivyc_create_delegate_definition(TypeSpecifier *type, char *identifier,

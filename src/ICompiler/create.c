@@ -1501,7 +1501,7 @@ Ivyc_chain_member_declaration(MemberDeclaration *list, MemberDeclaration *add)
     MemberDeclaration *pos;
 
     for (pos = list; pos->next; pos = pos->next)
-        ;
+		;
     pos->next = add;
 
     return list;
@@ -1619,16 +1619,27 @@ Ivyc_constructor_function_define(char *identifier,
 
 MemberDeclaration *
 Ivyc_create_field_member(ClassOrMemberModifierList *modifier,
-                        ISandBox_Boolean is_final, TypeSpecifier *type, char *name,
-                        Expression *initializer)
+                        ISandBox_Boolean is_final, TypeSpecifier *type,
+						DeclarationList *list)
 {
-    MemberDeclaration *ret;
+    MemberDeclaration *ret = NULL;
+	MemberDeclaration *item;
+	DeclarationList *pos;
 
-    ret = alloc_member_declaration(FIELD_MEMBER, modifier);
-    ret->u.field.name = name;
-    ret->u.field.type = type;
-    ret->u.field.initializer = initializer;
-    ret->u.field.is_final = is_final;
+	for (pos = list; pos; pos = pos->next) {
+		item = alloc_member_declaration(FIELD_MEMBER, modifier);
+		item->u.field.name = pos->declaration->name;
+		item->u.field.type = type;
+		item->u.field.initializer = pos->declaration->initializer;
+		item->u.field.is_final = is_final;
+		item->next = NULL;
+
+		if (!ret) {
+			ret = item;
+			continue;
+		}
+		ret = Ivyc_chain_member_declaration(ret, item);
+	}
 
     return ret;
 }
