@@ -2359,17 +2359,6 @@ ISandBox_execute_i(ISandBox_VirtualMachine *ISandBox, Function *func,
             pc++;
             break;
         }
-		/*if (get_label_address(GET_2BYTE_INT(&code[pc+1])) == -1) {
-           	Label_i *l;
-			l = alloc_label_i(pc, GET_2BYTE_INT(&code[pc+1]));
-			add_label_chain(l);
-		}*/
-        /*case ISandBox_LABEL:
-        {
-			printf("%d\n", pc);
-			pc ++;
-            break;
-        }*//*printf("\ngoto %d\n", GET_2BYTE_INT(&code[pc+1]));*/
         case ISandBox_GOTO:
         {
             pc = GET_2BYTE_INT(&code[pc+1]);

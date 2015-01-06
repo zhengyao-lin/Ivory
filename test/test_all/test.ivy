@@ -108,11 +108,10 @@ void RUNNING_BLOCK5()
 [me]
 	i += 1;
 	switch(i) {
-		case 1: {
+		case 1:
 			[he]
 			print(i + glue);
 			goto me;
-		}
 		case 2:
 			[she]
 			print(i + glue);

@@ -115,6 +115,7 @@ ISandBox_Boolean st_character_literal_state;
 <INITIAL>"for"          return FOR;
 <INITIAL>"foreach"      return FOREACH;
 <INITIAL>"return"       return RETURN_T;
+<INITIAL>"fallthrough"  return FALL_THROUGH;
 <INITIAL>"goto"         return GOTO;
 <INITIAL>"break"        return BREAK;
 <INITIAL>"continue"     return CONTINUE;

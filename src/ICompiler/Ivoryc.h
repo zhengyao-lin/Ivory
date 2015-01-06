@@ -152,6 +152,7 @@ typedef enum {
     ASSIGN_EXPRESSION_LEFT_ITEM_FORCE_CAST_ERR,
     ISTYPE_EXPRESSION_OPERAND_MUST_BE_OBJECT_ERR,
 	GENERIC_CLASS_WITH_NO_ARGUMENT,
+	FALL_THROUGH_ONLY_FOR_SWITCH_ERR,
     COMPILE_ERROR_COUNT_PLUS_1
 } CompileError;
 
@@ -617,13 +618,15 @@ typedef enum {
     DO_WHILE_STATEMENT_BLOCK,
     TRY_CLAUSE_BLOCK,
     CATCH_CLAUSE_BLOCK,
-    FINALLY_CLAUSE_BLOCK
+    FINALLY_CLAUSE_BLOCK,
+	CASE_STATEMENT_BLOCK
 } BlockType;
 
 typedef struct {
     Statement   *statement;
     int         continue_label;
     int         break_label;
+	int         fall_through_label;
 } StatementBlockInfo;
 
 typedef struct {
@@ -751,6 +754,7 @@ typedef enum {
     DECLARATION_LIST_STATEMENT,
     LABEL_STATEMENT,
     GOTO_STATEMENT,
+	FALL_THROUGH_STATEMENT,
 	IVY_BYTE_CODE,
     STATEMENT_TYPE_COUNT_PLUS_1
 } StatementType;
@@ -955,13 +959,14 @@ struct Ivyc_Compiler_tag {
     TryStatement        *current_try_statement;
     CatchClause         *current_catch_clause;
     int                 current_finally_label;
+	ISandBox_Boolean	current_function_is_constructor;
     InputMode           input_mode;
     CompilerList        *usingd_list;
     int                 array_method_count;
     FunctionDefinition  *array_method;
     int                 string_method_count;
     FunctionDefinition  *string_method;
-    int                 iterator_method_count; /* iterator */
+    int                 iterator_method_count;
     FunctionDefinition  *iterator_method;
     Encoding            source_encoding;
 };

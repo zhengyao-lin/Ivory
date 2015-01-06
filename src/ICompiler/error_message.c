@@ -128,5 +128,6 @@ ErrorDefinition Ivyc_error_message_format[] = {
     {"assign expression's left item can't be force casted $(name)"},
 	{"the operand of \"is\" expression must be object type"},
 	{"the generic class \"$(name)\" needs type arguments"},
+	{"the keyword fallthrough can only be used in switch statement"},
     {"dummy"}
 };

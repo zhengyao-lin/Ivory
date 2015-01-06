@@ -134,6 +134,7 @@ Ivyc_create_compiler(void)
     compiler->current_line_number = 1;
     compiler->current_class_definition = NULL;
     compiler->current_catch_clause = NULL;
+	compiler->current_function_is_constructor = ISandBox_FALSE;
     compiler->input_mode = FILE_INPUT_MODE;
     compiler->usingd_list = NULL;
     compiler->array_method_count = ARRAY_SIZE(st_array_method);

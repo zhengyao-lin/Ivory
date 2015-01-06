@@ -42,7 +42,7 @@
 %token <expression>     REGEXP_LITERAL
 %token <identifier>     IDENTIFIER
 %token IF ELSE ELSIF SWITCH CASE DEFAULT_T WHILE DO_T FOR FOREACH
-        RETURN_T GOTO BREAK CONTINUE NULL_T
+        RETURN_T FALL_THROUGH GOTO BREAK CONTINUE NULL_T
         LP RP LC RC LB RB SEMICOLON COLON COMMA ASSIGN_T LOGICAL_AND LOGICAL_OR
         EQ NE GT GE LT LE ADD SUB MUL DIV MOD BIT_AND BIT_OR BIT_XOR BIT_NOT
         TRUE_T FALSE_T EXCLAMATION DOT
@@ -77,10 +77,10 @@
         if_statement switch_statement
         while_statement for_statement do_while_statement foreach_statement
         return_statement label_statement goto_statement break_statement continue_statement try_statement
-        throw_statement declaration_list_statement
+        throw_statement declaration_list_statement fall_through_statement
 
 /* !!!unstable!!! */
-%type   <declaration> declaration_equation
+%type   <declaration> declaration_opt
 %type   <declaration_list> declaration_items
 /* !!!unstable!!! */
 
@@ -176,6 +176,13 @@ definition_or_statement
             compiler->statement_list
                 = Ivyc_chain_statement_list(compiler->statement_list, $1);
         }
+		| label_statement
+		{
+			Ivyc_Compiler *compiler = Ivyc_get_current_compiler();
+
+            compiler->statement_list
+                = Ivyc_chain_statement_list(compiler->statement_list, $1);
+		}
         | delegate_definition
         | enum_definition
 		| const_definition
@@ -330,10 +337,18 @@ statement_list
         {
             $$ = Ivyc_create_statement_list($1);
         }
+        | label_statement
+        {
+            $$ = Ivyc_create_statement_list($1);
+        }
         | statement_list statement
         {
             $$ = Ivyc_chain_statement_list($1, $2);
         }
+		| statement_list label_statement
+		{
+			$$ = Ivyc_chain_statement_list($1, $2);
+		}
         ;
 expression
         : assignment_expression
@@ -680,7 +695,6 @@ statement
         | for_statement
         | do_while_statement
         | foreach_statement
-        | label_statement
         | goto_statement
         | return_statement
         | break_statement
@@ -688,7 +702,14 @@ statement
         | try_statement
         | throw_statement
         | declaration_list_statement
+		| fall_through_statement
         ;
+fall_through_statement
+		: FALL_THROUGH SEMICOLON
+		{
+			$$ = Ivyc_alloc_statement(FALL_THROUGH_STATEMENT);
+		}
+		;
 
 if_statement
         : IF LP expression RP block
@@ -752,6 +773,14 @@ one_case
 		| CASE case_expression_list COLON LC statement_list RC
         {
             $$ = Ivyc_create_one_case($2, $5);
+        }
+		| CASE case_expression_list COLON LC RC
+        {
+            $$ = Ivyc_create_one_case($2, NULL);
+        }
+		| CASE case_expression_list COLON
+        {
+            $$ = Ivyc_create_one_case($2, NULL);
         }
         ;
 default_opt
@@ -907,16 +936,16 @@ declaration_list_statement
         }
         ;
 declaration_items
-        : declaration_equation
+        : declaration_opt
         {
             $$ = Ivyc_create_declaration_list($1);
         }
-        | declaration_items COMMA declaration_equation
+        | declaration_items COMMA declaration_opt
         {
             $$ = Ivyc_chain_declaration($1, $3);
         }
         ;
-declaration_equation
+declaration_opt
         : IDENTIFIER
         {
             $$ = Ivyc_create_declaration(ISandBox_FALSE, NULL, $1, NULL);
@@ -926,8 +955,6 @@ declaration_equation
             $$ = Ivyc_create_declaration(ISandBox_FALSE, NULL, $1, $3);
         }
         ;
-/* !!!unstable!!! */
-
 block
         : LC
         {

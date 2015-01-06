@@ -966,6 +966,7 @@ Ivyc_create_switch_statement(Expression *expression,
     st->u.switch_s.expression = expression;
     st->u.switch_s.case_list = case_list;
     st->u.switch_s.default_block = default_block;
+	
 
     return st;
 }
@@ -977,6 +978,7 @@ Ivyc_create_one_case(ExpressionList *expression_list, StatementList *list)
 	Block *container;
 
     container = Ivyc_close_block(Ivyc_open_block(), list);
+	container->type = CASE_STATEMENT_BLOCK;
 
     case_list = Ivyc_malloc(sizeof(CaseList));
     case_list->expression_list = expression_list;

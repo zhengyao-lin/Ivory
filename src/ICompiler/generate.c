@@ -1710,14 +1710,20 @@ generate_switch_statement(ISandBox_Executable *exe, Block *block,
     CaseList *case_pos;
     ExpressionList *expr_pos;
     int offset;
+    int start_label;
     int case_start_label;
     int next_case_label;
+	int next_case_start_label = -1;
+	int default_start_label = -1;
     int end_label;
     int line_number;
 
     generate_expression(exe, block, switch_s->expression, ob);
 
+	start_label = get_label(ob);
     end_label = get_label(ob);
+
+	set_label(ob, start_label);
 
     for (case_pos = switch_s->case_list; case_pos;
          case_pos = case_pos->next) {
@@ -1725,8 +1731,7 @@ generate_switch_statement(ISandBox_Executable *exe, Block *block,
         case_start_label = get_label(ob);
         for (expr_pos = case_pos->expression_list; expr_pos;
              expr_pos = expr_pos->next) {
-            generate_code(ob, statement->line_number,
-                          ISandBox_DUPLICATE);
+            generate_code(ob, statement->line_number, ISandBox_DUPLICATE);
             generate_expression(exe, block, expr_pos->expression, ob);
             offset = get_binary_expression_offset(switch_s->expression,
                                                   expr_pos->expression,
@@ -1739,13 +1744,37 @@ generate_switch_statement(ISandBox_Executable *exe, Block *block,
         }
         next_case_label = get_label(ob);
         generate_code(ob, line_number, ISandBox_JUMP, next_case_label);
+
+		case_pos->block->parent.statement.break_label = end_label;
+		case_pos->block->parent.statement.continue_label = -1;
+		case_pos->block->parent.statement.fall_through_label = ( switch_s->default_block || case_pos->next ?
+																get_label(ob)
+																: -1 );
+
         set_label(ob, case_start_label);
+
+		if (next_case_start_label != -1) {
+			set_label(ob, next_case_start_label);
+		}
+		if (case_pos->next) {
+			next_case_start_label = case_pos->block->parent.statement.fall_through_label;
+		} else if (switch_s->default_block) {
+			next_case_start_label = -1;
+			if (switch_s->default_block) {
+				default_start_label = case_pos->block->parent.statement.fall_through_label;
+			}
+		}
+
         generate_statement_list(exe, case_pos->block,
                                 case_pos->block->statement_list, ob);
         generate_code(ob, statement->line_number, ISandBox_JUMP, end_label);
+
         set_label(ob, next_case_label);
     }
     if (switch_s->default_block) {
+		if (default_start_label != -1) {
+			set_label(ob, default_start_label);
+		}
         generate_statement_list(exe, switch_s->default_block,
                                 switch_s->default_block->statement_list, ob);
     }
@@ -1872,6 +1901,9 @@ generate_break_statement(ISandBox_Executable *exe, Block *block,
     ISandBox_Boolean finally_flag = ISandBox_FALSE;
 
     for (block_p = block; block_p; block_p = block_p->outer_block) {
+		if (block_p->type == CASE_STATEMENT_BLOCK)
+            break;
+
         if (block_p->type == TRY_CLAUSE_BLOCK
             || block_p->type == CATCH_CLAUSE_BLOCK) {
             finally_flag = ISandBox_TRUE;
@@ -1931,6 +1963,28 @@ generate_break_statement(ISandBox_Executable *exe, Block *block,
                   ISandBox_JUMP,
                   block_p->parent.statement.break_label);
 
+}
+
+static void
+generate_fall_through_statement(ISandBox_Executable *exe, Block *block,
+                            Statement *statement, OpcodeBuf *ob)
+{
+    Block       *block_p;
+
+    for (block_p = block; block_p; block_p = block_p->outer_block) {
+        if (block_p->type == CASE_STATEMENT_BLOCK)
+            break;
+    }
+    if (block_p == NULL) {
+        Ivyc_compile_error(statement->line_number,
+                          FALL_THROUGH_ONLY_FOR_SWITCH_ERR,
+                          MESSAGE_ARGUMENT_END);
+    }
+	if (block_p->parent.statement.fall_through_label != -1) {
+		generate_code(ob, statement->line_number,
+		              ISandBox_JUMP,
+		              block_p->parent.statement.fall_through_label);
+	}
 }
 
 static void
@@ -2235,6 +2289,9 @@ generate_statement_list(ISandBox_Executable *exe, Block *current_block,
             break;
         case LABEL_STATEMENT:
 			generate_label_statement(exe, current_block, pos->statement, ob);
+			break;
+        case FALL_THROUGH_STATEMENT:
+			generate_fall_through_statement(exe, current_block, pos->statement, ob);
 			break;
         case GOTO_STATEMENT:
 			generate_goto_statement(exe, current_block, pos->statement, ob);

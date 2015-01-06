@@ -1211,6 +1211,7 @@ fix_assign_expression(Block *current_block, Expression *expr,
 {
     Expression *left;
     Expression *operand;
+	Ivyc_Compiler *compiler = Ivyc_get_current_compiler();
 
     expr->u.assign_expression.left
         = fix_expression(current_block, expr->u.assign_expression.left,
@@ -1230,7 +1231,7 @@ fix_assign_expression(Block *current_block, Expression *expr,
     } else if (left->kind == MEMBER_EXPRESSION
                && (left->u.member_expression.declaration->kind
                    == FIELD_MEMBER)) {
-        if (left->u.member_expression.declaration->u.field.is_final) {
+        if (left->u.member_expression.declaration->u.field.is_final && !compiler->current_function_is_constructor) {
             Ivyc_compile_error(expr->line_number,
                               FINAL_FIELD_ASSIGNMENT_ERR,
                               STRING_MESSAGE_ARGUMENT, "name",
@@ -3456,6 +3457,8 @@ fix_statement(Block *current_block, Statement *statement,
         break;
 	case LABEL_STATEMENT:
 		break;
+	case FALL_THROUGH_STATEMENT:
+		break;
 	case GOTO_STATEMENT:
 		/*printf("%s\n", statement->u.goto_s.target);*/
 		break;
@@ -3858,7 +3861,11 @@ fix_class_list(Ivyc_Compiler *compiler)
         for (member_pos = class_pos->member; member_pos;
              member_pos = member_pos->next) {
             if (member_pos->kind == METHOD_MEMBER) {
+				if (member_pos->u.method.is_constructor) {
+					compiler->current_function_is_constructor = ISandBox_TRUE;
+				}
                 fix_function(member_pos->u.method.function_definition);
+				compiler->current_function_is_constructor = ISandBox_FALSE;
 
                 super_member
                     = search_member_in_super(class_pos,
