@@ -10,6 +10,7 @@
 #include "IvoryLib/Math.c"
 #include "IvoryLib/System.c"
 #include "IvoryLib/Type.c"
+#include "IvoryLib/Time.c"
 
 static void file_finalizer(ISandBox_VirtualMachine *ISandBox, ISandBox_Object* obj);
 
@@ -744,6 +745,9 @@ ISandBox_add_native_functions(ISandBox_VirtualMachine *ISandBox)
 
     /* Type.ivh */
     ISandBox_add_native_functions_type(ISandBox);
+
+	/* Time.ivh */
+	ISandBox_add_native_functions_time(ISandBox);
 
     /* lang.ivh */
     ISandBox_add_native_function(ISandBox, "Ivory.lang", "print", nv_print_proc, 1,

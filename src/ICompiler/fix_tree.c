@@ -1963,6 +1963,9 @@ check_argument(Block *current_block, int line_number,
 	ExpressionList *vargs;
 
 	last = arg;
+	if (last->expression == NULL) {
+		arg = NULL;
+	}
     for (param = param_list;
          param && arg;
          param = param->next, arg = arg->next) {
@@ -1978,7 +1981,7 @@ check_argument(Block *current_block, int line_number,
             temp_type = param->type;
         }
 
-		if (param->next == NULL && temp_type->basic_type == ISandBox_OBJECT_TYPE && Ivyc_is_array(temp_type)
+		if (param->next == NULL && param->is_vargs
 			&& !( Ivyc_compare_type(arg->expression->type, temp_type) && arg->next == NULL ))
 		{
 			ArgumentList *origin;
@@ -2003,10 +2006,27 @@ check_argument(Block *current_block, int line_number,
             = create_assign_cast(arg->expression, temp_type, 1);
     }
 
+	Expression *fixed;
 	if (param != NULL && arg == NULL) {
 		for (; param && param->initializer; param = param->next) {
-			last->next = Ivyc_create_argument_list(fix_expression(current_block, param->initializer, NULL, el_p));
-			last = last->next;
+			param->initializer = fix_expression(current_block, param->initializer, NULL, el_p);
+			/*if (param->initializer->kind == STRING_EXPRESSION) {
+				fixed = Ivyc_alloc_expression(STRING_EXPRESSION);
+				fixed->type = Ivyc_create_type_specifier(ISandBox_STRING_TYPE);
+				fixed->line_number = param->initializer->line_number;
+				fixed->u.string_value = MEM_malloc(sizeof(ISandBox_Char) * ISandBox_wcslen(param->initializer->u.string_value));
+				ISandBox_wcscpy(fixed->u.string_value, param->initializer->u.string_value);
+			} else {
+				fixed = param->initializer;
+			}*/
+			fixed = param->initializer;
+
+			if (last->expression) {
+				last->next = Ivyc_create_argument_list(fixed);
+				last = last->next;
+			} else {
+				*last = *Ivyc_create_argument_list(fixed);
+			}
 		}
 	}
 
@@ -2206,9 +2226,15 @@ fix_function_call_expression(Block *current_block, Expression *expr,
         func_throws = dd->throws;
     }
     add_exception(el_p, func_throws);
+	if (!expr->u.function_call_expression.argument) {
+		expr->u.function_call_expression.argument = Ivyc_create_argument_list(NULL);
+	}
     check_argument(current_block, expr->line_number,
-                   func_param, expr->u.function_call_expression.argument, el_p,
-                   array_base_p);
+				   func_param, expr->u.function_call_expression.argument, el_p,
+				   array_base_p);
+	if (!expr->u.function_call_expression.argument->expression) {
+		expr->u.function_call_expression.argument = NULL;
+	}
     expr->type = Ivyc_alloc_type_specifier(func_type->basic_type);
     *expr->type = *func_type;
     expr->type->derive = func_type->derive;
@@ -2838,9 +2864,15 @@ fix_new_expression(Block *current_block, Expression *expr,
                == ISandBox_VOID_TYPE,
                ("constructor is not void.\n"));
 
+	if (!expr->u.new_e.argument) {
+		expr->u.new_e.argument = Ivyc_create_argument_list(NULL);
+	}
     check_argument(current_block, expr->line_number,
-                   member->u.method.function_definition->parameter,
-                   expr->u.new_e.argument, el_p, NULL);
+				   member->u.method.function_definition->parameter,
+				   expr->u.new_e.argument, el_p, NULL);
+	if (!expr->u.new_e.argument->expression) {
+		expr->u.new_e.argument = NULL;
+	}
 
     expr->u.new_e.method_declaration = member;
 	type = Ivyc_alloc_type_specifier(ISandBox_CLASS_TYPE);

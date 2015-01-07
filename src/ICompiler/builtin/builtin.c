@@ -244,6 +244,13 @@ char *st_Ivory_Type_ivh_text[] = {
     "}\n",
     NULL
 };
+char *st_Ivory_Time_ivh_text[] = {
+    "/* Ivory.Time package\n",
+    " */\n",
+    "void usleep(int micro_seconds);\n",
+    "void sleep(int millisecond);\n",
+    NULL
+};
 char *st_Ivory_Iterator_ivh_text[] = {
     "/* Ivory.Iterator package\n",
     " */\n",
@@ -357,6 +364,7 @@ BuiltinScript Ivyc_builtin_script[] = {
     {"Ivory.IO", IVH_SOURCE, st_Ivory_IO_ivh_text},
     {"Ivory.System", IVH_SOURCE, st_Ivory_System_ivh_text},
     {"Ivory.Type", IVH_SOURCE, st_Ivory_Type_ivh_text},
+    {"Ivory.Time", IVH_SOURCE, st_Ivory_Time_ivh_text},
     {"Ivory.Iterator", IVH_SOURCE, st_Ivory_Iterator_ivh_text},
     {"Ivory.Container.Stack", IVH_SOURCE, st_Ivory_Container_Stack_ivh_text},
     {NULL, IVY_SOURCE, NULL}

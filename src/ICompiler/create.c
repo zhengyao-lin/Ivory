@@ -347,7 +347,7 @@ Ivyc_function_define(TypeSpecifier *type, char *identifier,
 }
 
 ParameterList *
-Ivyc_create_parameter(TypeSpecifier *type, char *identifier, Expression *initializer)
+Ivyc_create_parameter(TypeSpecifier *type, char *identifier, Expression *initializer, ISandBox_Boolean is_vargs)
 {
     ParameterList       *p;
 
@@ -355,6 +355,7 @@ Ivyc_create_parameter(TypeSpecifier *type, char *identifier, Expression *initial
     p->name = identifier;
     p->type = type;
 	p->initializer = initializer;
+	p->is_vargs = is_vargs;
     p->line_number = Ivyc_get_current_compiler()->current_line_number;
     p->next = NULL;
 
@@ -363,13 +364,13 @@ Ivyc_create_parameter(TypeSpecifier *type, char *identifier, Expression *initial
 
 ParameterList *
 Ivyc_chain_parameter(ParameterList *list, TypeSpecifier *type,
-                    char *identifier, Expression *initializer)
+                    char *identifier, Expression *initializer, ISandBox_Boolean is_vargs)
 {
     ParameterList *pos;
 
     /*for (pos = list; pos->next; pos = pos->next)
         ;*/
-    pos = Ivyc_create_parameter(type, identifier, initializer);
+    pos = Ivyc_create_parameter(type, identifier, initializer, is_vargs);
 	pos->next = list;
 
     return pos;

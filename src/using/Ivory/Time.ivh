@@ -1,0 +1,4 @@
+/* Ivory.Time package
+ */
+void usleep(int micro_seconds);
+void sleep(int millisecond);

@@ -305,25 +305,37 @@ parameter_initializer_opt
 parameter_list
         : type_specifier IDENTIFIER parameter_initializer_opt
         {
-            $$ = Ivyc_create_parameter($1, $2, $3);
+            $$ = Ivyc_create_parameter($1, $2, $3, ISandBox_FALSE);
         }
 		| VARIABLE_ARGS IDENTIFIER
         {
+			Expression *num_zero = Ivyc_alloc_expression(INT_EXPRESSION);
+			num_zero->u.int_value = 0;
+			Expression *init = Ivyc_create_basic_array_creation(ISandBox_OBJECT_TYPE, Ivyc_create_array_dimension(num_zero), NULL);
+
 			TypeSpecifier *basic_type = Ivyc_create_type_specifier(ISandBox_OBJECT_TYPE);
-            $$ = Ivyc_create_parameter(Ivyc_create_array_type_specifier(basic_type), $2, NULL);
+            $$ = Ivyc_create_parameter(Ivyc_create_array_type_specifier(basic_type), $2, init, ISandBox_TRUE);
         }
 		| VARIABLE_ARGS
         {
+			Expression *num_zero = Ivyc_alloc_expression(INT_EXPRESSION);
+			num_zero->u.int_value = 0;
+			Expression *init = Ivyc_create_basic_array_creation(ISandBox_OBJECT_TYPE, Ivyc_create_array_dimension(num_zero), NULL);
+
 			TypeSpecifier *basic_type = Ivyc_create_type_specifier(ISandBox_OBJECT_TYPE);
-            $$ = Ivyc_create_parameter(Ivyc_create_array_type_specifier(basic_type), UNDEFINED_VARIABLE_ARGS, NULL);
+            $$ = Ivyc_create_parameter(Ivyc_create_array_type_specifier(basic_type), UNDEFINED_VARIABLE_ARGS, init, ISandBox_TRUE);
         }
 		| type_specifier IDENTIFIER parameter_initializer_opt COMMA parameter_list
         {
-            $$ = Ivyc_chain_parameter($5, $1, $2, $3);
+            $$ = Ivyc_chain_parameter($5, $1, $2, $3, ISandBox_FALSE);
         }
         ;
 argument_list
-        : assignment_expression
+		: /* empty */
+		{
+			$$ = NULL;
+		}
+        | assignment_expression
         {
             $$ = Ivyc_create_argument_list($1);
         }
@@ -550,10 +562,6 @@ primary_no_new_array
         {
             $$ = Ivyc_create_function_call_expression($1, $3);
         }
-        | primary_expression LP RP
-        {
-            $$ = Ivyc_create_function_call_expression($1, NULL);
-        }
         | LP expression RP
         {
             $$ = $2;
@@ -594,17 +602,9 @@ primary_no_new_array
         {
             $$ = Ivyc_create_super_expression();
         }
-        | NEW IDENTIFIER type_arguments LP RP
-        {
-            $$ = Ivyc_create_new_expression($2, $3, NULL, NULL);
-        }
         | NEW IDENTIFIER type_arguments LP argument_list RP
         {
             $$ = Ivyc_create_new_expression($2, $3, NULL, $5);
-        }
-        | NEW IDENTIFIER type_arguments DOT IDENTIFIER LP RP
-        {
-            $$ = Ivyc_create_new_expression($2, $3, $5, NULL);
         }
         | NEW IDENTIFIER type_arguments DOT IDENTIFIER LP argument_list RP
         {

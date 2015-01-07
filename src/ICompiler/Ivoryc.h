@@ -22,7 +22,7 @@
 #define UNDEFINED_ENUMERATOR (-1)
 #define ABSTRACT_METHOD_INDEX (-1)
 
-#define UNDEFINED_VARIABLE_ARGS "__VAGS"
+#define UNDEFINED_VARIABLE_ARGS "__VARGS"
 
 typedef enum {
     INT_MESSAGE_ARGUMENT = 1,
@@ -314,6 +314,7 @@ typedef struct ParameterList_tag {
     char                *name;
     TypeSpecifier       *type;
 	Expression			*initializer;
+	ISandBox_Boolean	is_vargs;
     int                 line_number;
     struct ParameterList_tag *next;
 } ParameterList;
@@ -1011,9 +1012,9 @@ Ivyc_create_function_definition(TypeSpecifier *type, char *identifier,
 void Ivyc_function_define(TypeSpecifier *type, char *identifier,
                          ParameterList *parameter_list,
                          ExceptionList *throws, Block *block);
-ParameterList *Ivyc_create_parameter(TypeSpecifier *type, char *identifier, Expression *initializer);
+ParameterList *Ivyc_create_parameter(TypeSpecifier *type, char *identifier, Expression *initializer, ISandBox_Boolean is_vargs);
 ParameterList *Ivyc_chain_parameter(ParameterList *list, TypeSpecifier *type,
-                                   char *identifier, Expression *initializer);
+                                   char *identifier, Expression *initializer, ISandBox_Boolean is_vargs);
 TypeParameterList *Ivyc_create_type_parameter(char *identifier);
 TypeParameterList *Ivyc_chain_type_parameter(TypeParameterList *list, char *identifier);
 ArgumentList *Ivyc_create_argument_list(Expression *expression);

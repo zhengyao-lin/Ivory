@@ -16,9 +16,6 @@ ISandBox_check_gc(ISandBox_VirtualMachine *ISandBox)
         /* fprintf(stderr, "done.\n"); */
 
         ISandBox->heap.current_threshold = ISandBox->heap.current_heap_size + HEAP_THRESHOLD_SIZE;
-		/*ISandBox->heap.current_threshold = ISandBox->heap.current_heap_size +
-											(((ISandBox->heap.current_heap_size - ISandBox->heap.current_threshold) /
-											ISandBox->heap.current_threshold ) + 1) * HEAP_THRESHOLD_SIZE;*/
     }
 }
 
