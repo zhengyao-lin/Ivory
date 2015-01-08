@@ -153,6 +153,7 @@ typedef enum {
     ISTYPE_EXPRESSION_OPERAND_MUST_BE_OBJECT_ERR,
 	GENERIC_CLASS_WITH_NO_ARGUMENT,
 	FALL_THROUGH_ONLY_FOR_SWITCH_ERR,
+	DISALLOWED_DEFAULT_PARAMETER_ERR,
     COMPILE_ERROR_COUNT_PLUS_1
 } CompileError;
 
@@ -269,7 +270,6 @@ typedef enum {
 #define Ivyc_is_function(type) \
   ((type)->derive && ((type)->derive->tag == FUNCTION_DERIVE))
 
-
 #define Ivyc_is_logical_operator(operator) \
   ((operator) == LOGICAL_AND_EXPRESSION || (operator) == LOGICAL_OR_EXPRESSION)
 
@@ -315,6 +315,7 @@ typedef struct ParameterList_tag {
     TypeSpecifier       *type;
 	Expression			*initializer;
 	ISandBox_Boolean	is_vargs;
+	ISandBox_Boolean	has_fixed;
     int                 line_number;
     struct ParameterList_tag *next;
 } ParameterList;
@@ -1185,6 +1186,7 @@ char *Ivyc_strdup(char *src);
 TypeSpecifier *Ivyc_alloc_type_specifier(ISandBox_BasicType type);
 TypeDerive *Ivyc_alloc_type_derive(DeriveTag derive_tag);
 TypeSpecifier *Ivyc_alloc_type_specifier2(TypeSpecifier *src);
+ISandBox_Boolean Ivyc_is_castable(TypeSpecifier *type1, TypeSpecifier *type2);
 ISandBox_Boolean Ivyc_compare_parameter(ParameterList *param1,
                                   ParameterList *param2);
 ISandBox_Boolean Ivyc_compare_type_argument_list(TypeArgumentList *list1, TypeArgumentList *list2);
@@ -1197,6 +1199,7 @@ ClassDefinition *Ivyc_search_class(char *identifier);
 ClassDefinition *Ivyc_search_template_class(char *identifier);
 DelegateDefinition *Ivyc_search_delegate(char *identifier);
 EnumDefinition *Ivyc_search_enum(char *identifier);
+ISandBox_Boolean Ivyc_is_initializable(TypeSpecifier *type);
 ISandBox_Boolean Ivyc_compare_arguments(ParameterList *param, ArgumentList *args);
 MemberDeclaration *Ivyc_search_initialize(ClassDefinition *class_def, ArgumentList *args);
 MemberDeclaration *Ivyc_search_member(ClassDefinition *class_def,

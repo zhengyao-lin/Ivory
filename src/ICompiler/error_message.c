@@ -129,5 +129,6 @@ ErrorDefinition Ivyc_error_message_format[] = {
 	{"the operand of \"is\" expression must be object type"},
 	{"the generic class \"$(name)\" needs type arguments"},
 	{"the keyword fallthrough can only be used in switch statement"},
+	{"disallowed default parameter"},
     {"dummy"}
 };

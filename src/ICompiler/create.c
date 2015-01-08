@@ -356,6 +356,7 @@ Ivyc_create_parameter(TypeSpecifier *type, char *identifier, Expression *initial
     p->type = type;
 	p->initializer = initializer;
 	p->is_vargs = is_vargs;
+	p->has_fixed = ISandBox_FALSE;
     p->line_number = Ivyc_get_current_compiler()->current_line_number;
     p->next = NULL;
 

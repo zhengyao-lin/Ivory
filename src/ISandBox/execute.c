@@ -2019,7 +2019,6 @@ ISandBox_execute_i(ISandBox_VirtualMachine *ISandBox, Function *func,
             }
         case ISandBox_JUMP:
             pc = GET_2BYTE_INT(&code[pc+1]);
-			/*printf("%d\n", pc);*/
             break;
         case ISandBox_JUMP_IF_TRUE:
             if (STI(ISandBox, -1)) {

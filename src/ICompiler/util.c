@@ -571,6 +571,77 @@ Ivyc_search_enum(char *identifier)
 }
 
 ISandBox_Boolean
+Ivyc_is_initializable(TypeSpecifier *type)
+{
+	if (Ivyc_is_array(type)) {
+		return ISandBox_FALSE;
+	}
+	if (Ivyc_is_int(type)
+		|| Ivyc_is_enum(type)
+		|| Ivyc_is_boolean(type)
+		|| Ivyc_is_double(type)
+		|| Ivyc_is_long_double(type)
+		|| Ivyc_is_delegate(type)
+		/* || Ivyc_is_string(type) */) {
+		return ISandBox_TRUE;
+	}
+
+	return ISandBox_FALSE;
+}
+
+ISandBox_Boolean
+Ivyc_is_castable(TypeSpecifier *type1, TypeSpecifier *type2)
+{
+	if (Ivyc_compare_type(type1, type2)) {
+        return ISandBox_TRUE;
+    }
+
+    if (Ivyc_is_object(type2)
+        && type1->basic_type == ISandBox_NULL_TYPE) {
+        DBG_assert(type1->derive == NULL, ("derive != NULL"));
+        return ISandBox_TRUE;
+    }
+
+    if (Ivyc_is_class_object(type1) && Ivyc_is_class_object(type2)) {
+        return ISandBox_TRUE;
+    }
+
+    if (Ivyc_is_function(type1) && Ivyc_is_delegate(type2)) {
+        return ISandBox_TRUE;
+    }
+
+    if (Ivyc_is_int(type1) && Ivyc_is_double(type2)) {
+        return ISandBox_TRUE;
+    } else if (Ivyc_is_int(type1) && Ivyc_is_long_double(type2)) {
+        return ISandBox_TRUE;
+    } else if (Ivyc_is_double(type1) && Ivyc_is_int(type2)) {
+        return ISandBox_TRUE;
+    } else if (Ivyc_is_long_double(type1) && Ivyc_is_int(type2)) {
+        return ISandBox_TRUE;
+    } else if (Ivyc_is_double(type1) && Ivyc_is_long_double(type2)) {
+        return ISandBox_TRUE;
+    } else if (Ivyc_is_long_double(type1) && Ivyc_is_double(type2)) {
+        return ISandBox_TRUE;
+    } else if (Ivyc_is_string(type2)) {
+    	if (Ivyc_is_boolean(type1)) {
+			return ISandBox_TRUE;
+		} else if (Ivyc_is_int(type1)) {
+			return ISandBox_TRUE;
+		} else if (Ivyc_is_double(type1)) {
+			return ISandBox_TRUE;
+		} else if (Ivyc_is_long_double(type1)) {
+			return ISandBox_TRUE;
+		} else if (Ivyc_is_enum(type1)) {
+			return ISandBox_TRUE;
+		}
+    } else if (Ivyc_is_type_object(type2)) {
+        return ISandBox_TRUE;
+    }
+
+    return ISandBox_FALSE;
+}
+
+ISandBox_Boolean
 Ivyc_compare_arguments(ParameterList *param, ArgumentList *args)
 {
 	ParameterList *pos1;
@@ -578,6 +649,9 @@ Ivyc_compare_arguments(ParameterList *param, ArgumentList *args)
 
 	for (pos1 = param, pos2 = args;
 		pos1 && pos2; pos1 = pos1->next, pos2 = pos2->next) {
+		/*if (!Ivyc_is_castable(pos2->expression->type, pos1->type)) {
+			return ISandBox_FALSE;
+		}*/
 	}
 
 	if (pos1 != NULL && pos2 == NULL) {

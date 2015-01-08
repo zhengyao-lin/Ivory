@@ -774,7 +774,6 @@ fix_identifier_expression(Block *current_block, Expression *expr)
     ConstantDefinition *cd;
     FunctionDefinition *fd;
     Ivyc_Compiler *compiler = Ivyc_get_current_compiler();
-
     decl = Ivyc_search_declaration(expr->u.identifier.name, current_block);
     if (decl) {
         expr->type = decl->type;
@@ -2009,17 +2008,37 @@ check_argument(Block *current_block, int line_number,
 	Expression *fixed;
 	if (param != NULL && arg == NULL) {
 		for (; param && param->initializer; param = param->next) {
-			param->initializer = fix_expression(current_block, param->initializer, NULL, el_p);
-			/*if (param->initializer->kind == STRING_EXPRESSION) {
-				fixed = Ivyc_alloc_expression(STRING_EXPRESSION);
-				fixed->type = Ivyc_create_type_specifier(ISandBox_STRING_TYPE);
-				fixed->line_number = param->initializer->line_number;
-				fixed->u.string_value = MEM_malloc(sizeof(ISandBox_Char) * ISandBox_wcslen(param->initializer->u.string_value));
-				ISandBox_wcscpy(fixed->u.string_value, param->initializer->u.string_value);
+			if (!param->has_fixed) {
+				param->initializer = fix_expression(current_block, param->initializer, NULL, el_p);
+				param->initializer = create_assign_cast(param->initializer, param->type, 1);
+			}
+
+			if (/* rule 1 */ (Ivyc_is_initializable(param->initializer->type)
+				/* rule 2 */  || Ivyc_is_string(param->initializer->type))
+							  && param->initializer->kind != FUNCTION_CALL_EXPRESSION) {
+			} else if (/* rule 3 */ param->is_vargs) {
+			} else {
+		    	Ivyc_compile_error(param->line_number,
+								  DISALLOWED_DEFAULT_PARAMETER_ERR,
+		                      	  MESSAGE_ARGUMENT_END);
+			}
+
+			fixed = Ivyc_alloc_expression(param->initializer->kind);
+			fixed->type = Ivyc_alloc_type_specifier(param->initializer->type->basic_type);
+			if (param->initializer->type->basic_type == ISandBox_STRING_TYPE
+				&& param->initializer->kind != CAST_EXPRESSION
+				&& param->initializer->kind != FORCE_CAST_EXPRESSION) {
+				int len = ISandBox_wcslen(param->initializer->u.string_value);
+				fixed->u.string_value = MEM_malloc(sizeof(ISandBox_Char) * (len + 1));
+				wcscpy(fixed->u.string_value, param->initializer->u.string_value);
+				if (!param->has_fixed) {
+					MEM_free(param->initializer->u.string_value);
+				}
+				param->initializer->u.string_value = fixed->u.string_value;
 			} else {
 				fixed = param->initializer;
-			}*/
-			fixed = param->initializer;
+			}
+			param->has_fixed = ISandBox_TRUE;
 
 			if (last->expression) {
 				last->next = Ivyc_create_argument_list(fixed);
@@ -2828,9 +2847,11 @@ fix_new_expression(Block *current_block, Expression *expr,
 
 	if (!expr->u.new_e.method_name) {
         expr->u.new_e.method_name = DEFAULT_CONSTRUCTOR_NAME;
-    }
-
-    member = Ivyc_search_initialize(expr->u.new_e.class_definition, expr->u.new_e.argument);
+		member = Ivyc_search_initialize(expr->u.new_e.class_definition, expr->u.new_e.argument);
+    } else {
+		member = Ivyc_search_member(expr->u.new_e.class_definition,
+                               		expr->u.new_e.method_name);
+	}
 
     if (member == NULL) {
         Ivyc_compile_error(expr->line_number,
