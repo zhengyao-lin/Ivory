@@ -276,22 +276,6 @@ make_search_path_impl(char *package_name, char *buf)
     strcat(buf, Ivory_IMPLEMENTATION_SUFFIX);
 }
 
-static char *
-get_folder_by_path(char *path)
-{
-	int length;
-	int i;
-	char *ret;
-
-	length = strlen(path);
-	for (i = length - 1;
-		path[i] != '\\'
-		&& path[i] != '/'; i--);
-	ret = (char *)malloc(sizeof(char) * (i + 1));
-	strncpy(ret, path, i + 1);
-	return ret;
-}
-
 static void
 get_using_input(UsingList *req, char *found_path,
                   SourceInput *source_input)
@@ -307,17 +291,20 @@ get_using_input(UsingList *req, char *found_path,
 	Ivyc_Compiler *compiler = Ivyc_get_current_compiler();
 
     package_name = Ivyc_package_name_to_string(req->package_name);
+
     if (search_buitin_source(package_name, IVH_SOURCE, source_input)) {
         MEM_free(package_name);
         found_path[0] = '\0';
         return;
     }
+
     MEM_free(package_name);
 
     search_path = getenv(Ivory_USING_FILE_DEFAULT_PATH);
     if (search_path == NULL) {
-        search_path = get_folder_by_path(compiler->path);
+        search_path = Ivyc_get_folder_by_path(compiler->path);
     }
+
     make_search_path(req->line_number, req->package_name, search_file, Ivory_USING_SUFFIX);
     make_search_path(req->line_number, req->package_name, research_file, Ivory_IMPLEMENTATION_SUFFIX);
     status = ISandBox_search_file(search_path, search_file, found_path, &fp);
@@ -414,6 +401,7 @@ do_compile(Ivyc_Compiler *compiler, ISandBox_ExecutableList *list,
         fprintf(stderr, "Serious Panic Error!\n");
         exit(1);
     }
+
     for (req_pos = compiler->using_list; req_pos;
          req_pos = req_pos->next) {
         req_comp = search_compiler(st_compiler_list, req_pos->package_name);
@@ -424,7 +412,7 @@ do_compile(Ivyc_Compiler *compiler, ISandBox_ExecutableList *list,
         }
 
         req_comp = Ivyc_create_compiler();
-        
+
         /* BUGBUG req_comp references parent compiler's MEM_storage */
         req_comp->package_name = req_pos->package_name;
 		req_comp->source_suffix = req_pos->source_suffix;
@@ -434,6 +422,7 @@ do_compile(Ivyc_Compiler *compiler, ISandBox_ExecutableList *list,
         st_compiler_list = add_compiler_to_list(st_compiler_list, req_comp);
 
         get_using_input(req_pos, found_path, &source_input);
+
         set_path_to_compiler(req_comp, found_path);
         req_comp->input_mode = source_input.input_mode;
         if (source_input.input_mode == FILE_INPUT_MODE) {
@@ -567,7 +556,7 @@ get_dynamic_load_input(char *package_name, char *found_path,
 
     search_path = getenv("IVY_LOAD_SEARCH_PATH");
     if (search_path == NULL) {
-        search_path = ".";
+        search_path = Ivory_get_current_path();
     }
     make_search_path_impl(package_name, search_file);
     status = ISandBox_search_file(search_path, search_file, found_path, &fp);

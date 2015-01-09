@@ -1000,3 +1000,25 @@ Ivyc_package_name_to_string(PackageName *src)
 
     return dest;
 }
+
+char *
+Ivyc_get_folder_by_path(char *path)
+{
+	int length;
+	int i;
+	char *ret;
+
+	length = strlen(path);
+	for (i = length - 1;
+		path[i] != '\\'
+		&& path[i] != '/'
+		&& i >= 0; i--);
+	if (i != 0) {
+		ret = (char *)malloc(sizeof(char) * (i + 1));
+		strncpy(ret, path, i);
+		ret[i] = NULL;
+	} else {
+		ret = ".";
+	}
+	return ret;
+}

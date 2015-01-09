@@ -7,6 +7,20 @@
 /*
  * found_path size is FILENAME_MAX.
  */
+static char *current_path;
+
+char *
+Ivory_get_current_path(void)
+{
+    return current_path;
+}
+
+void
+Ivory_set_current_path(char *path)
+{
+	current_path = path;
+}
+
 SearchFileStatus
 ISandBox_search_file(char *search_path, char *search_file,
                 char *found_path, FILE **fp)
@@ -119,3 +133,41 @@ int main(int argc, char **argv)
     fprintf(stderr, "found_path..%s\n", found_path);
 }
 #endif
+
+char *
+ISandBox_get_folder_by_path(char *path)
+{
+	int length;
+	int i;
+	char *ret;
+
+	length = strlen(path);
+	for (i = length - 1;
+		path[i] != '\\'
+		&& path[i] != '/'
+		&& i >= 0; i--);
+	if (i != 0) {
+		ret = (char *)malloc(sizeof(char) * (i + 1));
+		strncpy(ret, path, i);
+		ret[i] = NULL;
+	} else {
+		ret = ".";
+	}
+	return ret;
+}
+
+char *
+ISandBox_get_absolute_path(char *relative_path)
+{
+	char *ret;
+	char *root = Ivory_get_current_path();
+	int length = strlen(root) + strlen(relative_path) + 1;
+
+	ret = (char *)malloc(sizeof(char) * length);
+	strcat(ret, root);
+	strcat(ret, "/");
+	strcat(ret, relative_path);
+	ret[length-1] = NULL;
+
+	return ret;
+}

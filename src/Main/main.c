@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <locale.h>
 #include "Ivyc.h"
+#include "share.h"
 #include "ISandBox.h"
 #include "MEM.h"
-#include <tpl.h>
 
 int
 main(int argc, char **argv)
@@ -28,6 +28,7 @@ main(int argc, char **argv)
         fprintf(stderr, "%s not found.\n", argv[1]);
         exit(1);
     }
+	Ivory_set_current_path(ISandBox_get_folder_by_path(argv[1]));
 
     setlocale(LC_CTYPE, "");
     compiler = Ivyc_create_compiler();

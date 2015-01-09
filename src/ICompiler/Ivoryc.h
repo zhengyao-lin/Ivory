@@ -1214,6 +1214,7 @@ char *Ivyc_get_type_name(TypeSpecifier *type);
 char *Ivyc_get_basic_type_name(ISandBox_BasicType type);
 ISandBox_Char *Ivyc_expression_to_string(Expression *expr);
 char *Ivyc_package_name_to_string(PackageName *src);
+char *Ivyc_get_folder_by_path(char *path);
 
 /* wchar.c */
 size_t Ivyc_wcslen(ISandBox_Char *str);

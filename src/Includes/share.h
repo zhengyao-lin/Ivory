@@ -25,6 +25,8 @@ typedef enum {
 #endif
 
 #define Ivory_USING_FILE_DEFAULT_PATH    ("IVY_USING_SEARCH_PATH")
+#define Ivory_RUNTIME_PATH_NAME    ("IVY_RUNTIME_PATH")
+#define Ivory_RUNTIME_PATH_HEAD    ("IVY_RUNTIME_PATH=")
 #define Ivory_USING_SUFFIX    (".ivh")
 #define Ivory_IMPLEMENTATION_SUFFIX    (".ivy")
 #define Ivory_STACK_TRACE_CLASS ("StackTrace")
@@ -83,6 +85,8 @@ ISandBox_Boolean ISandBox_iswdigit(wchar_t ch);
 int ISandBox_dump_instruction(FILE *fp, ISandBox_Byte *code, int index);
 void ISandBox_disassemble(ISandBox_Executable *exe);
 /* util.c */
+char *Ivory_get_current_path(void);
+void Ivory_set_current_path(char *path);
 SearchFileStatus
 ISandBox_search_file(char *search_path, char *search_file,
                 char *found_path, FILE **fp);
@@ -97,5 +101,7 @@ SearchFileStatus Ivyc_dynamic_compile(Ivyc_Compiler *compiler,
                                      ISandBox_ExecutableList *list,
                                      ISandBox_ExecutableItem **add_top,
                                      char *search_file);
+char *ISandBox_get_folder_by_path(char *path);
+char *ISandBox_get_absolute_path(char *relative_path);
 
 #endif  /* PRIVATE_SHARE_H_INCLUDED */
