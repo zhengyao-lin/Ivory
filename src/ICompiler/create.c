@@ -411,6 +411,7 @@ Ivyc_create_argument_list(Expression *expression)
 
     al = Ivyc_malloc(sizeof(ArgumentList));
     al->expression = expression;
+	al->is_default = ISandBox_FALSE;
     al->next = NULL;
 
     return al;

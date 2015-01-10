@@ -154,6 +154,10 @@ typedef enum {
 	GENERIC_CLASS_WITH_NO_ARGUMENT,
 	FALL_THROUGH_ONLY_FOR_SWITCH_ERR,
 	DISALLOWED_DEFAULT_PARAMETER_ERR,
+	DELEGATE_WITH_DEFAULT_PARAMETER_ERR,
+	DIFFERENT_UNBOXING_TYPE_ERR,
+	CAST_CLASS_WITH_FORCE_CAST_ERR,
+	UNSUPPORT_FORCE_CAST_ERR,
     COMPILE_ERROR_COUNT_PLUS_1
 } CompileError;
 
@@ -259,7 +263,7 @@ typedef enum {
 
 #define Ivyc_is_object(type) \
   (Ivyc_is_string(type) || Ivyc_is_array(type) || Ivyc_is_class_object(type)\
-   || Ivyc_is_native_pointer(type))
+   || Ivyc_is_native_pointer(type) || Ivyc_is_iterator(type))
 
 #define Ivyc_is_enum(type) \
   ((type)->basic_type == ISandBox_ENUM_TYPE && (type)->derive == NULL)
@@ -300,6 +304,7 @@ typedef struct RenameList_tag {
 
 typedef struct ArgumentList_tag {
     Expression *expression;
+	ISandBox_Boolean is_default;
     struct ArgumentList_tag *next;
 } ArgumentList;
 
@@ -517,6 +522,7 @@ typedef enum {
     LONG_DOUBLE_TO_STRING_CAST,
     BOOLEAN_TO_STRING_CAST,
     ENUM_TO_STRING_CAST,
+	ENUM_TO_INT_CAST,
     FUNCTION_TO_DELEGATE_CAST,
     ALL_TO_OBJECT_CAST
 } CastType;
@@ -1190,6 +1196,7 @@ ISandBox_Boolean Ivyc_is_castable(TypeSpecifier *type1, TypeSpecifier *type2);
 ISandBox_Boolean Ivyc_compare_parameter(ParameterList *param1,
                                   ParameterList *param2);
 ISandBox_Boolean Ivyc_compare_type_argument_list(TypeArgumentList *list1, TypeArgumentList *list2);
+ISandBox_Boolean Ivyc_compare_enum(Enumerator *enum1, Enumerator *enum2);
 ISandBox_Boolean Ivyc_compare_type(TypeSpecifier *type1, TypeSpecifier *type2);
 ISandBox_Boolean Ivyc_compare_package_name(PackageName *p1, PackageName *p2);
 FunctionDefinition *Ivyc_search_function(char *name);
@@ -1235,6 +1242,7 @@ ISandBox_Boolean Ivyc_iswdigit(ISandBox_Char ch);
 
 /* error.c */
 void Ivyc_compile_error(int line_number, CompileError id, ...);
+void Ivyc_compile_warning(int line_number, CompileError id, ...);
 
 /* disassemble.c */
 void Ivyc_disassemble(ISandBox_Executable *exe);

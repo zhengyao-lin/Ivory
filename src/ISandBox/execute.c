@@ -2358,6 +2358,18 @@ ISandBox_execute_i(ISandBox_VirtualMachine *ISandBox, Function *func,
             pc++;
             break;
         }
+		case ISandBox_CAST_OBJECT_TO_ARRAY:
+		{
+			STO_WRITE(ISandBox, -1, STO(ISandBox, -1).data->u.object.object);
+            pc++;
+            break;
+		}
+		case ISandBox_UNBOX_OBJECT:
+		{
+			STO_WRITE(ISandBox, -1, STO(ISandBox, -1).data->u.object.object);
+            pc++;
+            break;
+		}
         case ISandBox_GOTO:
         {
             pc = GET_2BYTE_INT(&code[pc+1]);

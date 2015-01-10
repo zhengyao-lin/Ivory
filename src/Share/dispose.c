@@ -117,6 +117,7 @@ dispose_enum(ISandBox_Enum *enum_type)
     }
     if (enum_type->is_defined) {
         MEM_free(enum_type->enumerator);
+		MEM_free(enum_type->value);
     }
 }
 

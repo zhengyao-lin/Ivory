@@ -122,6 +122,21 @@ Ivyc_compare_type_argument_list(TypeArgumentList *list1, TypeArgumentList *list2
 }
 
 ISandBox_Boolean
+Ivyc_compare_enum(Enumerator *enum1, Enumerator *enum2)
+{
+	for (; enum1 && enum2; enum1 = enum1->next, enum2 = enum2->next)
+	{
+		if (enum1->value != enum2->value) {
+			return ISandBox_FALSE;
+		}
+	}
+	if (enum1 || enum2) {
+		return ISandBox_FALSE;
+	}
+	return ISandBox_TRUE;
+}
+
+ISandBox_Boolean
 Ivyc_compare_type(TypeSpecifier *type1, TypeSpecifier *type2)
 {
     TypeDerive *d1;
@@ -156,8 +171,8 @@ Ivyc_compare_type(TypeSpecifier *type1, TypeSpecifier *type2)
     }
 
     if (type1->basic_type == ISandBox_ENUM_TYPE) {
-        if (type1->u.enum_ref.enum_definition
-            != type2->u.enum_ref.enum_definition) {
+        if (!Ivyc_compare_enum(type1->u.enum_ref.enum_definition->enumerator,
+							  type2->u.enum_ref.enum_definition->enumerator)) {
             return ISandBox_FALSE;
         }
     }

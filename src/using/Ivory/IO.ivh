@@ -3,3 +3,4 @@
  */
 string gets();
 int puts(string str);
+int putc(int ch);

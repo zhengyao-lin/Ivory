@@ -1,0 +1,64 @@
+using Texi.Color;
+using Texi.ui;
+
+delegate int ret_int(int j);
+int try_int(int i = 10)
+{
+	return i;
+}
+
+enum enum1 {
+	ele1,
+	ele2
+}
+
+enum enum2 {
+	element1,
+	element2,
+}
+
+printf("date: %ld\ntime: %s\n", "20150110", "21:00");
+
+object o;
+object box_again;
+int ite = 10;
+double flt = 10;
+long double ldt = 3.1415926535;
+double[] flts = { 10.0, 20 };
+string str = "this is me";
+string[] strs = { "hi", "this", "is", "Jack" };
+ret_int rit = try_int;
+ArrayIterator aitr = flts.iterator();
+enum2 enum_value = enum1.ele2;
+
+println(ite);
+println(flt);
+println(ldt);
+println(flts[1]);
+println(str);
+println(rit(101));
+println((double)aitr.next());
+println(strs[1]);
+println(enum_value);
+println("***");
+
+o = ite;
+println((int)o);
+o = flt;
+println((double)o);
+o = ldt;
+println((long double)o);
+o = flts;
+println(((int[])o)[1]);
+o = str;
+println((string)o);
+/*box_again = o;
+println_list((string)box_again);*/
+o = rit;
+println(((ret_int)o)(10));
+o = aitr;
+println((double)(((ArrayIterator)o).next()));
+o = strs;
+println(((string[])o)[3]);
+o = enum_value;
+println((Colors)o);

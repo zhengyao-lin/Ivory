@@ -188,6 +188,8 @@ typedef enum {
     ISandBox_CAST_OBJECT_TO_CLASS,
     ISandBox_CAST_OBJECT_TO_DELEGATE,
 	ISandBox_CAST_OBJECT_TO_NATIVE_POINTER,
+	ISandBox_CAST_OBJECT_TO_ARRAY,
+	ISandBox_UNBOX_OBJECT,
 
     ISandBox_UP_CAST,
     ISandBox_DOWN_CAST,
@@ -371,6 +373,7 @@ typedef struct {
     ISandBox_Boolean is_defined;
     int         enumerator_count;
     char        **enumerator;
+	int         *value;
 } ISandBox_Enum;
 
 /*typedef struct {

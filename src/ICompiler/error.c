@@ -178,12 +178,32 @@ Ivyc_compile_error(int line_number, CompileError id, ...)
     format_message(line_number,
                    &Ivyc_error_message_format[id],
                    &message, ap);
-    fprintf(stderr, "%s:%3d:", Ivyc_get_current_compiler()->path,
+    fprintf(stderr, "%s:%3d: error: ", Ivyc_get_current_compiler()->path,
             line_number);
     ISandBox_print_wcs_ln(stderr, message.string);
     va_end(ap);
 
     exit(1);
+}
+
+void
+Ivyc_compile_warning(int line_number, CompileError id, ...)
+{
+    va_list     ap;
+    VWString    message;
+
+    self_check();
+    va_start(ap, id);
+
+    Ivyc_vwstr_clear(&message);
+    format_message(line_number,
+                   &Ivyc_error_message_format[id],
+                   &message, ap);
+    fprintf(stderr, "%s:%3d: warning: ", Ivyc_get_current_compiler()->path,
+            line_number);
+    ISandBox_print_wcs_ln(stderr, message.string);
+	MEM_free(message.string);
+    va_end(ap);
 }
 
 int

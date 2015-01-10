@@ -1,0 +1,62 @@
+const ASCII_033				=	"";
+const COLOR_NONE  			=	ASCII_033 + "[m";
+const COLOR_RED          	=	ASCII_033 + "[0;32;31m";
+const COLOR_LIGHT_RED    	=	ASCII_033 + "[1;31m";
+const COLOR_GREEN        	=	ASCII_033 + "[0;32;32m";
+const COLOR_LIGHT_GREEN  	=	ASCII_033 + "[1;32m";
+const COLOR_BLUE         	=	ASCII_033 + "[0;32;34m";
+const COLOR_LIGHT_BLUE   	=	ASCII_033 + "[1;34m";
+const COLOR_DARK_GRAY    	=	ASCII_033 + "[1;30m";
+const COLOR_CYAN         	=	ASCII_033 + "[0;36m";
+const COLOR_LIGHT_CYAN   	=	ASCII_033 + "[1;36m";
+const COLOR_PURPLE       	=	ASCII_033 + "[0;35m";
+const COLOR_LIGHT_PURPLE 	=	ASCII_033 + "[1;35m";
+const COLOR_BROWN        	=	ASCII_033 + "[0;33m";
+const COLOR_YELLOW       	=	ASCII_033 + "[1;33m";
+const COLOR_LIGHT_GRAY   	=	ASCII_033 + "[0;37m";
+const COLOR_WHITE        	=	ASCII_033 + "[1;37m";
+const COLOR_DEFAULT      	=	ASCII_033 + "[0m";
+
+enum Colors {
+	None,
+	Red,
+	Light_Red,
+	Green,
+	Light_Green,
+	Blue,
+	Light_Blue,
+	Dark_Gray,
+	Cyan,
+	Light_Cyan,
+	Purple,
+	Light_Purple,
+	Brown,
+	Yellow,
+	Light_Gray,
+	White,
+	Default
+}
+
+string TransferColorsToString(Colors color)
+{
+	switch (color) {
+		case Colors.None:			return COLOR_NONE;
+		case Colors.Red:			return COLOR_RED;
+		case Colors.Light_Red:		return COLOR_LIGHT_RED;
+		case Colors.Green:			return COLOR_GREEN;
+		case Colors.Light_Green:	return COLOR_LIGHT_GREEN;
+		case Colors.Blue:			return COLOR_BLUE;
+		case Colors.Light_Blue:		return COLOR_LIGHT_BLUE;
+		case Colors.Dark_Gray:		return COLOR_DARK_GRAY;
+		case Colors.Cyan:			return COLOR_CYAN;
+		case Colors.Light_Cyan:		return COLOR_LIGHT_CYAN;
+		case Colors.Purple:			return COLOR_PURPLE;
+		case Colors.Light_Purple:	return COLOR_LIGHT_PURPLE;
+		case Colors.Brown:			return COLOR_BROWN;
+		case Colors.Yellow:			return COLOR_YELLOW;
+		case Colors.Light_Gray:		return COLOR_LIGHT_GRAY;
+		case Colors.White:			return COLOR_WHITE;
+		case Colors.Default:		return COLOR_DEFAULT;
+	}
+	return null;
+}

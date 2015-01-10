@@ -1,0 +1,84 @@
+using Color;
+using Ivory.IO;
+
+int number;
+
+void init_list()
+{
+	number = 1;
+}
+
+int	println_list(string str)
+{
+	print(number + ". ");
+	println(str);
+	number++;
+}
+
+	int printf(string __CONTROLLER, ...args)
+	{
+		int i, status = 1; /* status: 1.normal; 2.last is '%'; 3.last is 'l' */
+		int pos = -1;
+
+		for (i = 0; i < __CONTROLLER.length(); i++) {
+			switch (__CONTROLLER[i]) {
+				case '%':
+					if (status == 2) {
+						putc(__CONTROLLER[i]);
+					} else if (status == 3) {
+						puts("%l");
+					}
+					status = 2;
+				case 's':
+					if (status == 2 && pos < args.size()) {
+						print((string)args[pos++]);
+					} else if (status == 3 && pos < args.size()) {
+						puts("%ls");
+					} else {
+						putc(__CONTROLLER[i]);
+					}
+					status = 1;
+				case 'd':
+					if (status == 2 && pos < args.size()) {
+						print((int)args[pos++]);
+					} else if (status == 3 && pos < args.size()) {
+						puts("%ld");
+					} else {
+						putc(__CONTROLLER[i]);
+					}
+					status = 1;
+				case 'f':
+					if (status == 2 && pos < args.size()) {
+						print((double)args[pos++]);
+					} else if (status == 3 && pos < args.size()) {
+						print((long double)args[pos++]);
+					} else {
+						putc(__CONTROLLER[i]);
+					}
+					status = 1;
+				case 'l':
+					if (status == 2) {
+						status = 3;
+					} else if (status == 3) {
+						puts("%ll");
+						status = 1;
+					} else {
+						putc(__CONTROLLER[i]);
+					}
+				default:
+					if (status == 2 && pos < args.size()) {
+						putc('%');
+					} else if (status == 3 && pos < args.size()) {
+						puts("%l");
+					} 
+					putc(__CONTROLLER[i]);
+					status = 1;
+			}
+		}
+		return 0;
+	}
+
+int println_color(string str, Colors color = Colors.Red)
+{
+	println(TransferColorsToString(color) + str + COLOR_DEFAULT);
+}

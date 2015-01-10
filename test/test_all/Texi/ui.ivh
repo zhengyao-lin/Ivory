@@ -1,0 +1,6 @@
+using Color;
+void init_list();
+int	println_list(string str);
+int println_blue(string str);
+int println_color(string str, Colors color = Colors.Default);
+int printf(string __CONTROLLER, ...args);

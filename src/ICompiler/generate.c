@@ -1076,6 +1076,9 @@ generate_cast_expression(ISandBox_Executable *exe, Block *block,
         generate_code(ob, expr->line_number, ISandBox_CAST_ENUM_TO_STRING,
                       expr->u.cast.operand->type->u.enum_ref.enum_index);
         break;
+    case ENUM_TO_INT_CAST:
+        generate_expression(exe, block, expr->u.cast.operand, ob);
+        break;
     case FUNCTION_TO_DELEGATE_CAST:
         if (expr->u.cast.operand->kind == IDENTIFIER_EXPRESSION) {
             generate_code(ob, expr->line_number, ISandBox_PUSH_DELEGATE,
@@ -1401,6 +1404,111 @@ generate_array_creation_expression(ISandBox_Executable *exe, Block *block,
 }
 
 static void
+generate_force_cast_expression(ISandBox_Executable *exe, Block *current_block,
+                    		   Expression *expr, OpcodeBuf *ob)
+{
+	generate_expression(exe, current_block, expr->u.fcast.operand, ob);
+	/*generate_code(ob, expr->line_number, ISandBox_CAST_ALL_TO_OBJECT);*/
+	if (Ivyc_is_array(expr->u.fcast.type)) {
+		generate_code(ob, expr->line_number, ISandBox_CAST_OBJECT_TO_ARRAY);
+		return;
+	}
+	switch (expr->u.fcast.type->basic_type) {
+		case ISandBox_STRING_TYPE:
+			switch (expr->u.fcast.from->basic_type) {
+				case ISandBox_INT_TYPE:
+					generate_code(ob, expr->line_number, ISandBox_CAST_INT_TO_STRING);
+					break;
+				case ISandBox_DOUBLE_TYPE:
+					generate_code(ob, expr->line_number, ISandBox_CAST_DOUBLE_TO_STRING);
+					break;
+				case ISandBox_LONG_DOUBLE_TYPE:
+					generate_code(ob, expr->line_number, ISandBox_CAST_LONG_DOUBLE_TO_STRING);
+					break;
+				case ISandBox_STRING_TYPE:
+					break;
+				case ISandBox_ENUM_TYPE:
+					generate_code(ob, expr->line_number, ISandBox_CAST_ENUM_TO_STRING, expr->u.fcast.operand->type->u.enum_ref.enum_index);
+					break;
+				case ISandBox_BOOLEAN_TYPE:
+					generate_code(ob, expr->line_number, ISandBox_CAST_BOOLEAN_TO_STRING);
+					break;
+				default:
+					generate_code(ob, expr->line_number, ISandBox_CAST_OBJECT_TO_STRING);
+			}
+			break;
+		case ISandBox_INT_TYPE:
+			switch (expr->u.fcast.from->basic_type) {
+				case ISandBox_DOUBLE_TYPE:
+					generate_code(ob, expr->line_number, ISandBox_CAST_DOUBLE_TO_INT);
+					break;
+				case ISandBox_LONG_DOUBLE_TYPE:
+					generate_code(ob, expr->line_number, ISandBox_CAST_LONG_DOUBLE_TO_INT);
+					break;
+				case ISandBox_INT_TYPE:
+					break;
+				case ISandBox_ENUM_TYPE:
+					break;
+				default:
+					generate_code(ob, expr->line_number, ISandBox_CAST_OBJECT_TO_INT);
+			}
+			break;
+        case ISandBox_DOUBLE_TYPE:
+			switch (expr->u.fcast.from->basic_type) {
+				case ISandBox_INT_TYPE:
+					generate_code(ob, expr->line_number, ISandBox_CAST_INT_TO_DOUBLE);
+					break;
+				case ISandBox_LONG_DOUBLE_TYPE:
+					generate_code(ob, expr->line_number, ISandBox_CAST_LONG_DOUBLE_TO_DOUBLE);
+					break;
+				case ISandBox_DOUBLE_TYPE:
+					break;
+	 			default:
+					generate_code(ob, expr->line_number, ISandBox_CAST_OBJECT_TO_DOUBLE);
+			}
+			break;
+        case ISandBox_LONG_DOUBLE_TYPE:
+			switch (expr->u.fcast.from->basic_type) {
+		        case ISandBox_INT_TYPE:
+		            generate_code(ob, expr->line_number, ISandBox_CAST_INT_TO_LONG_DOUBLE);
+					break;
+		        case ISandBox_DOUBLE_TYPE:
+		            generate_code(ob, expr->line_number, ISandBox_CAST_DOUBLE_TO_LONG_DOUBLE);
+					break;
+				case ISandBox_LONG_DOUBLE_TYPE:
+					break;
+		        default:
+		            generate_code(ob, expr->line_number, ISandBox_CAST_OBJECT_TO_LONG_DOUBLE);
+			}
+			break;
+        case ISandBox_BOOLEAN_TYPE:
+            generate_code(ob, expr->line_number, ISandBox_CAST_OBJECT_TO_BOOLEAN);
+            break;
+        case ISandBox_CLASS_TYPE:
+            generate_code(ob, expr->line_number, ISandBox_CAST_OBJECT_TO_CLASS);
+            break;
+        case ISandBox_DELEGATE_TYPE:
+            generate_code(ob, expr->line_number, ISandBox_CAST_OBJECT_TO_DELEGATE);
+            break;
+        case ISandBox_NATIVE_POINTER_TYPE:
+            generate_code(ob, expr->line_number, ISandBox_CAST_OBJECT_TO_NATIVE_POINTER);
+            break;
+        case ISandBox_OBJECT_TYPE:
+			generate_code(ob, expr->line_number, ISandBox_CAST_ALL_TO_OBJECT,
+						  (int)expr->type->u.object_ref.origin->basic_type);
+            break;
+        default:
+			if ((Ivyc_is_object(expr->u.fcast.type) || Ivyc_is_enum(expr->u.fcast.type)) && Ivyc_is_type_object(expr->u.fcast.from)) {
+				generate_code(ob, expr->line_number, ISandBox_UNBOX_OBJECT);
+				return;
+			}
+            Ivyc_compile_warning(expr->line_number,
+							 	 UNSUPPORT_FORCE_CAST_ERR,
+							 	 MESSAGE_ARGUMENT_END);
+    }
+}
+
+static void
 generate_expression(ISandBox_Executable *exe, Block *current_block,
                     Expression *expr, OpcodeBuf *ob)
 {
@@ -1562,82 +1670,7 @@ generate_expression(ISandBox_Executable *exe, Block *current_block,
                                 ob);
         break;
     case FORCE_CAST_EXPRESSION:/* !!!unstable!!! */
-        generate_expression(exe, current_block, expr->u.fcast.operand, ob);
-        /*generate_code(ob, expr->line_number, ISandBox_CAST_ALL_TO_OBJECT);*/
-        switch (expr->u.fcast.type->basic_type) {
-            case ISandBox_STRING_TYPE:
-                switch (expr->u.fcast.from->basic_type) {
-                    case ISandBox_INT_TYPE:
-                        generate_code(ob, expr->line_number, ISandBox_CAST_INT_TO_STRING);
-                        break;
-                    case ISandBox_DOUBLE_TYPE:
-                        generate_code(ob, expr->line_number, ISandBox_CAST_DOUBLE_TO_STRING);
-                        break;
-                    case ISandBox_LONG_DOUBLE_TYPE:
-                        generate_code(ob, expr->line_number, ISandBox_CAST_LONG_DOUBLE_TO_STRING);
-                        break;
-					case ISandBox_STRING_TYPE:
-						break;
-                    case ISandBox_ENUM_TYPE:
-                        generate_code(ob, expr->line_number, ISandBox_CAST_ENUM_TO_STRING, expr->u.fcast.operand->type->u.enum_ref.enum_index);
-                        break;
-                    case ISandBox_BOOLEAN_TYPE:
-                        generate_code(ob, expr->line_number, ISandBox_CAST_BOOLEAN_TO_STRING);
-                        break;
-                    default:
-                        generate_code(ob, expr->line_number, ISandBox_CAST_OBJECT_TO_STRING);
-                }
-                break;
-            case ISandBox_INT_TYPE:
-                if (expr->u.fcast.from->basic_type == ISandBox_DOUBLE_TYPE)
-                    generate_code(ob, expr->line_number, ISandBox_CAST_DOUBLE_TO_INT);
-                else if (expr->u.fcast.from->basic_type == ISandBox_LONG_DOUBLE_TYPE)
-                    generate_code(ob, expr->line_number, ISandBox_CAST_LONG_DOUBLE_TO_INT);
-				else if (expr->u.fcast.from->basic_type == ISandBox_INT_TYPE)
-					break;
-                else
-                    generate_code(ob, expr->line_number, ISandBox_CAST_OBJECT_TO_INT);
-                break;
-            case ISandBox_DOUBLE_TYPE:
-                if (expr->u.fcast.from->basic_type == ISandBox_INT_TYPE)
-                    generate_code(ob, expr->line_number, ISandBox_CAST_INT_TO_DOUBLE);
-                else if (expr->u.fcast.from->basic_type == ISandBox_LONG_DOUBLE_TYPE)
-                    generate_code(ob, expr->line_number, ISandBox_CAST_LONG_DOUBLE_TO_DOUBLE);
-				else if (expr->u.fcast.from->basic_type == ISandBox_DOUBLE_TYPE)
-					break;
-                else
-                    generate_code(ob, expr->line_number, ISandBox_CAST_OBJECT_TO_DOUBLE);
-                break;
-            case ISandBox_LONG_DOUBLE_TYPE:
-                if (expr->u.fcast.from->basic_type == ISandBox_INT_TYPE)
-                    generate_code(ob, expr->line_number, ISandBox_CAST_INT_TO_LONG_DOUBLE);
-                else if (expr->u.fcast.from->basic_type == ISandBox_DOUBLE_TYPE)
-                    generate_code(ob, expr->line_number, ISandBox_CAST_DOUBLE_TO_LONG_DOUBLE);
-				else if (expr->u.fcast.from->basic_type == ISandBox_LONG_DOUBLE_TYPE)
-					break;
-                else
-                    generate_code(ob, expr->line_number, ISandBox_CAST_OBJECT_TO_LONG_DOUBLE);
-                break;
-            case ISandBox_BOOLEAN_TYPE:
-                generate_code(ob, expr->line_number, ISandBox_CAST_OBJECT_TO_BOOLEAN);
-                break;
-            case ISandBox_CLASS_TYPE:
-                /*printf("%d\n", expr->u.fcast.operand->type->u.class_ref.class_index);*/
-                generate_code(ob, expr->line_number, ISandBox_CAST_OBJECT_TO_CLASS);
-                break;
-            case ISandBox_DELEGATE_TYPE:
-                generate_code(ob, expr->line_number, ISandBox_CAST_OBJECT_TO_DELEGATE);
-                break;
-            case ISandBox_NATIVE_POINTER_TYPE:
-                generate_code(ob, expr->line_number, ISandBox_CAST_OBJECT_TO_NATIVE_POINTER);
-                break;
-            case ISandBox_OBJECT_TYPE:
-				generate_code(ob, expr->line_number, ISandBox_CAST_ALL_TO_OBJECT,
-								(int)expr->type->u.object_ref.origin->basic_type);
-                break;
-            default:
-                DBG_assert(0, ("unsupport cast type: expr->u.fcast.type->basic_type..%d", expr->u.fcast.type->basic_type));
-        }
+		generate_force_cast_expression(exe, current_block, expr, ob);
         break;
     case EXPRESSION_KIND_COUNT_PLUS_1:  /* FALLTHRU */
     default:

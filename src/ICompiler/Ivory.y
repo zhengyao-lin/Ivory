@@ -737,7 +737,11 @@ elsif_list
         }
         ;
 elsif
-        : ELSIF LP expression RP block
+        : ELSE IF LP expression RP block
+        {
+            $$ = Ivyc_create_elsif($4, $6);
+        }
+        | ELSIF LP expression RP block
         {
             $$ = Ivyc_create_elsif($3, $5);
         }

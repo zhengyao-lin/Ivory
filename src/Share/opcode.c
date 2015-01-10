@@ -119,6 +119,8 @@ OpcodeInfo ISandBox_opcode_info[] = {
     {"cast_object_to_class", "", 0},
     {"cast_object_to_delegate", "", 0},
     {"cast_object_to_native_pointer", "", 0},
+	{"cast_object_to_array", "", 0},
+	{"unbox_object", "", 0},
 
     {"up_cast", "s", 0},
     {"down_cast", "s", 0},

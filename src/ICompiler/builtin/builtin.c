@@ -171,6 +171,7 @@ char *st_Ivory_IO_ivh_text[] = {
     " */\n",
     "string gets();\n",
     "int puts(string str);\n",
+    "int putc(int ch);\n",
     NULL
 };
 char *st_Ivory_System_ivh_text[] = {

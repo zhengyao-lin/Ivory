@@ -109,10 +109,13 @@ reserve_enum_index(Ivyc_Compiler *compiler, EnumDefinition *src,
         dest->enumerator_count = enumerator_count;
         dest->enumerator
             = MEM_malloc(sizeof(char*) * enumerator_count);
+		dest->value
+			= MEM_malloc(sizeof(int) * enumerator_count);
 
         for (i = 0, enumerator_pos = src->enumerator; enumerator_pos;
              i++, enumerator_pos = enumerator_pos->next) {
             dest->enumerator[i] = MEM_strdup(enumerator_pos->name);
+			dest->value[i] = enumerator_pos->value;
         }
     }
 
@@ -271,13 +274,18 @@ is_exception_class(ClassDefinition *cd)
 static void fix_type_specifier(TypeSpecifier *type);
 
 static void
-fix_parameter_list(ParameterList *parameter_list)
+fix_parameter_list(ParameterList *parameter_list, ISandBox_Boolean is_allow_default)
 {
     ParameterList *param;
 
     for (param = parameter_list; param; param = param->next) {
         fix_type_specifier(param->type);
-		if (param->initializer != NULL) {
+		if (param->initializer) {
+			if (!is_allow_default && !param->is_vargs) {
+				Ivyc_compile_error(param->line_number,
+                              	   DELEGATE_WITH_DEFAULT_PARAMETER_ERR,
+                              	   MESSAGE_ARGUMENT_END);
+			}
 			param->initializer = fix_expression(NULL, param->initializer, NULL, NULL);
 		}
     }
@@ -643,7 +651,7 @@ fix_type_specifier(TypeSpecifier *type)
     for (derive_pos = type->derive; derive_pos;
          derive_pos = derive_pos->next) {
         if (derive_pos->tag == FUNCTION_DERIVE) {
-            fix_parameter_list(derive_pos->u.function_d.parameter_list);
+            fix_parameter_list(derive_pos->u.function_d.parameter_list, ISandBox_TRUE);
             fix_throws(derive_pos->u.function_d.throws);
         }
     }
@@ -882,7 +890,9 @@ alloc_cast_expression(CastType cast_type, Expression *operand)
         cast_expr->type = Ivyc_alloc_type_specifier(ISandBox_DOUBLE_TYPE);
     } else if (cast_type == DOUBLE_TO_LONG_DOUBLE_CAST) {
         cast_expr->type = Ivyc_alloc_type_specifier(ISandBox_LONG_DOUBLE_TYPE);
-    } else if (cast_type == BOOLEAN_TO_STRING_CAST
+    } else if (cast_type == ENUM_TO_INT_CAST) {
+		cast_expr->type = Ivyc_alloc_type_specifier(ISandBox_INT_TYPE);
+	} else if (cast_type == BOOLEAN_TO_STRING_CAST
                || cast_type == INT_TO_STRING_CAST
                || cast_type == DOUBLE_TO_STRING_CAST
                || cast_type == ENUM_TO_STRING_CAST
@@ -1005,6 +1015,17 @@ check_func_compati_sub(int line_number, char *name,
         param_idx++;
     }
 
+	if (param1_pos != NULL || param2_pos != NULL) {
+		while ((param1_pos && param1_pos->initializer) || (param2_pos && param2_pos->initializer)) {
+			if (param1_pos && param1_pos->initializer) {
+				param1_pos = param1_pos->next;
+			}
+			if (param2_pos && param2_pos->initializer) {
+				param2_pos = param2_pos->next;
+			}
+		}
+	}
+
     if (param1_pos != NULL || param2_pos != NULL) {
         Ivyc_compile_error(line_number,
                           BAD_PARAMETER_COUNT_ERR,
@@ -1062,35 +1083,39 @@ static Expression *
 fix_force_cast_expression(Block *current_block, Expression *expr,
                        ExceptionList **el_p)
 {
-    expr->u.fcast.operand
-        = fix_expression(current_block, expr->u.fcast.operand, expr,
-                         el_p);
+	char *type_name;
+
+    expr->u.fcast.operand = fix_expression(current_block, expr->u.fcast.operand, expr, el_p);
 	fix_type_specifier(expr->u.fcast.type);
-	if (Ivyc_is_type_object(expr->u.fcast.operand->type)
-		&& Ivyc_is_type_object(expr->u.fcast.type))
-	{
-		return expr->u.fcast.operand;
-	}
+
+	/*if ((try_cast = create_assign_cast(expr->u.fcast.operand, expr->u.fcast.type, 0)) != NULL)
+    {
+        return try_cast;
+    }*/
+
 	if (Ivyc_compare_type(expr->u.fcast.operand->type, expr->u.fcast.type))
 	{
 		return expr->u.fcast.operand;
 	}
+
     expr->u.fcast.from = expr->u.fcast.operand->type;
     expr->type = expr->u.fcast.type;
+
 	if (Ivyc_is_type_object(expr->type)) {
 		expr->type->u.object_ref.origin = expr->u.fcast.from;
 	}
+
+	if (Ivyc_is_class_object(expr->u.fcast.operand->type) && Ivyc_is_class_object(expr->u.fcast.from)) {
+		Ivyc_compile_warning(expr->line_number,
+							 CAST_CLASS_WITH_FORCE_CAST_ERR,
+							 MESSAGE_ARGUMENT_END);
+	}
+
 	if (Ivyc_is_base_type(expr->u.fcast.from) && !Ivyc_is_type_object(expr->type))
 	{
 		expr->u.fcast.operand->type = expr->type;
 		return expr->u.fcast.operand;
 	}
-
-    /*if (cast_expr = create_assign_cast(expr->u.fcast.operand, expr->u.fcast.type, 0) == NULL)
-    {
-        expr->type = expr->u.fcast.type;
-        return expr;
-    }*/
     return expr;
 }
 
@@ -1179,7 +1204,10 @@ create_assign_cast(Expression *src, TypeSpecifier *dest, int i)
     } else if (Ivyc_is_long_double(src->type) && Ivyc_is_double(dest)) {
         cast_expr = alloc_cast_expression(LONG_DOUBLE_TO_DOUBLE_CAST, src);
         return cast_expr;
-    } else if (Ivyc_is_string(dest)) {
+    } else if (Ivyc_is_enum(src->type) && Ivyc_is_int(dest)) {
+		cast_expr = alloc_cast_expression(ENUM_TO_INT_CAST, src);
+		return cast_expr;
+	} else if (Ivyc_is_string(dest)) {
         cast_expr = create_to_string_cast(src);
         if (cast_expr) {
             return cast_expr;
@@ -1960,6 +1988,7 @@ check_argument(Block *current_block, int line_number,
 	ArgumentList *last;
     TypeSpecifier *temp_type;
 	ExpressionList *vargs;
+	Expression *fixed;
 
 	last = arg;
 	if (last->expression == NULL) {
@@ -1981,7 +2010,7 @@ check_argument(Block *current_block, int line_number,
         }
 
 		if (param->next == NULL && param->is_vargs
-			&& !( Ivyc_compare_type(arg->expression->type, temp_type) && arg->next == NULL ))
+			&& !(Ivyc_compare_type(arg->expression->type, param->type) && arg->next == NULL))
 		{
 			ArgumentList *origin;
 			origin = arg;
@@ -2005,7 +2034,6 @@ check_argument(Block *current_block, int line_number,
             = create_assign_cast(arg->expression, temp_type, 1);
     }
 
-	Expression *fixed;
 	if (param != NULL && arg == NULL) {
 		for (; param && param->initializer; param = param->next) {
 			if (!param->has_fixed) {
@@ -2013,10 +2041,10 @@ check_argument(Block *current_block, int line_number,
 				param->initializer = create_assign_cast(param->initializer, param->type, 1);
 			}
 
-			if (/* rule 1 */ (Ivyc_is_initializable(param->initializer->type)
-				/* rule 2 */  || Ivyc_is_string(param->initializer->type))
+			if ((Ivyc_is_initializable(param->initializer->type)
+				|| Ivyc_is_string(param->initializer->type))
 							  && param->initializer->kind != FUNCTION_CALL_EXPRESSION) {
-			} else if (/* rule 3 */ param->is_vargs) {
+			} else if (param->is_vargs) {
 			} else {
 		    	Ivyc_compile_error(param->line_number,
 								  DISALLOWED_DEFAULT_PARAMETER_ERR,
@@ -2042,9 +2070,11 @@ check_argument(Block *current_block, int line_number,
 
 			if (last->expression) {
 				last->next = Ivyc_create_argument_list(fixed);
+				last->is_default = ISandBox_TRUE;
 				last = last->next;
 			} else {
 				*last = *Ivyc_create_argument_list(fixed);
+				last->is_default = ISandBox_TRUE;
 			}
 		}
 	}
@@ -3207,6 +3237,7 @@ fix_return_statement(Block *current_block, Statement *statement,
     return_value
         = fix_expression(current_block,
                          statement->u.return_s.return_value, NULL, el_p);
+
     if (fd->type->derive == NULL && fd->type->basic_type == ISandBox_VOID_TYPE
         && return_value != NULL) {
         Ivyc_compile_error(statement->line_number,
@@ -3270,7 +3301,8 @@ fix_return_statement(Block *current_block, Statement *statement,
         return;
     }
     casted_expression
-        = create_assign_cast(statement->u.return_s.return_value, fd->type, 1);
+        = create_assign_cast(return_value, fd->type, 1);
+
     statement->u.return_s.return_value = casted_expression;
 }
 
@@ -3598,7 +3630,6 @@ add_parameter_as_declaration(FunctionDefinition *fd)
 		    }
 
 		    decl = Ivyc_alloc_declaration(ISandBox_FALSE, param->type, param->name); /* changed! */
-			decl->initializer = param->initializer;
 		    if (fd == NULL || fd->block) {
 		        add_declaration(fd->block, decl, fd, param->line_number,
 		                        ISandBox_TRUE);
@@ -4019,7 +4050,7 @@ fix_delegate_list(Ivyc_Compiler *compiler)
          dd_pos = dd_pos->next) {
 
         fix_type_specifier(dd_pos->type);
-        fix_parameter_list(dd_pos->parameter_list);
+        fix_parameter_list(dd_pos->parameter_list, ISandBox_FALSE);
         fix_throws(dd_pos->throws);
     }
 }

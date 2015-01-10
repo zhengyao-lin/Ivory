@@ -15,7 +15,7 @@ ErrorDefinition Ivyc_error_message_format[] = {
     {"can not find variable or function by name \"$(name)\""},
     {"used function name $(name) without offering any arguments"},
     {"derive type cast error"},
-    {"$(src) can not be cast to $(dest)"},
+    {"$(src) can not be cast to $(dest) (use force cast?)"},
     {"unexpected type of operand"},
     {"unexpected type of operator"},
     {"unexpected type of logical operation"},
@@ -48,7 +48,7 @@ ErrorDefinition Ivyc_error_message_format[] = {
     {"abstractなメソッドは実装を持てません。"},
     {"abstractでないメソッドには実装がなければなりません。"},
     {"複数のクラスを継承しています($(name)が2個目のクラス)。"},
-    {"Disamでは、abstractクラス以外は継承できません"
+    {"Ivoryでは、abstractクラス以外は継承できません"
      "(クラス$(name)はabstractではありません)。"},
     {"abstractクラス($(name))をnewしています。"},
     {"void型の関数が値を返しています。"},
@@ -130,5 +130,9 @@ ErrorDefinition Ivyc_error_message_format[] = {
 	{"the generic class \"$(name)\" needs type arguments"},
 	{"the keyword fallthrough can only be used in switch statement"},
 	{"disallowed default parameter"},
+	{"can not define parameter with initializer in delegate"},
+	{"unboxing with a different type (use type $(type) in boxing)"},
+	{"cast class with force cast (propose using down/up cast ::class:>)"},
+	{"unsupport force cast"},
     {"dummy"}
 };
