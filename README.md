@@ -78,6 +78,6 @@ hello, world!<br/>
 **NOTE:** More details will be  in *IVORY_BOOK*
 
 <br/><br/>
-##Special Thanks
->Based on another self-made programming language [Diksam](http://kmaebashi.com/programmer/devlang/diksam.html "Diksam")<br/>
+##Thanks to Diksam and its writer
+>Ivory is based on the interpreter of another language called [Diksam](http://kmaebashi.com/programmer/devlang/diksam.html "Diksam")<br/>
 >written by Maebasi Kazuya (前橋 和弥) ( http://kmaebashi.com )
