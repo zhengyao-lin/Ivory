@@ -1,30 +1,25 @@
-#[Ivory](http://ivory-next.github.io/Ivory-Interpreter/ "Ivory Homepage")
+#Ivory
 
-#####Ivory is an bytecode-based programming language#####
+Ivory is a static-typing programming language with grammar similar to Java
+This implmentation is majorly based on the source code of compiler & vm of a very similar language called Diksam offered in the book *自制编程语言* written by [Kazuya Maebasi](http://kmaebashi.com)
+
+The extension of the original code mainly includes the try to make it more dynamic(mainly in grammar)
+
+**NOTE**: this project is not developing anymore
+
 <br/><br/>
-##Build & Test
+##build
 
-###Linux?<br/>
-First, download the source code;<br/>
-Then, compile it:<br/>
-
-    #cd into the source dir
     cd src
-    
-    #make it!
     make
 
-**NOTE:**make clean to clean up the source code<br/><br/>
-Then do the test:
+##test
     
-    #cd into the test dir
     cd ../test
-    
-    #run
     ../src/bin/Ivory test_all/test.ivy
 
 <br/>
-If everything is OK, it will output like this:
+If everything is OK, the output will be like this:
 
 	-->test start<--
 
@@ -59,25 +54,4 @@ If everything is OK, it will output like this:
 
 Then, press enter to exit...
 
-**NOTE:**Ivory for Windows is comming soon
 <br/><br/>
-
-##Hello, world!
-<br/>
-Create an file named hello.ivy(any name you want)
-Add these code:
-
-    /*using Ivory.lang;*/
-    println("hello, world!");
-
-Now, run it with the executable file which is compiled just now:
-
-    ../src/bin/Ivory hello.ivy
-
-hello, world!<br/>
-**NOTE:** More details will be  in *IVORY_BOOK*
-
-<br/><br/>
-##Thanks to Diksam and its writer
->Ivory is based on the interpreter of another language called [Diksam](http://kmaebashi.com/programmer/devlang/diksam.html "Diksam")<br/>
->written by Maebasi Kazuya (前橋 和弥) ( http://kmaebashi.com )
