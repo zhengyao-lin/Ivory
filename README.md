@@ -1,13 +1,12 @@
 #Ivory
 
-Ivory is a static-typing programming language with grammar similar to Java
+Ivory is a static-typing programming language with grammar similar to Java<br><br>
 This implmentation is majorly based on the source code of compiler & vm of a very similar language called Diksam offered in the book *自制编程语言* written by [Kazuya Maebasi](http://kmaebashi.com)
 
 The extension of the original code mainly includes the try to make it more dynamic(mainly in grammar)
 
 **NOTE**: this project is not developing anymore
 
-<br/><br/>
 ##build
 
     cd src
@@ -53,5 +52,3 @@ If everything is OK, the output will be like this:
 	press enter to exit...
 
 Then, press enter to exit...
-
-<br/><br/>
